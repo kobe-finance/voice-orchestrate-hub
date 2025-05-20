@@ -56,7 +56,7 @@ type FlowEdge = Edge;
 const ConversationFlowBuilder = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [nodes, setNodes, onNodesChange] = useNodesState<NodeData>(initialNodes as FlowNode[]);
+  const [nodes, setNodes, onNodesChange] = useNodesState<FlowNode>(initialNodes as FlowNode[]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<FlowEdge>(initialEdges as FlowEdge[]);
   const [selectedNode, setSelectedNode] = useState<FlowNode | null>(null);
   const [unsavedChanges, setUnsavedChanges] = useState(false);
@@ -220,7 +220,7 @@ const ConversationFlowBuilder = () => {
             snapToGrid
             snapGrid={[15, 15]}
           >
-            <Background variant={BackgroundVariant.DOTS} gap={24} size={1} />
+            <Background variant={BackgroundVariant.Dots} gap={24} size={1} />
             <Controls />
             <MiniMap 
               nodeStrokeWidth={3}
@@ -265,4 +265,3 @@ const ConversationFlowBuilder = () => {
 };
 
 export default ConversationFlowBuilder;
-
