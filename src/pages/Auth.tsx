@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/components/ui/sonner";
 import { useNavigate } from "react-router-dom";
-import { Google, Microsoft } from "lucide-react";
+import { GoogleIcon, MicrosoftIcon } from "@/components/icons/AuthIcons";
 
 // Form schema for login
 const loginSchema = z.object({
@@ -248,7 +247,7 @@ const Auth = () => {
               onClick={() => handleSSOLogin("Google")}
               className="flex items-center justify-center gap-2"
             >
-              <Google className="h-4 w-4" />
+              <GoogleIcon />
               Google
             </Button>
             <Button 
@@ -256,7 +255,7 @@ const Auth = () => {
               onClick={() => handleSSOLogin("Microsoft")}
               className="flex items-center justify-center gap-2"
             >
-              <Microsoft className="h-4 w-4" />
+              <MicrosoftIcon />
               Microsoft
             </Button>
           </div>
