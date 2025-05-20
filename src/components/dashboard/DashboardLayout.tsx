@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ModeToggle } from "@/components/theme/ModeToggle";
 import { Button } from "@/components/ui/button";
 import { Bell, LayoutDashboard, User, Search, ChevronDown } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/ui/search-input";
 import { useNavigate } from "react-router-dom";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -41,12 +41,9 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
 
           <SidebarContent>
             <div className="px-4 py-2">
-              <Input 
-                className="h-9" 
+              <SearchInput 
                 placeholder="Search..." 
-                type="search"
-                // Fix: Change prefix Element to a string or remove it if not supported
-                startIcon={<Search className="h-4 w-4 text-muted-foreground" />}
+                icon={<Search className="h-4 w-4" />}
               />
             </div>
             
