@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Route, Routes, BrowserRouter } from "react-router-dom";
 
 // Page imports
@@ -13,13 +13,14 @@ import Onboarding from "@/pages/Onboarding";
 import VoiceAgents from "@/pages/VoiceAgents";
 import CreateVoiceAgent from "@/pages/CreateVoiceAgent";
 import EditVoiceAgent from "@/pages/EditVoiceAgent";
-import { ThemeProvider } from "@/components/theme-provider"
+import ConversationFlowBuilder from "@/pages/ConversationFlowBuilder";
+import { ThemeProvider } from "@/components/theme-provider";
 import {
   QueryClient,
   QueryClientProvider,
-} from "@tanstack/react-query"
+} from "@tanstack/react-query";
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient();
 
 function App() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -50,6 +51,8 @@ function App() {
             <Route path="/voice-agents" element={<VoiceAgents />} />
             <Route path="/voice-agents/create" element={<CreateVoiceAgent />} />
             <Route path="/voice-agents/edit/:id" element={<EditVoiceAgent />} />
+            <Route path="/conversation-flow" element={<ConversationFlowBuilder />} />
+            <Route path="/conversation-flow/:id" element={<ConversationFlowBuilder />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </QueryClientProvider>

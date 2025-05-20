@@ -1,0 +1,121 @@
+
+@import '@xyflow/react/dist/style.css';
+
+.react-flow__handle {
+  width: 8px;
+  height: 8px;
+  border-radius: 100%;
+  background-color: #ffffff;
+  border: 2px solid #2563eb;
+}
+
+.react-flow__handle.connectable {
+  cursor: pointer;
+}
+
+.react-flow__handle-top {
+  top: -5px;
+}
+
+.react-flow__handle-bottom {
+  bottom: -5px;
+}
+
+.react-flow__handle-left {
+  left: -5px;
+}
+
+.react-flow__handle-right {
+  right: -5px;
+}
+
+.react-flow__node {
+  transition: none;
+}
+
+.react-flow__edge-path {
+  stroke-width: 2;
+}
+
+.react-flow__edge.animated path {
+  stroke-dasharray: 5,5;
+  animation: dashdraw 0.5s linear infinite;
+}
+
+@keyframes dashdraw {
+  from {
+    stroke-dashoffset: 10;
+  }
+}
+
+/* Node Styles */
+.start-node {
+  border-color: #2563eb;
+  border-width: 2px;
+}
+
+.end-node {
+  border-color: #ef4444;
+  border-width: 2px;
+}
+
+.decision-node {
+  min-height: 65px;
+}
+
+.decision-node .handle-standard[data-condition]:before {
+  content: attr(data-condition);
+  position: absolute;
+  font-size: 10px;
+  top: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+/* Edge label styles */
+.react-flow__edge-text {
+  font-size: 12px;
+  fill: #6b7280;
+  transform: translateY(-5px);
+}
+
+.react-flow__edge-text-bg {
+  fill: #ffffff;
+}
+
+/* Minimap styling */
+.react-flow__minimap {
+  background-color: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* Controls styling */
+.react-flow__controls {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+}
+
+.react-flow__controls-button {
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  box-sizing: content-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.react-flow__controls-button svg {
+  fill: #6b7280;
+}
+
+.react-flow__controls-button:hover {
+  background-color: #f9fafb;
+}
+
+.react-flow__panel.react-flow__attribution {
+  display: none;
+}

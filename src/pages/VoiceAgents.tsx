@@ -1,9 +1,10 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SearchInput } from "@/components/ui/search-input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Search, Copy, Trash, Edit, Filter } from "lucide-react";
+import { Plus, Search, Copy, Trash, Edit, Filter, GitBranch } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
@@ -103,12 +104,21 @@ const VoiceAgents = () => {
           <h1 className="text-2xl font-bold">Voice Agent Configuration</h1>
           <p className="text-muted-foreground">Create and manage your AI voice agents</p>
         </div>
-        <Button 
-          className="bg-primary hover:bg-primary/90"
-          onClick={() => navigate("/voice-agents/create")}
-        >
-          <Plus className="mr-2 h-4 w-4" /> Create New Agent
-        </Button>
+        <div className="flex gap-3">
+          <Button 
+            variant="outline"
+            className="flex items-center gap-2"
+            onClick={() => navigate("/conversation-flow")}
+          >
+            <GitBranch className="h-4 w-4" /> Conversation Flows
+          </Button>
+          <Button 
+            className="bg-primary hover:bg-primary/90"
+            onClick={() => navigate("/voice-agents/create")}
+          >
+            <Plus className="mr-2 h-4 w-4" /> Create New Agent
+          </Button>
+        </div>
       </div>
 
       <Tabs defaultValue="all-agents" className="w-full">
