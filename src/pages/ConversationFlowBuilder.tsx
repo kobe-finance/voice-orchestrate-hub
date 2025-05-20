@@ -20,7 +20,7 @@ import {
 } from "@xyflow/react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { ArrowLeft, Save } from "lucide-react";
+import { ArrowLeft, Save, Mic } from "lucide-react";
 import { NodePalette } from "@/components/flow-builder/NodePalette";
 import { PropertyPanel } from "@/components/flow-builder/PropertyPanel";
 import FlowHeader from "@/components/flow-builder/FlowHeader";
@@ -245,6 +245,13 @@ const ConversationFlowBuilder = () => {
                   }}
                 >
                   Delete Selected
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => navigate("/voice-selection")}
+                >
+                  <Mic className="mr-2 h-4 w-4" /> Voice Settings
                 </Button>
               </div>
             </Panel>

@@ -14,6 +14,7 @@ import VoiceAgents from "@/pages/VoiceAgents";
 import CreateVoiceAgent from "@/pages/CreateVoiceAgent";
 import EditVoiceAgent from "@/pages/EditVoiceAgent";
 import ConversationFlowBuilder from "@/pages/ConversationFlowBuilder";
+import VoiceSelection from "@/pages/VoiceSelection";
 import { ThemeProvider } from "@/components/theme-provider";
 import {
   QueryClient,
@@ -53,6 +54,7 @@ function App() {
             <Route path="/voice-agents/edit/:id" element={<EditVoiceAgent />} />
             <Route path="/conversation-flow" element={<ConversationFlowBuilder />} />
             <Route path="/conversation-flow/:id" element={<ConversationFlowBuilder />} />
+            <Route path="/voice-selection" element={<VoiceSelection />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </QueryClientProvider>
