@@ -1,38 +1,58 @@
+import { useState } from "react";
+import { Route, Routes } from "react-router-dom";
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import Auth from "./pages/Auth";
-import ForgotPassword from "./pages/ForgotPassword";
-import MFAVerification from "./pages/MFAVerification";
-import Onboarding from "./pages/Onboarding";
-import Dashboard from "./pages/Dashboard";
+// Page imports
+import Index from "@/pages/Index";
+import Auth from "@/pages/Auth";
+import ForgotPassword from "@/pages/ForgotPassword";
+import MFAVerification from "@/pages/MFAVerification";
+import Dashboard from "@/pages/Dashboard";
+import NotFound from "@/pages/NotFound";
+import Onboarding from "@/pages/Onboarding";
+import VoiceAgents from "@/pages/VoiceAgents";
+import CreateVoiceAgent from "@/pages/CreateVoiceAgent";
+import EditVoiceAgent from "@/pages/EditVoiceAgent";
+import { ThemeProvider } from "@/components/theme-provider"
+import {
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query"
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient()
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
+function App() {
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  window.addEventListener('online', () => {
+    setIsOnline(true);
+  });
+
+  window.addEventListener('offline', () => {
+    setIsOnline(false);
+  });
+
+  return (
+    <ThemeProvider
+      defaultTheme="system"
+      storageKey="vite-react-theme"
+    >
+      <QueryClientProvider client={queryClient}>
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/mfa-verification" element={<MFAVerification />} />
-          <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/auth/forgot-password" element={<ForgotPassword />} />
+          <Route path="/auth/mfa-verification" element={<MFAVerification />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/settings" element={<h1>Settings Page</h1>} />
+          <Route path="/voice-agents" element={<VoiceAgents />} />
+          <Route path="/voice-agents/create" element={<CreateVoiceAgent />} />
+          <Route path="/voice-agents/edit/:id" element={<EditVoiceAgent />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+      </QueryClientProvider>
+    </ThemeProvider>
+  );
+}
 
 export default App;
