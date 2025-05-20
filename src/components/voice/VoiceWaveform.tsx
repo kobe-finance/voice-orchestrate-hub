@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef } from "react";
-import { Waveform } from "lucide-react";
+import { AudioWaveform } from "lucide-react";
 
 interface VoiceWaveformProps {
   voiceId: string;
@@ -103,7 +103,7 @@ const VoiceWaveform: React.FC<VoiceWaveformProps> = ({ voiceId, isActive }) => {
     <div className="w-full h-full relative">
       {!isActive && !canvasRef.current ? (
         <div className="flex items-center justify-center h-full">
-          <Waveform className="h-6 w-6 text-muted-foreground" />
+          <AudioWaveform className="h-6 w-6 text-muted-foreground" />
         </div>
       ) : (
         <canvas 

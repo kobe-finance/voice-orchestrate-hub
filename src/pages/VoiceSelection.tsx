@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Play, Pause, Waveform, Volume2 } from "lucide-react";
+import { ArrowLeft, Play, Pause, AudioWaveform, Volume2 } from "lucide-react";
 import { toast } from "sonner";
 import VoiceWaveform from "@/components/voice/VoiceWaveform";
 import { useVoice } from "@/hooks/use-voice";
