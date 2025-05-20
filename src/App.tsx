@@ -1,5 +1,5 @@
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Route, Routes, BrowserRouter } from "react-router-dom";
 
 // Page imports
@@ -15,6 +15,7 @@ import CreateVoiceAgent from "@/pages/CreateVoiceAgent";
 import EditVoiceAgent from "@/pages/EditVoiceAgent";
 import ConversationFlowBuilder from "@/pages/ConversationFlowBuilder";
 import VoiceSelection from "@/pages/VoiceSelection";
+import DocumentManagement from "@/pages/DocumentManagement";
 import { ThemeProvider } from "@/components/theme-provider";
 import {
   QueryClient,
@@ -55,6 +56,7 @@ function App() {
             <Route path="/conversation-flow" element={<ConversationFlowBuilder />} />
             <Route path="/conversation-flow/:id" element={<ConversationFlowBuilder />} />
             <Route path="/voice-selection" element={<VoiceSelection />} />
+            <Route path="/document-management" element={<DocumentManagement />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </QueryClientProvider>

@@ -1,46 +1,43 @@
+import { Plus, Folder } from "lucide-react"
+import { Link } from "react-router-dom"
 
-import React from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, Save } from "lucide-react";
+import { Button } from "@/components/ui/button"
 
-interface FlowHeaderProps {
-  flowName: string;
-  setFlowName: (name: string) => void;
-  onSave: () => void;
-  unsavedChanges: boolean;
-  onBack: () => void;
-}
+// Add a button to the menu section of the header that links to the document management page
+// This will allow users to easily navigate to the knowledge base from the conversation flow builder
 
-const FlowHeader = ({ flowName, setFlowName, onSave, unsavedChanges, onBack }: FlowHeaderProps) => {
+export function FlowHeader() {
   return (
-    <div className="p-4 border-b bg-background flex items-center justify-between">
-      <div className="flex items-center gap-2">
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={onBack}
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div className="flex items-center gap-2">
-          <Input
-            value={flowName}
-            onChange={(e) => setFlowName(e.target.value)}
-            className="w-64 font-medium"
-          />
-          {unsavedChanges && (
-            <span className="text-sm text-muted-foreground italic">
-              (unsaved changes)
-            </span>
-          )}
-        </div>
+    <header className="flex items-center justify-between border-b px-6 py-3 h-16">
+      <div className="flex items-center gap-4">
+        <Link to="/dashboard">
+          <Button variant="ghost" size="sm">
+            Dashboard
+          </Button>
+        </Link>
       </div>
-      <Button onClick={onSave}>
-        <Save className="mr-2 h-4 w-4" /> Save Flow
-      </Button>
-    </div>
-  );
-};
 
-export default FlowHeader;
+      <div className="flex items-center gap-2">
+        <Button variant="outline" size="sm">
+          Share
+        </Button>
+        <Button variant="outline" size="sm">
+          Export
+        </Button>
+        <Button variant="outline" size="sm">
+          Import
+        </Button>
+        <Button variant="outline" size="sm" asChild>
+          <Link to="/document-management">
+            <Folder className="h-4 w-4 mr-1" />
+            Knowledge Base
+          </Link>
+        </Button>
+        <Button>
+          <Plus className="h-4 w-4 mr-2" />
+          Add Node
+        </Button>
+      </div>
+    </header>
+  )
+}
