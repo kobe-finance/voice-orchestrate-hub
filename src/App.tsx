@@ -1,5 +1,6 @@
+
 import { useState } from "react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, BrowserRouter } from "react-router-dom";
 
 // Page imports
 import Index from "@/pages/Index";
@@ -32,26 +33,28 @@ function App() {
   });
 
   return (
-    <ThemeProvider
-      defaultTheme="system"
-      storageKey="vite-react-theme"
-    >
-      <QueryClientProvider client={queryClient}>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/auth/forgot-password" element={<ForgotPassword />} />
-          <Route path="/auth/mfa-verification" element={<MFAVerification />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/onboarding" element={<Onboarding />} />
-          <Route path="/settings" element={<h1>Settings Page</h1>} />
-          <Route path="/voice-agents" element={<VoiceAgents />} />
-          <Route path="/voice-agents/create" element={<CreateVoiceAgent />} />
-          <Route path="/voice-agents/edit/:id" element={<EditVoiceAgent />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </QueryClientProvider>
-    </ThemeProvider>
+    <BrowserRouter>
+      <ThemeProvider
+        defaultTheme="system"
+        storageKey="vite-react-theme"
+      >
+        <QueryClientProvider client={queryClient}>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/auth/forgot-password" element={<ForgotPassword />} />
+            <Route path="/auth/mfa-verification" element={<MFAVerification />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/onboarding" element={<Onboarding />} />
+            <Route path="/settings" element={<h1>Settings Page</h1>} />
+            <Route path="/voice-agents" element={<VoiceAgents />} />
+            <Route path="/voice-agents/create" element={<CreateVoiceAgent />} />
+            <Route path="/voice-agents/edit/:id" element={<EditVoiceAgent />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </QueryClientProvider>
+      </ThemeProvider>
+    </BrowserRouter>
   );
 }
 
