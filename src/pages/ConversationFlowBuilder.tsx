@@ -1,5 +1,5 @@
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ReactFlow,
@@ -11,6 +11,12 @@ import {
   addEdge,
   Panel,
   MarkerType,
+  BackgroundVariant,
+  Node,
+  Edge,
+  NodeChange,
+  EdgeChange,
+  Connection,
 } from "@xyflow/react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -24,20 +30,41 @@ import { nodeTypes } from "@/components/flow-builder/node-types";
 import "@xyflow/react/dist/style.css";
 import "../components/flow-builder/flow-editor.css";
 
+// Define node data types to fix TypeScript errors
+interface NodeData {
+  label: string;
+  message?: string;
+  voiceType?: string;
+  speakingRate?: number;
+  question?: string;
+  inputType?: string;
+  conditions?: string[];
+  transferType?: string;
+  destination?: string;
+  integrationType?: string;
+  action?: string;
+  configuration?: string;
+  description?: string;
+  options?: string[];
+  [key: string]: any; // Allow for additional properties
+}
+
+type FlowNode = Node<NodeData>;
+
 const ConversationFlowBuilder = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [nodes, setNodes, onNodesChange] = useNodesState<NodeData>(initialNodes as FlowNode[]);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const [selectedNode, setSelectedNode] = useState(null);
+  const [selectedNode, setSelectedNode] = useState<FlowNode | null>(null);
   const [unsavedChanges, setUnsavedChanges] = useState(false);
   const [flowName, setFlowName] = useState(id ? `Flow ${id}` : "New Flow");
 
   // Auto-save timer
-  const autoSaveTimeout = useRef(null);
+  const autoSaveTimeout = useRef<NodeJS.Timeout | null>(null);
 
   // Handle node selection
-  const onNodeClick = useCallback((event, node) => {
+  const onNodeClick = useCallback((event: React.MouseEvent, node: FlowNode) => {
     setSelectedNode(node);
   }, []);
 
@@ -47,7 +74,7 @@ const ConversationFlowBuilder = () => {
   }, []);
 
   // Handle connections between nodes
-  const onConnect = useCallback((params) => {
+  const onConnect = useCallback((params: Connection) => {
     // Create edge with animated style for conditional edges
     const edge = {
       ...params,
@@ -79,17 +106,18 @@ const ConversationFlowBuilder = () => {
   }, [nodes, edges, unsavedChanges]);
 
   // Add node from palette to canvas
-  const onAddNode = useCallback((nodeType) => {
+  const onAddNode = useCallback((nodeType: string) => {
     const newNodeId = `node_${Date.now()}`;
     const position = { 
       x: Math.random() * 300 + 50, 
       y: Math.random() * 300 + 50 
     };
     
-    let newNode = {
+    let newNode: FlowNode = {
       id: newNodeId,
       position,
       data: { label: `New ${nodeType}` },
+      type: 'default'
     };
     
     // Set specific properties based on node type
@@ -149,7 +177,9 @@ const ConversationFlowBuilder = () => {
   }, [id, flowName, nodes, edges]);
 
   // Handle node update from property panel
-  const handleNodeUpdate = useCallback((nodeData) => {
+  const handleNodeUpdate = useCallback((nodeData: Partial<NodeData>) => {
+    if (!selectedNode) return;
+    
     setNodes((nds) => 
       nds.map((node) => (node.id === selectedNode.id 
         ? { ...node, data: { ...node.data, ...nodeData } }
@@ -202,7 +232,7 @@ const ConversationFlowBuilder = () => {
                   variant="outline"
                   onClick={() => {
                     const backup = [...nodes];
-                    setNodes(nds => nds.filter(n => !n.selected));
+                    setNodes(nds => nds.filter(n => !('selected' in n && n.selected)));
                     toast.info("Nodes deleted", {
                       description: "Selected nodes have been removed",
                       action: {
