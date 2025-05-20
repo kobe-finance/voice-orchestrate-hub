@@ -1,4 +1,3 @@
-
 import React from "react";
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarGroup, SidebarGroupLabel, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
@@ -46,7 +45,8 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
                 className="h-9" 
                 placeholder="Search..." 
                 type="search"
-                prefix={<Search className="h-4 w-4 text-muted-foreground" />} 
+                // Fix: Change prefix Element to a string or remove it if not supported
+                startIcon={<Search className="h-4 w-4 text-muted-foreground" />}
               />
             </div>
             
