@@ -49,13 +49,15 @@ interface NodeData {
   [key: string]: any; // Allow for additional properties
 }
 
+// Define types for the flow nodes and edges
 type FlowNode = Node<NodeData>;
+type FlowEdge = Edge;
 
 const ConversationFlowBuilder = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [nodes, setNodes, onNodesChange] = useNodesState<NodeData>(initialNodes as FlowNode[]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<FlowEdge>(initialEdges as FlowEdge[]);
   const [selectedNode, setSelectedNode] = useState<FlowNode | null>(null);
   const [unsavedChanges, setUnsavedChanges] = useState(false);
   const [flowName, setFlowName] = useState(id ? `Flow ${id}` : "New Flow");
@@ -86,7 +88,7 @@ const ConversationFlowBuilder = () => {
       },
     };
     
-    setEdges((eds) => addEdge(edge, eds));
+    setEdges((eds) => addEdge(edge, eds) as FlowEdge[]);
     setUnsavedChanges(true);
     
     // Set up auto-save
@@ -218,7 +220,7 @@ const ConversationFlowBuilder = () => {
             snapToGrid
             snapGrid={[15, 15]}
           >
-            <Background variant="dots" gap={24} size={1} />
+            <Background variant={BackgroundVariant.DOTS} gap={24} size={1} />
             <Controls />
             <MiniMap 
               nodeStrokeWidth={3}
@@ -263,3 +265,4 @@ const ConversationFlowBuilder = () => {
 };
 
 export default ConversationFlowBuilder;
+
