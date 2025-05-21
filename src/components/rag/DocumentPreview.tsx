@@ -1,33 +1,20 @@
-
 import React, { useState } from 'react';
 import { File, Clock, Tag, Calendar, Folder } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
-interface Document {
-  id: string;
-  name: string;
-  type: string;
-  size: string;
-  uploadedBy: string;
-  uploadDate: string;
-  tags: string[];
-  status: string;
-  category: string;
-  expirationDate: string;
-  content: string;
-}
+import { DocumentType } from '@/types/document';
 
 interface DocumentPreviewProps {
-  document: Document;
+  document: DocumentType;
   onShowVersions: () => void;
   onShowTags: () => void;
   onCategoryChange: (category: string) => void;
 }
 
 const DocumentPreview = ({ document, onShowVersions, onShowTags, onCategoryChange }: DocumentPreviewProps) => {
+  
   const [activeTab, setActiveTab] = useState('preview');
   
   const getFileIcon = () => {
@@ -54,6 +41,7 @@ const DocumentPreview = ({ document, onShowVersions, onShowTags, onCategoryChang
       
       <CardContent className="p-0">
         <Tabs defaultValue="preview" value={activeTab} onValueChange={setActiveTab} className="w-full">
+          
           <div className="border-b px-6">
             <TabsList className="h-14 bg-transparent p-0 gap-6">
               <TabsTrigger 
@@ -85,6 +73,7 @@ const DocumentPreview = ({ document, onShowVersions, onShowTags, onCategoryChang
           
           <TabsContent value="metadata" className="p-6 space-y-6">
             <div className="grid grid-cols-2 gap-4">
+              
               <div>
                 <h3 className="text-sm font-medium mb-2">Basic Information</h3>
                 <div className="space-y-4">
@@ -179,6 +168,7 @@ const DocumentPreview = ({ document, onShowVersions, onShowTags, onCategoryChang
           </TabsContent>
           
           <TabsContent value="chunking" className="p-6 space-y-6">
+            
             <div className="border rounded-md p-4">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="font-medium">Document Chunks</h3>

@@ -1,21 +1,12 @@
-
 import React from 'react';
 import { File, Trash2, Archive, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
-type Document = {
-  id: string;
-  name: string;
-  type: string;
-  size: string;
-  uploadDate: string;
-  status: string;
-};
+import { DocumentType } from '@/types/document';
 
 interface DocumentListProps {
-  documents: Document[];
+  documents: DocumentType[];
   selectedId: string | undefined;
-  onSelect: (document: Document) => void;
+  onSelect: (document: DocumentType) => void;
   onDelete: (id: string) => void;
   onArchive: (id: string) => void;
   onApprove: (id: string) => void;
@@ -29,6 +20,7 @@ const DocumentList = ({
   onArchive, 
   onApprove 
 }: DocumentListProps) => {
+  
   if (documents.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">

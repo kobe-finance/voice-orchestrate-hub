@@ -23,7 +23,7 @@ import { toast } from "sonner";
 import { ArrowLeft, Save, Mic } from "lucide-react";
 import { NodePalette } from "@/components/flow-builder/NodePalette";
 import { PropertyPanel } from "@/components/flow-builder/PropertyPanel";
-import FlowHeader from "@/components/flow-builder/FlowHeader";
+import { FlowHeader } from "@/components/flow-builder/FlowHeader";
 import { initialNodes, initialEdges } from "@/components/flow-builder/initial-elements";
 import { nodeTypes } from "@/components/flow-builder/node-types";
 

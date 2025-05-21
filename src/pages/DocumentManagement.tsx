@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -36,17 +35,18 @@ import DocumentUploader from "@/components/rag/DocumentUploader";
 import DocumentList from "@/components/rag/DocumentList";
 import DocumentPreview from "@/components/rag/DocumentPreview";
 import TagManager from "@/components/rag/TagManager";
+import { DocumentType } from "@/types/document";
 
 const DocumentManagement = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+  const [selectedDocument, setSelectedDocument] = useState<DocumentType | null>(null);
   const [showVersionHistory, setShowVersionHistory] = useState(false);
   const [showTagManager, setShowTagManager] = useState(false);
 
   // Mock document data
-  const [documents, setDocuments] = useState([
+  const [documents, setDocuments] = useState<DocumentType[]>([
     {
       id: "1",
       name: "Product Manual.pdf",
@@ -101,7 +101,7 @@ const DocumentManagement = () => {
   const handleUpload = (files: FileList) => {
     // Process uploaded files
     Array.from(files).forEach(file => {
-      const newDocument = {
+      const newDocument: DocumentType = {
         id: `${documents.length + 1}`,
         name: file.name,
         type: file.name.split('.').pop() || "",
