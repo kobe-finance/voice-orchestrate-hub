@@ -32,6 +32,9 @@ export const Layout = ({ children }: LayoutProps) => {
             <Link to="/integration-marketplace">
               <Button variant="ghost">Integrations</Button>
             </Link>
+            <Link to="/api-keys">
+              <Button variant="ghost">API Keys</Button>
+            </Link>
             <ModeToggle />
           </nav>
         </div>

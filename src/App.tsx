@@ -16,6 +16,7 @@ import DocumentManagement from "./pages/DocumentManagement";
 import KnowledgeBaseOrganization from "./pages/KnowledgeBaseOrganization";
 import RAGConfiguration from "./pages/RAGConfiguration";
 import IntegrationMarketplace from "./pages/IntegrationMarketplace";
+import APIKeyManagement from "./pages/APIKeyManagement";
 import { ThemeProvider } from "./components/theme-provider";
 import { Toaster } from "./components/ui/sonner";
 
@@ -39,6 +40,7 @@ function App() {
           <Route path="/knowledge-organization" element={<KnowledgeBaseOrganization />} />
           <Route path="/rag-configuration" element={<RAGConfiguration />} />
           <Route path="/integration-marketplace" element={<IntegrationMarketplace />} />
+          <Route path="/api-keys" element={<APIKeyManagement />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <Toaster />
