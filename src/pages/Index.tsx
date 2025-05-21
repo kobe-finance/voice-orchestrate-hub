@@ -39,6 +39,18 @@ const Index = () => {
       icon: "📊",
     },
     {
+      title: "Conversations",
+      description: "Search and analyze individual conversation transcripts",
+      link: "/conversation-explorer",
+      icon: "💬",
+    },
+    {
+      title: "Report Builder",
+      description: "Create custom reports with visualizations and scheduling",
+      link: "/report-builder",
+      icon: "📈",
+    },
+    {
       title: "Integrations",
       description: "Connect your voice agents with third-party services",
       link: "/integration-marketplace",
