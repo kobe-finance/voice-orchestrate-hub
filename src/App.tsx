@@ -14,6 +14,7 @@ import VoiceSelection from "./pages/VoiceSelection";
 import ConversationFlowBuilder from "./pages/ConversationFlowBuilder";
 import DocumentManagement from "./pages/DocumentManagement";
 import KnowledgeBaseOrganization from "./pages/KnowledgeBaseOrganization";
+import RAGConfiguration from "./pages/RAGConfiguration";
 import { ThemeProvider } from "./components/theme-provider";
 import { Toaster } from "./components/ui/sonner";
 
@@ -35,6 +36,7 @@ function App() {
           <Route path="/conversation-flow" element={<ConversationFlowBuilder />} />
           <Route path="/document-management" element={<DocumentManagement />} />
           <Route path="/knowledge-organization" element={<KnowledgeBaseOrganization />} />
+          <Route path="/rag-configuration" element={<RAGConfiguration />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <Toaster />

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -9,7 +8,8 @@ import {
   Upload,
   Trash2,
   Archive,
-  ListTree
+  ListTree,
+  Settings
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -37,6 +37,7 @@ import DocumentUploader from "@/components/rag/DocumentUploader";
 import DocumentList from "@/components/rag/DocumentList";
 import DocumentPreview from "@/components/rag/DocumentPreview";
 import TagManager from "@/components/rag/TagManager";
+import { DocumentFilters } from "@/components/rag/DocumentFilters";
 import { DocumentType } from "@/types/document";
 
 const DocumentManagement = () => {
@@ -46,6 +47,7 @@ const DocumentManagement = () => {
   const [selectedDocument, setSelectedDocument] = useState<DocumentType | null>(null);
   const [showVersionHistory, setShowVersionHistory] = useState(false);
   const [showTagManager, setShowTagManager] = useState(false);
+  const [filter, setFilter] = useState({ status: 'all', priority: 'all' });
 
   // Mock document data
   const [documents, setDocuments] = useState<DocumentType[]>([
@@ -174,6 +176,10 @@ const DocumentManagement = () => {
       return false;
     }
     
+    // Filter by status and priority filters
+    if (filter.status !== 'all' && doc.status !== filter.status) return false;
+    if (filter.priority !== 'all' && doc.priority !== filter.priority) return false;
+    
     return true;
   });
 
@@ -196,13 +202,18 @@ const DocumentManagement = () => {
             <Button 
               variant="outline" 
               size="sm"
+              onClick={() => navigate("/rag-configuration")}
+            >
+              <Settings className="mr-2 h-4 w-4" />
+              Configure RAG
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm"
               onClick={() => navigate("/knowledge-organization")}
             >
               <ListTree className="mr-2 h-4 w-4" />
               Organize
-            </Button>
-            <Button variant="outline" size="sm">
-              Settings
             </Button>
             <Button size="sm">
               <Upload className="mr-2 h-4 w-4" />
@@ -218,13 +229,16 @@ const DocumentManagement = () => {
             <Card>
               <CardContent className="p-4">
                 <div className="space-y-4">
-                  <SearchInput
-                    placeholder="Search documents..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    icon={<Search size={16} />}
-                    className="w-full"
-                  />
+                  <div className="flex gap-2">
+                    <SearchInput
+                      placeholder="Search documents..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      icon={<Search size={16} />}
+                      className="w-full"
+                    />
+                    <DocumentFilters filter={filter} onFilterChange={setFilter} />
+                  </div>
                   
                   <Tabs 
                     defaultValue="all" 

@@ -1,267 +1,216 @@
-import React, { useState, useCallback, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import {
-  ReactFlow,
+
+import React, { useState, useCallback, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import ReactFlow, {
+  ReactFlowProvider,
   MiniMap,
   Controls,
   Background,
   useNodesState,
   useEdgesState,
   addEdge,
-  Panel,
-  MarkerType,
   BackgroundVariant,
-  Node,
+  OnConnect,
   Edge,
-  NodeChange,
-  EdgeChange,
-  Connection,
-} from "@xyflow/react";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import { ArrowLeft, Save, Mic } from "lucide-react";
-import { NodePalette } from "@/components/flow-builder/NodePalette";
-import { PropertyPanel } from "@/components/flow-builder/PropertyPanel";
-import { FlowHeader } from "@/components/flow-builder/FlowHeader";
-import { initialNodes, initialEdges } from "@/components/flow-builder/initial-elements";
-import { nodeTypes } from "@/components/flow-builder/node-types";
-
-import "@xyflow/react/dist/style.css";
-import "../components/flow-builder/flow-editor.css";
-
-// Define node data types to fix TypeScript errors
-interface NodeData {
-  label: string;
-  message?: string;
-  voiceType?: string;
-  speakingRate?: number;
-  question?: string;
-  inputType?: string;
-  conditions?: string[];
-  transferType?: string;
-  destination?: string;
-  integrationType?: string;
-  action?: string;
-  configuration?: string;
-  description?: string;
-  options?: string[];
-  [key: string]: any; // Allow for additional properties
-}
-
-// Define types for the flow nodes and edges
-type FlowNode = Node<NodeData>;
-type FlowEdge = Edge;
+  Node
+} from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+import { initialNodes, initialEdges } from '@/components/flow-builder/initial-elements';
+import { nodeTypes } from '@/components/flow-builder/node-types';
+import NodePalette from '@/components/flow-builder/NodePalette';
+import PropertyPanel from '@/components/flow-builder/PropertyPanel';
+import { FlowHeader } from '@/components/flow-builder/FlowHeader';
+import { Button } from '@/components/ui/button';
+import { Book, Settings } from 'lucide-react';
+import { toast } from 'sonner';
 
 const ConversationFlowBuilder = () => {
-  const { id } = useParams();
+  const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const [nodes, setNodes, onNodesChange] = useNodesState<FlowNode>(initialNodes as FlowNode[]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState<FlowEdge>(initialEdges as FlowEdge[]);
-  const [selectedNode, setSelectedNode] = useState<FlowNode | null>(null);
+  
+  // Flow state
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
+  
+  // Selection state
+  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null);
+  
+  // Flow metadata
+  const [flowName, setFlowName] = useState('New Conversation Flow');
   const [unsavedChanges, setUnsavedChanges] = useState(false);
-  const [flowName, setFlowName] = useState(id ? `Flow ${id}` : "New Flow");
-
-  // Auto-save timer
-  const autoSaveTimeout = useRef<NodeJS.Timeout | null>(null);
-
-  // Handle node selection
-  const onNodeClick = useCallback((event: React.MouseEvent, node: FlowNode) => {
-    setSelectedNode(node);
-  }, []);
-
-  // Handle node deselection when clicking on the canvas
-  const onPaneClick = useCallback(() => {
-    setSelectedNode(null);
-  }, []);
 
   // Handle connections between nodes
-  const onConnect = useCallback((params: Connection) => {
-    // Create edge with animated style for conditional edges
-    const edge = {
-      ...params,
-      type: 'default',
-      animated: params.sourceHandle === 'condition',
-      style: { stroke: params.sourceHandle === 'condition' ? '#F97316' : '#2563EB' },
-      markerEnd: {
-        type: MarkerType.ArrowClosed,
-      },
-    };
-    
-    setEdges((eds) => addEdge(edge, eds) as FlowEdge[]);
+  const onConnect: OnConnect = useCallback((params) => {
+    setEdges((eds) => addEdge(params, eds));
     setUnsavedChanges(true);
-    
-    // Set up auto-save
-    if (autoSaveTimeout.current) clearTimeout(autoSaveTimeout.current);
-    autoSaveTimeout.current = setTimeout(handleAutoSave, 30000); // 30 seconds
-  }, []);
-  
-  // Handle auto-save
-  const handleAutoSave = useCallback(() => {
-    if (unsavedChanges) {
-      console.log("Auto-saving flow...", { nodes, edges });
-      toast.info("Flow auto-saved", {
-        description: "Your changes have been automatically saved"
-      });
-      setUnsavedChanges(false);
-    }
-  }, [nodes, edges, unsavedChanges]);
+  }, [setEdges]);
 
-  // Add node from palette to canvas
-  const onAddNode = useCallback((nodeType: string) => {
-    const newNodeId = `node_${Date.now()}`;
-    const position = { 
-      x: Math.random() * 300 + 50, 
-      y: Math.random() * 300 + 50 
-    };
-    
-    let newNode: FlowNode = {
-      id: newNodeId,
-      position,
-      data: { label: `New ${nodeType}` },
-      type: 'default'
-    };
-    
-    // Set specific properties based on node type
-    switch (nodeType) {
-      case "startNode":
-        newNode.type = "startNode";
-        newNode.data.label = "Start";
-        break;
-      case "endNode":
-        newNode.type = "endNode";
-        newNode.data.label = "End";
-        break;
-      case "decisionNode":
-        newNode.type = "decisionNode";
-        newNode.data.label = "Decision";
-        newNode.data.conditions = ["Yes", "No"];
-        break;
-      case "messageNode":
-        newNode.type = "messageNode";
-        newNode.data.label = "Message";
-        newNode.data.message = "Enter your message here";
-        break;
-      case "inputNode":
-        newNode.type = "inputNode";
-        newNode.data.label = "Input";
-        newNode.data.inputType = "text";
-        newNode.data.question = "Enter your question";
-        break;
-      case "integrationNode":
-        newNode.type = "integrationNode";
-        newNode.data.label = "Integration";
-        newNode.data.integrationType = "CRM";
-        break;
-      case "transferNode":
-        newNode.type = "transferNode";
-        newNode.data.label = "Transfer";
-        newNode.data.transferType = "agent";
-        break;
-      default:
-        newNode.type = "default";
+  // Handle node drag
+  const onNodeDragStop = useCallback(() => {
+    setUnsavedChanges(true);
+  }, []);
+
+  // Handle selection changes
+  const onSelectionChange = useCallback(({ nodes, edges }) => {
+    if (nodes.length > 0) {
+      setSelectedNode(nodes[0]);
+      setSelectedEdge(null);
+    } else if (edges.length > 0) {
+      setSelectedEdge(edges[0]);
+      setSelectedNode(null);
+    } else {
+      setSelectedNode(null);
+      setSelectedEdge(null);
     }
-    
-    setNodes((nds) => [...nds, newNode]);
+  }, []);
+
+  // Clear selection when clicking on the canvas
+  const onPaneClick = useCallback(() => {
+    setSelectedNode(null);
+    setSelectedEdge(null);
+  }, []);
+
+  // Update node data when editing properties
+  const updateNodeData = useCallback((nodeId: string, newData: any) => {
+    setNodes((nds) =>
+      nds.map((node) => {
+        if (node.id === nodeId) {
+          return { ...node, data: { ...node.data, ...newData } };
+        }
+        return node;
+      })
+    );
     setUnsavedChanges(true);
   }, [setNodes]);
 
-  // Handle save
-  const handleSave = useCallback(() => {
-    console.log("Saving flow...", { id, flowName, nodes, edges });
-    
-    // In a real app, this would be an API call
-    toast.success("Flow saved successfully", {
-      description: "All your changes have been saved"
-    });
-    
-    setUnsavedChanges(false);
-  }, [id, flowName, nodes, edges]);
+  // Handle drag over for node palette items
+  const onDragOver = useCallback((event: React.DragEvent) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  }, []);
 
-  // Handle node update from property panel
-  const handleNodeUpdate = useCallback((nodeData: Partial<NodeData>) => {
-    if (!selectedNode) return;
-    
-    setNodes((nds) => 
-      nds.map((node) => (node.id === selectedNode.id 
-        ? { ...node, data: { ...node.data, ...nodeData } }
-        : node
-      ))
-    );
-    setUnsavedChanges(true);
-  }, [selectedNode, setNodes]);
+  // Handle drop from node palette
+  const onDrop = useCallback(
+    (event: React.DragEvent) => {
+      event.preventDefault();
+
+      if (!reactFlowWrapper.current || !reactFlowInstance) {
+        return;
+      }
+
+      const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
+      const type = event.dataTransfer.getData('application/reactflow');
+      const label = event.dataTransfer.getData('application/reactflow/label');
+
+      if (typeof type === 'undefined' || !type) {
+        return;
+      }
+
+      const position = reactFlowInstance.screenToFlowPosition({
+        x: event.clientX - reactFlowBounds.left,
+        y: event.clientY - reactFlowBounds.top,
+      });
+
+      const newNode = {
+        id: `${type}_${nodes.length + 1}`,
+        type,
+        position,
+        data: { label, value: '' },
+      };
+
+      setNodes((nds) => nds.concat(newNode));
+      setUnsavedChanges(true);
+    },
+    [reactFlowInstance, nodes, setNodes]
+  );
+
+  // Handle saving the flow
+  const handleSaveFlow = useCallback(() => {
+    // Simulate saving the flow
+    setTimeout(() => {
+      toast.success('Flow saved successfully');
+      setUnsavedChanges(false);
+    }, 500);
+  }, []);
+
+  // Navigate back to dashboard
+  const handleBack = useCallback(() => {
+    if (unsavedChanges) {
+      if (window.confirm('You have unsaved changes. Are you sure you want to leave?')) {
+        navigate('/dashboard');
+      }
+    } else {
+      navigate('/dashboard');
+    }
+  }, [navigate, unsavedChanges]);
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="h-screen flex flex-col">
       <FlowHeader 
         flowName={flowName} 
         setFlowName={setFlowName} 
-        onSave={handleSave} 
+        onSave={handleSaveFlow} 
         unsavedChanges={unsavedChanges} 
-        onBack={() => navigate("/voice-agents")} 
+        onBack={handleBack} 
       />
       
-      <div className="flex flex-1 overflow-hidden">
-        <div className="w-64 bg-card border-r p-4 overflow-y-auto">
-          <NodePalette onAddNode={onAddNode} />
+      <div className="flex-1 flex">
+        <div className="w-60 p-4 border-r overflow-y-auto bg-background">
+          <NodePalette />
+
+          <div className="mt-6 space-y-2">
+            <Button 
+              variant="outline" 
+              className="w-full justify-start" 
+              onClick={() => navigate('/document-management')}
+            >
+              <Book className="mr-2 h-4 w-4" />
+              Knowledge Base
+            </Button>
+            <Button 
+              variant="outline" 
+              className="w-full justify-start" 
+              onClick={() => navigate('/rag-configuration')}
+            >
+              <Settings className="mr-2 h-4 w-4" />
+              RAG Configuration
+            </Button>
+          </div>
         </div>
         
-        <div className="flex-1 relative">
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            nodeTypes={nodeTypes}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            onNodeClick={onNodeClick}
-            onPaneClick={onPaneClick}
-            fitView
-            snapToGrid
-            snapGrid={[15, 15]}
-          >
-            <Background variant={BackgroundVariant.Dots} gap={24} size={1} />
-            <Controls />
-            <MiniMap 
-              nodeStrokeWidth={3}
-              zoomable 
-              pannable 
-            />
-            <Panel position="top-right" className="bg-background p-3 rounded-lg shadow-md border">
-              <div className="flex gap-2">
-                <Button 
-                  size="sm" 
-                  variant="outline"
-                  onClick={() => {
-                    const backup = [...nodes];
-                    setNodes(nds => nds.filter(n => !('selected' in n && n.selected)));
-                    toast.info("Nodes deleted", {
-                      description: "Selected nodes have been removed",
-                      action: {
-                        label: "Undo",
-                        onClick: () => setNodes(backup)
-                      }
-                    });
-                  }}
-                >
-                  Delete Selected
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => navigate("/voice-selection")}
-                >
-                  <Mic className="mr-2 h-4 w-4" /> Voice Settings
-                </Button>
-              </div>
-            </Panel>
-          </ReactFlow>
+        <div className="flex-1 h-full" ref={reactFlowWrapper}>
+          <ReactFlowProvider>
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onConnect={onConnect}
+              onInit={setReactFlowInstance}
+              onDrop={onDrop}
+              onDragOver={onDragOver}
+              onNodeDragStop={onNodeDragStop}
+              onSelectionChange={onSelectionChange}
+              onPaneClick={onPaneClick}
+              nodeTypes={nodeTypes}
+              fitView
+              deleteKeyCode={['Backspace', 'Delete']}
+            >
+              <Controls />
+              <MiniMap />
+              <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
+            </ReactFlow>
+          </ReactFlowProvider>
         </div>
         
-        {selectedNode && (
-          <div className="w-72 bg-card border-l p-4 overflow-y-auto">
-            <PropertyPanel 
-              selectedNode={selectedNode} 
-              onChange={handleNodeUpdate} 
+        {(selectedNode || selectedEdge) && (
+          <div className="w-72 p-4 border-l overflow-y-auto bg-background">
+            <PropertyPanel
+              selectedNode={selectedNode}
+              selectedEdge={selectedEdge}
+              updateNodeData={updateNodeData}
             />
           </div>
         )}
