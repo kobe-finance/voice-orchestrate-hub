@@ -96,7 +96,9 @@ const RAGPerformanceMetrics: React.FC<RAGPerformanceMetricsProps> = ({ metrics }
                     style: { textAnchor: 'middle' }
                   }} 
                 />
-                <Tooltip formatter={(value) => [`${value.toFixed(1)}%`, 'Value']} />
+                <Tooltip 
+                  formatter={(value: number) => [`${value.toFixed(1)}%`, 'Value']} 
+                />
                 <Legend />
                 <Bar 
                   dataKey="value" 

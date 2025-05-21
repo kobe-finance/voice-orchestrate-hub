@@ -42,6 +42,7 @@ export const NodePalette: React.FC<NodePaletteProps> = ({ onAddNode }) => {
             draggable
             onDragStart={(event) => {
               event.dataTransfer.setData("application/reactflow", node.type);
+              event.dataTransfer.setData("application/reactflow/label", node.label);
               event.dataTransfer.effectAllowed = "move";
             }}
           >
@@ -53,3 +54,5 @@ export const NodePalette: React.FC<NodePaletteProps> = ({ onAddNode }) => {
     </div>
   );
 };
+
+// Don't export default as we're using named export

@@ -1,8 +1,8 @@
 
 import React, { useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ReactFlow, {
-  ReactFlowProvider,
+import {
+  ReactFlow,
   MiniMap,
   Controls,
   Background,
@@ -12,13 +12,14 @@ import ReactFlow, {
   BackgroundVariant,
   OnConnect,
   Edge,
-  Node
+  Node,
+  ReactFlowProvider
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { initialNodes, initialEdges } from '@/components/flow-builder/initial-elements';
 import { nodeTypes } from '@/components/flow-builder/node-types';
-import NodePalette from '@/components/flow-builder/NodePalette';
-import PropertyPanel from '@/components/flow-builder/PropertyPanel';
+import { NodePalette } from '@/components/flow-builder/NodePalette';
+import { PropertyPanel } from '@/components/flow-builder/PropertyPanel';
 import { FlowHeader } from '@/components/flow-builder/FlowHeader';
 import { Button } from '@/components/ui/button';
 import { Book, Settings } from 'lucide-react';
@@ -146,6 +147,24 @@ const ConversationFlowBuilder = () => {
     }
   }, [navigate, unsavedChanges]);
 
+  // Add an onNodeAdd handler for the NodePalette
+  const onNodeAdd = useCallback((nodeType: string) => {
+    const position = {
+      x: Math.random() * 300,
+      y: Math.random() * 300,
+    };
+
+    const newNode = {
+      id: `${nodeType}_${nodes.length + 1}`,
+      type: nodeType,
+      position,
+      data: { label: `New ${nodeType}`, value: '' },
+    };
+
+    setNodes((nds) => nds.concat(newNode));
+    setUnsavedChanges(true);
+  }, [nodes, setNodes]);
+
   return (
     <div className="h-screen flex flex-col">
       <FlowHeader 
@@ -158,7 +177,7 @@ const ConversationFlowBuilder = () => {
       
       <div className="flex-1 flex">
         <div className="w-60 p-4 border-r overflow-y-auto bg-background">
-          <NodePalette />
+          <NodePalette onAddNode={onNodeAdd} />
 
           <div className="mt-6 space-y-2">
             <Button 
@@ -210,7 +229,7 @@ const ConversationFlowBuilder = () => {
             <PropertyPanel
               selectedNode={selectedNode}
               selectedEdge={selectedEdge}
-              updateNodeData={updateNodeData}
+              onChange={updateNodeData}
             />
           </div>
         )}

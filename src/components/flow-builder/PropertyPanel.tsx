@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,17 +9,22 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 
 interface PropertyPanelProps {
   selectedNode: any;
-  onChange: (data: any) => void;
+  selectedEdge: any;
+  onChange: (nodeId: string, data: any) => void;
 }
 
-export const PropertyPanel: React.FC<PropertyPanelProps> = ({ selectedNode, onChange }) => {
-  if (!selectedNode) return null;
+export const PropertyPanel: React.FC<PropertyPanelProps> = ({ selectedNode, selectedEdge, onChange }) => {
+  if (!selectedNode && !selectedEdge) return null;
 
   const handleChange = (key: string, value: any) => {
-    onChange({ [key]: value });
+    if (selectedNode) {
+      onChange(selectedNode.id, { [key]: value });
+    }
   };
 
   const renderProperties = () => {
+    if (!selectedNode) return null;
+    
     switch (selectedNode.type) {
       case "startNode":
         return (
@@ -353,7 +357,7 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = ({ selectedNode, onCh
             <div>
               <Label>Node Label</Label>
               <Input 
-                value={selectedNode.data.label || ""} 
+                value={selectedNode?.data.label || ""} 
                 onChange={(e) => handleChange("label", e.target.value)}
                 className="mt-1"
               />
@@ -361,7 +365,7 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = ({ selectedNode, onCh
             <div>
               <Label>Node Description</Label>
               <Textarea 
-                value={selectedNode.data.description || ""}
+                value={selectedNode?.data.description || ""}
                 onChange={(e) => handleChange("description", e.target.value)}
                 placeholder="Optional description"
                 className="mt-1"

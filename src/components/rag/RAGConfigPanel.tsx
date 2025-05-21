@@ -29,7 +29,7 @@ interface RAGConfigPanelProps {
     contextWindowSize: number;
     useQueryReformulation: boolean;
   };
-  onConfigChange: (config: Partial<typeof props.config>) => void;
+  onConfigChange: (config: Partial<RAGConfigPanelProps['config']>) => void;
   isExpertMode: boolean;
 }
 
