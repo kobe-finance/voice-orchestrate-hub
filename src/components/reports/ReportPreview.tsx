@@ -40,9 +40,25 @@ const MOCK_DATA = {
 // Colors for charts
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
-// Custom label for pie chart
-const renderCustomizedLabel = ({ name, percent }: { name: string, percent: number }) => {
-  return `${name}: ${(percent * 100).toFixed(0)}%`;
+// Custom label renderer for pie chart
+const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }: any) => {
+  const RADIAN = Math.PI / 180;
+  const radius = outerRadius * 1.1;
+  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+  return (
+    <text 
+      x={x} 
+      y={y} 
+      fill={COLORS[index % COLORS.length]} 
+      textAnchor={x > cx ? 'start' : 'end'} 
+      dominantBaseline="central"
+      fontSize={12}
+    >
+      {`${(percent * 100).toFixed(0)}%`}
+    </text>
+  );
 };
 
 const ReportPreview: React.FC<ReportPreviewProps> = ({ report }) => {
@@ -104,11 +120,22 @@ const ReportPreview: React.FC<ReportPreviewProps> = ({ report }) => {
               cx="50%"
               cy="50%"
               outerRadius={100}
-              label={renderCustomizedLabel}
             >
-              {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-              ))}
+              <Pie
+                data={data}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={renderCustomizedLabel}
+                outerRadius={80}
+                fill="#8884d8"
+                dataKey={config.value || "count"}
+                nameKey={config.category || "rating"}
+              >
+                {data.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
               <Tooltip />
               <Legend />
             </RechartPie>
