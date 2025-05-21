@@ -32,6 +32,9 @@ export const Layout = ({ children }: LayoutProps) => {
             <Link to="/conversation-flow">
               <Button variant={isActive("/conversation-flow") ? "default" : "ghost"}>Flow Builder</Button>
             </Link>
+            <Link to="/voice-providers">
+              <Button variant={isActive("/voice-providers") ? "default" : "ghost"}>Voice Providers</Button>
+            </Link>
             <Link to="/custom-actions">
               <Button variant={isActive("/custom-actions") ? "default" : "ghost"}>Custom Actions</Button>
             </Link>
@@ -93,4 +96,4 @@ export const Layout = ({ children }: LayoutProps) => {
       </footer>
     </div>
   );
-};
+}

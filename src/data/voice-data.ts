@@ -5,25 +5,86 @@ export const voiceProviders = [
     id: "elevenlabs",
     name: "ElevenLabs",
     description: "High-quality AI voice generation",
-    apiEndpoint: "https://api.elevenlabs.io/v1/text-to-speech"
+    apiEndpoint: "https://api.elevenlabs.io/v1/text-to-speech",
+    status: "operational", // operational, degraded, outage
+    costPer1000Chars: 0.30,
+    rateLimit: 100,
+    supportedLanguages: ["English", "Spanish", "French", "German", "Italian", "Portuguese"],
+    qualityRating: 5,
+    isPrimary: true,
+    fallbackPriority: 1,
+    credentials: {
+      isConfigured: true,
+      lastVerified: "2025-05-02T14:30:00Z"
+    }
   },
   {
     id: "deepgram",
     name: "Deepgram",
     description: "Enterprise-grade voice AI",
-    apiEndpoint: "https://api.deepgram.com/v1/speak"
+    apiEndpoint: "https://api.deepgram.com/v1/speak",
+    status: "degraded", // operational, degraded, outage
+    costPer1000Chars: 0.20,
+    rateLimit: 150,
+    supportedLanguages: ["English", "Spanish", "French", "German"],
+    qualityRating: 4,
+    isPrimary: false,
+    fallbackPriority: 2,
+    credentials: {
+      isConfigured: true,
+      lastVerified: "2025-05-03T09:15:00Z"
+    }
   },
   {
     id: "googlecloud",
     name: "Google Cloud TTS",
     description: "Google's text-to-speech technology",
-    apiEndpoint: "https://texttospeech.googleapis.com/v1/text:synthesize"
+    apiEndpoint: "https://texttospeech.googleapis.com/v1/text:synthesize",
+    status: "operational", // operational, degraded, outage
+    costPer1000Chars: 0.16,
+    rateLimit: 200,
+    supportedLanguages: ["English", "Spanish", "French", "German", "Italian", "Japanese", "Korean"],
+    qualityRating: 4,
+    isPrimary: false,
+    fallbackPriority: 3,
+    credentials: {
+      isConfigured: false,
+      lastVerified: null
+    }
   },
   {
     id: "azure",
     name: "Azure Cognitive Services",
     description: "Microsoft's speech services",
-    apiEndpoint: "https://westus.tts.speech.microsoft.com/cognitiveservices/v1"
+    apiEndpoint: "https://westus.tts.speech.microsoft.com/cognitiveservices/v1",
+    status: "operational", // operational, degraded, outage
+    costPer1000Chars: 0.16,
+    rateLimit: 200,
+    supportedLanguages: ["English", "Spanish", "French", "German", "Chinese", "Japanese", "Italian"],
+    qualityRating: 4,
+    isPrimary: false,
+    fallbackPriority: 4,
+    credentials: {
+      isConfigured: false,
+      lastVerified: null
+    }
+  },
+  {
+    id: "amazon",
+    name: "Amazon Polly",
+    description: "Amazon's text-to-speech service",
+    apiEndpoint: "https://polly.us-east-1.amazonaws.com",
+    status: "outage", // operational, degraded, outage
+    costPer1000Chars: 0.16,
+    rateLimit: 80,
+    supportedLanguages: ["English", "Spanish", "French", "German", "Italian", "Portuguese", "Japanese"],
+    qualityRating: 3,
+    isPrimary: false,
+    fallbackPriority: 5,
+    credentials: {
+      isConfigured: false,
+      lastVerified: null
+    }
   }
 ];
 

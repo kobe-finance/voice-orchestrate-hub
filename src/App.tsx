@@ -23,6 +23,7 @@ import ConversationExplorer from "./pages/ConversationExplorer";
 import ReportBuilder from "./pages/ReportBuilder"; 
 import UserManagement from "./pages/UserManagement";
 import BillingSubscription from "./pages/BillingSubscription";
+import VoiceProviderManagement from "./pages/VoiceProviderManagement";
 
 import { ThemeProvider } from "./components/theme-provider";
 import { Toaster } from "./components/ui/sonner";
@@ -42,6 +43,7 @@ function App() {
           <Route path="/create-voice-agent" element={<CreateVoiceAgent />} />
           <Route path="/edit-voice-agent/:id" element={<EditVoiceAgent />} />
           <Route path="/voice-selection" element={<VoiceSelection />} />
+          <Route path="/voice-providers" element={<VoiceProviderManagement />} />
           <Route path="/conversation-flow" element={<ConversationFlowBuilder />} />
           <Route path="/document-management" element={<DocumentManagement />} />
           <Route path="/knowledge-organization" element={<KnowledgeBaseOrganization />} />
