@@ -46,7 +46,7 @@ const actionTemplates = [
   { 
     id: "webhook", 
     name: "Webhook Dispatch", 
-    description: "Send data to webhook endpoints", 
+    description: "Send webhook endpoints", 
     icon: <Webhook className="h-5 w-5" />,
     category: "integration" 
   },
