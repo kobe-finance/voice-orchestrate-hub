@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
@@ -164,7 +163,7 @@ const CustomActionBuilder = () => {
             <div>
               <label className="block text-sm font-medium mb-1">Body</label>
               <Textarea placeholder='{"key": "{{value}}"}' className="font-mono text-sm" />
-              <p className="text-xs text-muted-foreground mt-1">Use {{variable}} syntax for dynamic values</p>
+              <p className="text-xs text-muted-foreground mt-1">Use {"{{variable}}"} syntax for dynamic values</p>
             </div>
           </div>
         );
