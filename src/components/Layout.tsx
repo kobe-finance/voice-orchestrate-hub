@@ -59,6 +59,9 @@ export const Layout = ({ children }: LayoutProps) => {
             <Link to="/user-management">
               <Button variant={isActive("/user-management") ? "default" : "ghost"}>Users & Roles</Button>
             </Link>
+            <Link to="/billing-subscription">
+              <Button variant={isActive("/billing-subscription") ? "default" : "ghost"}>Billing</Button>
+            </Link>
             <ModeToggle />
           </nav>
         </div>

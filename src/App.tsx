@@ -21,7 +21,8 @@ import Analytics from "./pages/Analytics";
 import CustomActionBuilder from "./pages/CustomActionBuilder"; 
 import ConversationExplorer from "./pages/ConversationExplorer";
 import ReportBuilder from "./pages/ReportBuilder"; 
-import UserManagement from "./pages/UserManagement"; // Import the new user management page
+import UserManagement from "./pages/UserManagement";
+import BillingSubscription from "./pages/BillingSubscription";
 
 import { ThemeProvider } from "./components/theme-provider";
 import { Toaster } from "./components/ui/sonner";
@@ -51,7 +52,8 @@ function App() {
           <Route path="/custom-actions" element={<CustomActionBuilder />} />
           <Route path="/conversation-explorer" element={<ConversationExplorer />} />
           <Route path="/report-builder" element={<ReportBuilder />} />
-          <Route path="/user-management" element={<UserManagement />} /> {/* Add route for user management */}
+          <Route path="/user-management" element={<UserManagement />} />
+          <Route path="/billing-subscription" element={<BillingSubscription />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <Toaster />
