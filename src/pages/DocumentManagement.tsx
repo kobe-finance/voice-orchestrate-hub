@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -8,6 +9,7 @@ import {
   Upload,
   Trash2,
   Archive,
+  ListTree
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -191,6 +193,14 @@ const DocumentManagement = () => {
             <h1 className="text-xl font-semibold">Knowledge Base</h1>
           </div>
           <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => navigate("/knowledge-organization")}
+            >
+              <ListTree className="mr-2 h-4 w-4" />
+              Organize
+            </Button>
             <Button variant="outline" size="sm">
               Settings
             </Button>

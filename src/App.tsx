@@ -1,67 +1,45 @@
 
-import { useState } from "react";
-import { Route, Routes, BrowserRouter } from "react-router-dom";
-
-// Page imports
-import Index from "@/pages/Index";
-import Auth from "@/pages/Auth";
-import ForgotPassword from "@/pages/ForgotPassword";
-import MFAVerification from "@/pages/MFAVerification";
-import Dashboard from "@/pages/Dashboard";
-import NotFound from "@/pages/NotFound";
-import Onboarding from "@/pages/Onboarding";
-import VoiceAgents from "@/pages/VoiceAgents";
-import CreateVoiceAgent from "@/pages/CreateVoiceAgent";
-import EditVoiceAgent from "@/pages/EditVoiceAgent";
-import ConversationFlowBuilder from "@/pages/ConversationFlowBuilder";
-import VoiceSelection from "@/pages/VoiceSelection";
-import DocumentManagement from "@/pages/DocumentManagement";
-import { ThemeProvider } from "@/components/theme-provider";
-import {
-  QueryClient,
-  QueryClientProvider,
-} from "@tanstack/react-query";
-
-const queryClient = new QueryClient();
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Dashboard from "./pages/Dashboard";
+import Auth from "./pages/Auth";
+import ForgotPassword from "./pages/ForgotPassword";
+import MFAVerification from "./pages/MFAVerification";
+import NotFound from "./pages/NotFound";
+import Index from "./pages/Index";
+import Onboarding from "./pages/Onboarding";
+import VoiceAgents from "./pages/VoiceAgents";
+import CreateVoiceAgent from "./pages/CreateVoiceAgent";
+import EditVoiceAgent from "./pages/EditVoiceAgent";
+import VoiceSelection from "./pages/VoiceSelection";
+import ConversationFlowBuilder from "./pages/ConversationFlowBuilder";
+import DocumentManagement from "./pages/DocumentManagement";
+import KnowledgeBaseOrganization from "./pages/KnowledgeBaseOrganization";
+import { ThemeProvider } from "./components/theme-provider";
+import { Toaster } from "./components/ui/sonner";
 
 function App() {
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
-
-  window.addEventListener('online', () => {
-    setIsOnline(true);
-  });
-
-  window.addEventListener('offline', () => {
-    setIsOnline(false);
-  });
-
   return (
-    <BrowserRouter>
-      <ThemeProvider
-        defaultTheme="system"
-        storageKey="vite-react-theme"
-      >
-        <QueryClientProvider client={queryClient}>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/auth/forgot-password" element={<ForgotPassword />} />
-            <Route path="/auth/mfa-verification" element={<MFAVerification />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/onboarding" element={<Onboarding />} />
-            <Route path="/settings" element={<h1>Settings Page</h1>} />
-            <Route path="/voice-agents" element={<VoiceAgents />} />
-            <Route path="/voice-agents/create" element={<CreateVoiceAgent />} />
-            <Route path="/voice-agents/edit/:id" element={<EditVoiceAgent />} />
-            <Route path="/conversation-flow" element={<ConversationFlowBuilder />} />
-            <Route path="/conversation-flow/:id" element={<ConversationFlowBuilder />} />
-            <Route path="/voice-selection" element={<VoiceSelection />} />
-            <Route path="/document-management" element={<DocumentManagement />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </QueryClientProvider>
-      </ThemeProvider>
-    </BrowserRouter>
+    <ThemeProvider defaultTheme="light">
+      <Router>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/login" element={<Auth />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/mfa-verification" element={<MFAVerification />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/voice-agents" element={<VoiceAgents />} />
+          <Route path="/create-voice-agent" element={<CreateVoiceAgent />} />
+          <Route path="/edit-voice-agent/:id" element={<EditVoiceAgent />} />
+          <Route path="/voice-selection" element={<VoiceSelection />} />
+          <Route path="/conversation-flow" element={<ConversationFlowBuilder />} />
+          <Route path="/document-management" element={<DocumentManagement />} />
+          <Route path="/knowledge-organization" element={<KnowledgeBaseOrganization />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+        <Toaster />
+      </Router>
+    </ThemeProvider>
   );
 }
 
