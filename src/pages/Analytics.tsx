@@ -1,19 +1,51 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { 
+  BarChart, 
+  Bar, 
+  LineChart, 
+  Line, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend
+} from "recharts";
+import { 
+  Table, 
+  TableBody, 
+  TableCaption, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { 
+  ChartContainer, 
+  ChartTooltip, 
+  ChartTooltipContent
+} from "@/components/ui/chart";
+import { ChartLine, ChartPie, ChartBarHorizontal, Calendar, Download } from "lucide-react";
 
+// Analytics data
 const analyticsData = [
-  { name: "Jan", calls: 400, duration: 240 },
-  { name: "Feb", calls: 300, duration: 180 },
-  { name: "Mar", calls: 500, duration: 320 },
-  { name: "Apr", calls: 280, duration: 250 },
-  { name: "May", calls: 590, duration: 370 },
-  { name: "Jun", calls: 490, duration: 300 },
-  { name: "Jul", calls: 600, duration: 410 },
+  { name: "Jan", calls: 400, duration: 240, completed: 380, transferred: 20, csat: 4.2 },
+  { name: "Feb", calls: 300, duration: 180, completed: 280, transferred: 20, csat: 4.0 },
+  { name: "Mar", calls: 500, duration: 320, completed: 460, transferred: 40, csat: 4.3 },
+  { name: "Apr", calls: 280, duration: 250, completed: 250, transferred: 30, csat: 4.1 },
+  { name: "May", calls: 590, duration: 370, completed: 540, transferred: 50, csat: 4.4 },
+  { name: "Jun", calls: 490, duration: 300, completed: 450, transferred: 40, csat: 4.2 },
+  { name: "Jul", calls: 600, duration: 410, completed: 550, transferred: 50, csat: 4.5 },
 ];
 
 const performanceData = [
@@ -26,24 +58,80 @@ const performanceData = [
   { name: "Sun", responseTime: 1.0, accuracy: 93 },
 ];
 
+// Intent recognition data
+const intentRecognitionData = [
+  { name: "Correctly Identified", value: 85 },
+  { name: "Partially Identified", value: 10 },
+  { name: "Misidentified", value: 5 },
+];
+
+const COLORS = ['#10B981', '#FBBF24', '#EF4444'];
+
+// Detailed call data for tables
+const callDetailsData = [
+  { id: "C-1001", date: "2023-07-01", duration: "4m 12s", agent: "Sales Agent", outcome: "Completed", satisfaction: 5 },
+  { id: "C-1002", date: "2023-07-01", duration: "2m 45s", agent: "Support Agent", outcome: "Transferred", satisfaction: 3 },
+  { id: "C-1003", date: "2023-07-02", duration: "6m 20s", agent: "Sales Agent", outcome: "Completed", satisfaction: 4 },
+  { id: "C-1004", date: "2023-07-02", duration: "3m 15s", agent: "Booking Agent", outcome: "Completed", satisfaction: 5 },
+  { id: "C-1005", date: "2023-07-03", duration: "1m 50s", agent: "Support Agent", outcome: "Incomplete", satisfaction: 2 },
+  { id: "C-1006", date: "2023-07-03", duration: "5m 10s", agent: "Sales Agent", outcome: "Completed", satisfaction: 4 },
+  { id: "C-1007", date: "2023-07-04", duration: "2m 30s", agent: "Support Agent", outcome: "Completed", satisfaction: 5 },
+];
+
 const Analytics = () => {
+  const [timePeriod, setTimePeriod] = useState("monthly");
+  
+  const handleExportData = () => {
+    // In a real implementation, this would generate and download a CSV/Excel file
+    console.log("Exporting analytics data...");
+    alert("Analytics data export started. Your file will download shortly.");
+  };
+
   return (
     <Layout>
       <div className="container py-6 max-w-7xl mx-auto">
         <PageHeader
-          title="Analytics Dashboard"
-          description="Voice agent performance metrics and insights"
+          title="Call Analytics Dashboard"
+          description="Comprehensive analysis of your voice agents' performance"
           className="mb-6"
         />
         
-        <Tabs defaultValue="usage" className="w-full">
+        <div className="flex justify-between items-center mb-6">
+          <div className="flex items-center gap-4">
+            <Select value={timePeriod} onValueChange={setTimePeriod}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select Time Period" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="daily">Daily</SelectItem>
+                <SelectItem value="weekly">Weekly</SelectItem>
+                <SelectItem value="monthly">Monthly</SelectItem>
+                <SelectItem value="quarterly">Quarterly</SelectItem>
+                <SelectItem value="yearly">Yearly</SelectItem>
+              </SelectContent>
+            </Select>
+            
+            <Button variant="outline" className="flex items-center gap-2">
+              <Calendar size={18} />
+              <span>Custom Date Range</span>
+            </Button>
+          </div>
+          
+          <Button onClick={handleExportData} className="flex items-center gap-2">
+            <Download size={18} />
+            <span>Export Data</span>
+          </Button>
+        </div>
+        
+        <Tabs defaultValue="overview" className="w-full">
           <TabsList className="mb-4">
-            <TabsTrigger value="usage">Usage Metrics</TabsTrigger>
-            <TabsTrigger value="performance">Performance</TabsTrigger>
-            <TabsTrigger value="users">User Engagement</TabsTrigger>
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="performance">Agent Performance</TabsTrigger>
+            <TabsTrigger value="engagement">User Engagement</TabsTrigger>
+            <TabsTrigger value="details">Call Details</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="usage" className="space-y-4">
+          <TabsContent value="overview" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <Card>
                 <CardHeader className="pb-2">
@@ -65,45 +153,98 @@ const Analytics = () => {
               </Card>
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Active Agents</CardTitle>
+                  <CardTitle className="text-sm font-medium">Completion Rate</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">12</div>
-                  <p className="text-xs text-muted-foreground">+2 from last month</p>
+                  <div className="text-2xl font-bold">92.4%</div>
+                  <p className="text-xs text-muted-foreground">+1.6% from last month</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Unique Users</CardTitle>
+                  <CardTitle className="text-sm font-medium">CSAT Score</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">1,485</div>
-                  <p className="text-xs text-muted-foreground">+8.2% from last month</p>
+                  <div className="text-2xl font-bold">4.3/5</div>
+                  <p className="text-xs text-muted-foreground">+0.2 from last month</p>
                 </CardContent>
               </Card>
             </div>
 
-            <Card className="col-span-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <Card className="col-span-1">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <ChartLine className="mr-2" size={20} /> Call Volume Trend
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart
+                      data={analyticsData}
+                      margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <Tooltip />
+                      <Line type="monotone" dataKey="calls" stroke="#2563EB" strokeWidth={2} dot={{ r: 4 }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              <Card className="col-span-1">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <ChartPie className="mr-2" size={20} /> Intent Recognition Accuracy
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={intentRecognitionData}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        outerRadius={100}
+                        fill="#8884d8"
+                        dataKey="value"
+                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      >
+                        {intentRecognitionData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                      <Legend />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card>
               <CardHeader>
-                <CardTitle>Monthly Usage Trends</CardTitle>
+                <CardTitle className="flex items-center">
+                  <ChartBarHorizontal className="mr-2" size={20} /> Monthly Performance Metrics
+                </CardTitle>
               </CardHeader>
               <CardContent className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={analyticsData}
-                    margin={{
-                      top: 20,
-                      right: 30,
-                      left: 20,
-                      bottom: 5,
-                    }}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
                     <YAxis />
                     <Tooltip />
+                    <Legend />
                     <Bar dataKey="calls" name="Calls" fill="#2563EB" />
-                    <Bar dataKey="duration" name="Duration (min)" fill="#F97316" />
+                    <Bar dataKey="completed" name="Completed" fill="#10B981" />
+                    <Bar dataKey="transferred" name="Transferred" fill="#F97316" />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -178,7 +319,7 @@ const Analytics = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="users" className="space-y-4">
+          <TabsContent value="engagement" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-3">
               <Card>
                 <CardHeader>
@@ -262,6 +403,52 @@ const Analytics = () => {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+          
+          <TabsContent value="details" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Call Details</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>ID</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Duration</TableHead>
+                      <TableHead>Agent</TableHead>
+                      <TableHead>Outcome</TableHead>
+                      <TableHead>Satisfaction</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {callDetailsData.map((call) => (
+                      <TableRow key={call.id}>
+                        <TableCell className="font-medium">{call.id}</TableCell>
+                        <TableCell>{call.date}</TableCell>
+                        <TableCell>{call.duration}</TableCell>
+                        <TableCell>{call.agent}</TableCell>
+                        <TableCell>
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs ${
+                              call.outcome === "Completed"
+                                ? "bg-green-100 text-green-800"
+                                : call.outcome === "Transferred"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : "bg-red-100 text-red-800"
+                            }`}
+                          >
+                            {call.outcome}
+                          </span>
+                        </TableCell>
+                        <TableCell>{call.satisfaction}/5</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
