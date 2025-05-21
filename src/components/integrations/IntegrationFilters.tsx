@@ -1,8 +1,9 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
-import { Category, Database, Plug, Webhook, Calendar, PhoneForwarded, Category2 } from "lucide-react";
+import { Database, Plug, Webhook, Calendar, PhoneForwarded, FolderOpen, BarChart } from "lucide-react";
 
 interface IntegrationFiltersProps {
   onCategoryChange: (category: string | null) => void;
@@ -17,8 +18,8 @@ export const IntegrationFilters: React.FC<IntegrationFiltersProps> = ({ onCatego
     { id: "telephony", name: "Telephony", count: 12, icon: <PhoneForwarded className="h-4 w-4" /> },
     { id: "crm", name: "CRM Platforms", count: 8, icon: <Database className="h-4 w-4" /> },
     { id: "scheduling", name: "Scheduling", count: 6, icon: <Calendar className="h-4 w-4" /> },
-    { id: "email", name: "Email Marketing", count: 9, icon: <Category className="h-4 w-4" /> },
-    { id: "accounting", name: "Accounting", count: 5, icon: <Category2 className="h-4 w-4" /> },
+    { id: "email", name: "Email Marketing", count: 9, icon: <FolderOpen className="h-4 w-4" /> },
+    { id: "accounting", name: "Accounting", count: 5, icon: <BarChart className="h-4 w-4" /> },
     { id: "webhook", name: "Custom Webhooks", count: 3, icon: <Webhook className="h-4 w-4" /> },
   ];
 
