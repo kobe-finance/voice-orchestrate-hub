@@ -1,6 +1,6 @@
 
 import React, { ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/theme/ModeToggle";
 
@@ -9,6 +9,12 @@ interface LayoutProps {
 }
 
 export const Layout = ({ children }: LayoutProps) => {
+  const location = useLocation();
+  
+  const isActive = (path: string) => {
+    return location.pathname === path;
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <header className="border-b">
@@ -16,24 +22,30 @@ export const Layout = ({ children }: LayoutProps) => {
           <Link to="/dashboard" className="flex items-center font-semibold">
             VoiceOrchestrate™
           </Link>
-          <nav className="ml-auto flex items-center gap-4">
+          <nav className="ml-auto flex items-center gap-4 overflow-x-auto">
             <Link to="/dashboard">
-              <Button variant="ghost">Dashboard</Button>
+              <Button variant={isActive("/dashboard") ? "default" : "ghost"}>Dashboard</Button>
             </Link>
             <Link to="/voice-agents">
-              <Button variant="ghost">Voice Agents</Button>
+              <Button variant={isActive("/voice-agents") ? "default" : "ghost"}>Voice Agents</Button>
             </Link>
             <Link to="/conversation-flow">
-              <Button variant="ghost">Flow Builder</Button>
+              <Button variant={isActive("/conversation-flow") ? "default" : "ghost"}>Flow Builder</Button>
             </Link>
             <Link to="/document-management">
-              <Button variant="ghost">Documents</Button>
+              <Button variant={isActive("/document-management") ? "default" : "ghost"}>Documents</Button>
+            </Link>
+            <Link to="/analytics">
+              <Button variant={isActive("/analytics") ? "default" : "ghost"}>Analytics</Button>
             </Link>
             <Link to="/integration-marketplace">
-              <Button variant="ghost">Integrations</Button>
+              <Button variant={isActive("/integration-marketplace") ? "default" : "ghost"}>Integrations</Button>
             </Link>
             <Link to="/api-keys">
-              <Button variant="ghost">API Keys</Button>
+              <Button variant={isActive("/api-keys") ? "default" : "ghost"}>API Keys</Button>
+            </Link>
+            <Link to="/knowledge-organization">
+              <Button variant={isActive("/knowledge-organization") ? "default" : "ghost"}>Knowledge Base</Button>
             </Link>
             <ModeToggle />
           </nav>
