@@ -21,6 +21,12 @@ const Index = () => {
       icon: "🔄",
     },
     {
+      title: "Custom Actions",
+      description: "Build custom actions for your voice agents to perform",
+      link: "/custom-actions",
+      icon: "⚡",
+    },
+    {
       title: "Documents",
       description: "Manage your knowledge base documents and data sources",
       link: "/document-management",

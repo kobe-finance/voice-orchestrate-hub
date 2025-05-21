@@ -17,7 +17,8 @@ import KnowledgeBaseOrganization from "./pages/KnowledgeBaseOrganization";
 import RAGConfiguration from "./pages/RAGConfiguration";
 import IntegrationMarketplace from "./pages/IntegrationMarketplace";
 import APIKeyManagement from "./pages/APIKeyManagement";
-import Analytics from "./pages/Analytics"; // Added Analytics import
+import Analytics from "./pages/Analytics";
+import CustomActionBuilder from "./pages/CustomActionBuilder"; // Import the new page
 import { ThemeProvider } from "./components/theme-provider";
 import { Toaster } from "./components/ui/sonner";
 
@@ -43,6 +44,7 @@ function App() {
           <Route path="/integration-marketplace" element={<IntegrationMarketplace />} />
           <Route path="/api-keys" element={<APIKeyManagement />} />
           <Route path="/analytics" element={<Analytics />} />
+          <Route path="/custom-actions" element={<CustomActionBuilder />} /> {/* Add the new route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
         <Toaster />

@@ -32,6 +32,9 @@ export const Layout = ({ children }: LayoutProps) => {
             <Link to="/conversation-flow">
               <Button variant={isActive("/conversation-flow") ? "default" : "ghost"}>Flow Builder</Button>
             </Link>
+            <Link to="/custom-actions">
+              <Button variant={isActive("/custom-actions") ? "default" : "ghost"}>Custom Actions</Button>
+            </Link>
             <Link to="/document-management">
               <Button variant={isActive("/document-management") ? "default" : "ghost"}>Documents</Button>
             </Link>
