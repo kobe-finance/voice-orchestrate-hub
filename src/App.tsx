@@ -15,6 +15,7 @@ import ConversationFlowBuilder from "./pages/ConversationFlowBuilder";
 import DocumentManagement from "./pages/DocumentManagement";
 import KnowledgeBaseOrganization from "./pages/KnowledgeBaseOrganization";
 import RAGConfiguration from "./pages/RAGConfiguration";
+import IntegrationMarketplace from "./pages/IntegrationMarketplace";
 import { ThemeProvider } from "./components/theme-provider";
 import { Toaster } from "./components/ui/sonner";
 
@@ -37,6 +38,7 @@ function App() {
           <Route path="/document-management" element={<DocumentManagement />} />
           <Route path="/knowledge-organization" element={<KnowledgeBaseOrganization />} />
           <Route path="/rag-configuration" element={<RAGConfiguration />} />
+          <Route path="/integration-marketplace" element={<IntegrationMarketplace />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <Toaster />
