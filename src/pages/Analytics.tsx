@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/ui/page-header";
@@ -35,7 +34,7 @@ import {
   ChartTooltip, 
   ChartTooltipContent
 } from "@/components/ui/chart";
-import { ChartLine, ChartPie, ChartBarHorizontal, Calendar, Download } from "lucide-react";
+import { ChartLine, ChartPie, BarChartHorizontal, Calendar, Download } from "lucide-react";
 
 // Analytics data
 const analyticsData = [
@@ -228,7 +227,7 @@ const Analytics = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <ChartBarHorizontal className="mr-2" size={20} /> Monthly Performance Metrics
+                  <BarChartHorizontal className="mr-2" size={20} /> Monthly Performance Metrics
                 </CardTitle>
               </CardHeader>
               <CardContent className="h-80">
