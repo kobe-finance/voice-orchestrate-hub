@@ -8,6 +8,7 @@ import { SearchInput } from '@/components/ui/search-input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Search, FileDown, Filter } from 'lucide-react';
+import { toast } from 'sonner';
 
 export const ActivityLogViewer = () => {
   const [searchQuery, setSearchQuery] = useState('');

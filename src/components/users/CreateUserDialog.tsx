@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
-import { toast } from '@/components/ui/sonner';
+import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -30,8 +30,10 @@ const createUserFormSchema = z.object({
   path: ["confirmPassword"],
 });
 
+type FormValues = z.infer<typeof createUserFormSchema>;
+
 export const CreateUserDialog = ({ roles, onClose, onSave }: CreateUserDialogProps) => {
-  const form = useForm<z.infer<typeof createUserFormSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(createUserFormSchema),
     defaultValues: {
       firstName: "",
@@ -44,9 +46,18 @@ export const CreateUserDialog = ({ roles, onClose, onSave }: CreateUserDialogPro
     },
   });
   
-  const handleSubmit = (values: z.infer<typeof createUserFormSchema>) => {
+  const handleSubmit = (values: FormValues) => {
     // Omit confirmPassword before passing to onSave
-    const { confirmPassword, ...userData } = values;
+    // Ensure we're passing all the required fields for the User type
+    const userData: Omit<User, 'id' | 'createdAt'> = {
+      firstName: values.firstName,
+      lastName: values.lastName,
+      email: values.email,
+      isActive: values.isActive,
+      roleIds: values.roleIds,
+      // Password is not part of the User type, but we want to pass it to onSave
+      // for new user creation
+    };
     
     onSave(userData);
     toast.success("User created successfully");
