@@ -41,7 +41,7 @@ export function PlanComparison({ plans, currentSubscription, onChangePlan }: Pla
         Compare Plans
       </Button>
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen} className="max-w-4xl">
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-4xl">
           <DialogHeader>
             <DialogTitle>Compare Plans</DialogTitle>
