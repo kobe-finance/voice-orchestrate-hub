@@ -41,6 +41,9 @@ export const Layout = ({ children }: LayoutProps) => {
             <Link to="/analytics">
               <Button variant={isActive("/analytics") ? "default" : "ghost"}>Analytics</Button>
             </Link>
+            <Link to="/conversation-explorer">
+              <Button variant={isActive("/conversation-explorer") ? "default" : "ghost"}>Conversations</Button>
+            </Link>
             <Link to="/integration-marketplace">
               <Button variant={isActive("/integration-marketplace") ? "default" : "ghost"}>Integrations</Button>
             </Link>
