@@ -2,7 +2,7 @@
 import React from "react";
 import { Report } from "@/types/report";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartBar, LineChart, PieChart, Table } from "lucide-react";
+import { BarChart as BarChartIcon, LineChart as LineChartIcon, PieChart as PieChartIcon, Table } from "lucide-react";
 import { BarChart, LineChart as RechartLine, PieChart as RechartPie, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Bar, Line, Pie, Cell } from "recharts";
 
 interface ReportPreviewProps {
@@ -40,10 +40,16 @@ const MOCK_DATA = {
 // Colors for charts
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
+// Custom label for pie chart
+const renderCustomizedLabel = ({ name, percent }: { name: string, percent: number }) => {
+  return `${name}: ${(percent * 100).toFixed(0)}%`;
+};
+
 const ReportPreview: React.FC<ReportPreviewProps> = ({ report }) => {
   const renderVisualizationContent = (visualization: Report["visualizations"][0]) => {
     const { type, dataSource, config } = visualization;
-    let data = MOCK_DATA[dataSource as keyof typeof MOCK_DATA] || [];
+    // Type assertion to ensure dataSource is a valid key of MOCK_DATA
+    const data = MOCK_DATA[dataSource as keyof typeof MOCK_DATA] || [];
     
     switch (type) {
       case "bar":
@@ -98,8 +104,7 @@ const ReportPreview: React.FC<ReportPreviewProps> = ({ report }) => {
               cx="50%"
               cy="50%"
               outerRadius={100}
-              labelLine={false}
-              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+              label={renderCustomizedLabel}
             >
               {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -129,12 +134,12 @@ const ReportPreview: React.FC<ReportPreviewProps> = ({ report }) => {
               <tbody className="bg-background divide-y divide-border">
                 {data.slice(0, 5).map((row, i) => (
                   <tr key={i}>
-                    {Object.values(row).map((value, j) => (
+                    {Object.entries(row).map(([key, value]) => (
                       <td 
-                        key={j}
+                        key={key}
                         className="px-6 py-4 whitespace-nowrap text-sm"
                       >
-                        {value}
+                        {String(value)}
                       </td>
                     ))}
                   </tr>
@@ -177,9 +182,9 @@ const ReportPreview: React.FC<ReportPreviewProps> = ({ report }) => {
                 <div className="flex justify-between items-center">
                   <CardTitle>{visualization.title}</CardTitle>
                   <div>
-                    {visualization.type === "bar" && <ChartBar className="h-5 w-5 text-muted-foreground" />}
-                    {visualization.type === "line" && <LineChart className="h-5 w-5 text-muted-foreground" />}
-                    {visualization.type === "pie" && <PieChart className="h-5 w-5 text-muted-foreground" />}
+                    {visualization.type === "bar" && <BarChartIcon className="h-5 w-5 text-muted-foreground" />}
+                    {visualization.type === "line" && <LineChartIcon className="h-5 w-5 text-muted-foreground" />}
+                    {visualization.type === "pie" && <PieChartIcon className="h-5 w-5 text-muted-foreground" />}
                     {visualization.type === "table" && <Table className="h-5 w-5 text-muted-foreground" />}
                   </div>
                 </div>

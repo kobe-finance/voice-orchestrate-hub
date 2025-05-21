@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, ChartBar, LineChart, PieChart, Table, ArrowRight } from "lucide-react";
+import { Plus, BarChart, LineChart, PieChart, Table, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 
 interface ReportDesignerProps {
@@ -172,7 +172,7 @@ const ReportDesigner: React.FC<ReportDesignerProps> = ({
             <TabsContent value="layout" className="space-y-4">
               <div className="flex items-center space-x-4 mb-4 overflow-x-auto py-2">
                 <Button variant="outline" onClick={() => addVisualization("bar")}>
-                  <ChartBar className="mr-2 h-4 w-4" />
+                  <BarChart className="mr-2 h-4 w-4" />
                   Bar Chart
                 </Button>
                 <Button variant="outline" onClick={() => addVisualization("line")}>
@@ -216,7 +216,7 @@ const ReportDesigner: React.FC<ReportDesignerProps> = ({
                       </CardHeader>
                       <CardContent>
                         <div className="h-32 bg-muted/50 rounded flex items-center justify-center">
-                          {vis.type === "bar" && <ChartBar className="h-10 w-10 text-muted-foreground" />}
+                          {vis.type === "bar" && <BarChart className="h-10 w-10 text-muted-foreground" />}
                           {vis.type === "line" && <LineChart className="h-10 w-10 text-muted-foreground" />}
                           {vis.type === "pie" && <PieChart className="h-10 w-10 text-muted-foreground" />}
                           {vis.type === "table" && <Table className="h-10 w-10 text-muted-foreground" />}

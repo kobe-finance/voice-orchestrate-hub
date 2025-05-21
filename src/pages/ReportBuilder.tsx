@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Download, Mail, Save } from "lucide-react";
 import { toast } from "sonner";
+import { Report, ReportTemplate, Visualization } from "@/types/report";
 
 const ReportBuilder = () => {
   const [activeTab, setActiveTab] = useState("templates");
@@ -21,8 +22,8 @@ const ReportBuilder = () => {
     // In a real app, we would fetch the template data from the backend
     const templateData = MOCK_TEMPLATES.find(t => t.id === templateId);
     if (templateData) {
-      setReport({
-        id: "",
+      const newReport: Report = {
+        id: crypto.randomUUID(),
         name: `Copy of ${templateData.name}`,
         description: templateData.description,
         dataSources: [],
@@ -31,7 +32,8 @@ const ReportBuilder = () => {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         isTemplate: false,
-      });
+      };
+      setReport(newReport);
     }
   };
 
@@ -48,6 +50,10 @@ const ReportBuilder = () => {
   const handleEmailReport = () => {
     // In a real app, this would open an email configuration modal
     toast.success("Email delivery configured!");
+  };
+
+  const handleUpdateReport = (updatedReport: Report) => {
+    setReport(updatedReport);
   };
 
   return (
@@ -131,7 +137,7 @@ const ReportBuilder = () => {
             {report && (
               <ReportDesigner 
                 report={report} 
-                onUpdateReport={setReport}
+                onUpdateReport={handleUpdateReport}
                 onPreview={() => setActiveTab("preview")}
               />
             )}
@@ -146,7 +152,7 @@ const ReportBuilder = () => {
 };
 
 // Mock data for templates
-const MOCK_TEMPLATES = [
+const MOCK_TEMPLATES: ReportTemplate[] = [
   {
     id: "call-performance",
     name: "Call Performance Report",
