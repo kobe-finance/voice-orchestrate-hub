@@ -176,7 +176,10 @@ export const VoiceModal: React.FC<VoiceModalProps> = ({ isOpen, onClose }) => {
           <div className="bg-muted/50 p-4 h-64 overflow-y-auto">
             {transcript.length > 0 ? (
               transcript.map((line, idx) => (
-                <p key={idx} className={`mb-2 ${line.startsWith('AI:') ? 'text-primary' : ''}`}>
+                <p 
+                  key={idx} 
+                  className={`mb-2 ${line && line.startsWith('AI:') ? 'text-primary' : ''}`}
+                >
                   {line}
                 </p>
               ))
