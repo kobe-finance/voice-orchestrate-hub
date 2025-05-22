@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { X, Mic } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { VoiceWaveform } from "@/components/voice/VoiceWaveform";
+import VoiceWaveform from "@/components/voice/VoiceWaveform";
 
 interface VoiceModalProps {
   isOpen: boolean;
@@ -141,7 +141,7 @@ export const VoiceModal: React.FC<VoiceModalProps> = ({ isOpen, onClose }) => {
         <div className="px-4 py-6 flex flex-col items-center">
           <div className="w-full h-20 mb-4">
             {isListening ? (
-              <VoiceWaveform />
+              <VoiceWaveform voiceId="default" isActive={true} />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
                 <Mic className="h-12 w-12 text-muted-foreground" />

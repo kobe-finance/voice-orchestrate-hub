@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Mic, ArrowRight, CheckCircle } from "lucide-react";
@@ -72,17 +71,13 @@ const Index = () => {
                   </NavigationMenuContent>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <Link to="/pricing" legacyBehavior passHref>
-                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                      Pricing
-                    </NavigationMenuLink>
+                  <Link to="/pricing" className={navigationMenuTriggerStyle()}>
+                    Pricing
                   </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <Link to="/contact" legacyBehavior passHref>
-                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                      Contact
-                    </NavigationMenuLink>
+                  <Link to="/contact" className={navigationMenuTriggerStyle()}>
+                    Contact
                   </Link>
                 </NavigationMenuItem>
               </NavigationMenuList>
