@@ -27,38 +27,48 @@ import VoiceProviderManagement from "./pages/VoiceProviderManagement";
 
 import { ThemeProvider } from "./components/theme-provider";
 import { Toaster } from "./components/ui/sonner";
+import { SidebarProvider } from "./components/ui/sidebar";
+import { AppSidebar } from "./components/Sidebar";
+import { SidebarInset } from "./components/ui/sidebar";
 
 function App() {
   return (
     <ThemeProvider defaultTheme="light">
       <Router>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Auth />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/mfa-verification" element={<MFAVerification />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/onboarding" element={<Onboarding />} />
-          <Route path="/voice-agents" element={<VoiceAgents />} />
-          <Route path="/create-voice-agent" element={<CreateVoiceAgent />} />
-          <Route path="/edit-voice-agent/:id" element={<EditVoiceAgent />} />
-          <Route path="/voice-selection" element={<VoiceSelection />} />
-          <Route path="/voice-providers" element={<VoiceProviderManagement />} />
-          <Route path="/conversation-flow" element={<ConversationFlowBuilder />} />
-          <Route path="/document-management" element={<DocumentManagement />} />
-          <Route path="/knowledge-organization" element={<KnowledgeBaseOrganization />} />
-          <Route path="/rag-configuration" element={<RAGConfiguration />} />
-          <Route path="/integration-marketplace" element={<IntegrationMarketplace />} />
-          <Route path="/api-keys" element={<APIKeyManagement />} />
-          <Route path="/analytics" element={<Analytics />} />
-          <Route path="/custom-actions" element={<CustomActionBuilder />} />
-          <Route path="/conversation-explorer" element={<ConversationExplorer />} />
-          <Route path="/report-builder" element={<ReportBuilder />} />
-          <Route path="/user-management" element={<UserManagement />} />
-          <Route path="/billing-subscription" element={<BillingSubscription />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-        <Toaster />
+        <SidebarProvider>
+          <div className="min-h-screen flex w-full">
+            <AppSidebar />
+            <SidebarInset>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/login" element={<Auth />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/mfa-verification" element={<MFAVerification />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/onboarding" element={<Onboarding />} />
+                <Route path="/voice-agents" element={<VoiceAgents />} />
+                <Route path="/create-voice-agent" element={<CreateVoiceAgent />} />
+                <Route path="/edit-voice-agent/:id" element={<EditVoiceAgent />} />
+                <Route path="/voice-selection" element={<VoiceSelection />} />
+                <Route path="/voice-providers" element={<VoiceProviderManagement />} />
+                <Route path="/conversation-flow" element={<ConversationFlowBuilder />} />
+                <Route path="/document-management" element={<DocumentManagement />} />
+                <Route path="/knowledge-organization" element={<KnowledgeBaseOrganization />} />
+                <Route path="/rag-configuration" element={<RAGConfiguration />} />
+                <Route path="/integration-marketplace" element={<IntegrationMarketplace />} />
+                <Route path="/api-keys" element={<APIKeyManagement />} />
+                <Route path="/analytics" element={<Analytics />} />
+                <Route path="/custom-actions" element={<CustomActionBuilder />} />
+                <Route path="/conversation-explorer" element={<ConversationExplorer />} />
+                <Route path="/report-builder" element={<ReportBuilder />} />
+                <Route path="/user-management" element={<UserManagement />} />
+                <Route path="/billing-subscription" element={<BillingSubscription />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </SidebarInset>
+            <Toaster />
+          </div>
+        </SidebarProvider>
       </Router>
     </ThemeProvider>
   );
