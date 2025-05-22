@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect } from "react";
-import { X, Mic } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { X, Mic, AudioWaveform } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import VoiceWaveform from "@/components/voice/VoiceWaveform";
+import { cn } from "@/lib/utils";
 
 interface VoiceModalProps {
   isOpen: boolean;
@@ -15,6 +15,7 @@ export const VoiceModal: React.FC<VoiceModalProps> = ({ isOpen, onClose }) => {
   const [transcript, setTranscript] = useState<string[]>([]);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [hasMicPermission, setHasMicPermission] = useState<boolean | null>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   // Request microphone permission
   const requestMicPermission = async () => {
@@ -47,16 +48,24 @@ export const VoiceModal: React.FC<VoiceModalProps> = ({ isOpen, onClose }) => {
   const handleEndConversation = () => {
     setIsListening(false);
     setTranscript(prev => [...prev, "AI: Thank you for the conversation. Goodbye!"]);
+    setTimeout(() => {
+      onClose();
+      setElapsedTime(0);
+      setTranscript([]);
+    }, 1500);
   };
 
-  // Format time as HH:MM:SS
+  // Toggle expanded transcript view
+  const toggleExpanded = () => {
+    setIsExpanded(!isExpanded);
+  };
+
+  // Format time as MM:SS
   const formatTime = (seconds: number): string => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
+    const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
     
     return [
-      hours.toString().padStart(2, '0'),
       minutes.toString().padStart(2, '0'),
       secs.toString().padStart(2, '0')
     ].join(':');
@@ -88,6 +97,7 @@ export const VoiceModal: React.FC<VoiceModalProps> = ({ isOpen, onClose }) => {
       setIsListening(false);
       setElapsedTime(0);
       setTranscript([]);
+      setIsExpanded(false);
     }
   }, [isOpen]);
 
@@ -117,39 +127,53 @@ export const VoiceModal: React.FC<VoiceModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <Card className="w-full max-w-md shadow-lg rounded-xl overflow-hidden">
-        <div className="p-4 border-b flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            {isListening ? (
-              <div className="flex items-center gap-2">
-                <span className="h-3 w-3 bg-red-500 rounded-full animate-pulse"></span>
-                <span className="font-medium">Talking...</span>
-              </div>
-            ) : (
-              <span className="font-medium">Voice Assistant</span>
-            )}
+    <div className="fixed z-50">
+      {/* Compact floating voice button with waveform */}
+      <div className="fixed bottom-6 right-6 flex items-center">
+        <div 
+          className={cn(
+            "flex items-center bg-white rounded-full shadow-lg pr-3 border border-gray-200",
+            isExpanded ? "min-w-[360px]" : ""
+          )}
+        >
+          <div 
+            onClick={toggleExpanded}
+            className="flex items-center gap-2 px-3 py-2 cursor-pointer h-12"
+          >
+            <div className="h-8 w-8 bg-primary/10 rounded-full flex items-center justify-center">
+              {isListening ? (
+                <div className="w-6 h-6">
+                  <VoiceWaveform voiceId="default" isActive={true} />
+                </div>
+              ) : (
+                <AudioWaveform className="h-4 w-4 text-primary" />
+              )}
+            </div>
+            <span className="font-mono text-sm">{formatTime(elapsedTime)}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-mono">{formatTime(elapsedTime)}</span>
-            <Button variant="ghost" size="sm" onClick={onClose}>
+          
+          <Button 
+            variant="destructive" 
+            size="icon"
+            className="h-8 w-8 rounded-full"
+            onClick={handleEndConversation}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+      
+      {/* Expanded transcript view */}
+      {isExpanded && (
+        <div className="fixed bottom-20 right-6 w-96 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden">
+          <div className="p-3 border-b flex items-center justify-between">
+            <span className="font-medium">Conversation</span>
+            <Button variant="ghost" size="sm" onClick={() => setIsExpanded(false)}>
               <X className="h-4 w-4" />
             </Button>
           </div>
-        </div>
-        
-        <div className="px-4 py-6 flex flex-col items-center">
-          <div className="w-full h-20 mb-4">
-            {isListening ? (
-              <VoiceWaveform voiceId="default" isActive={true} />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <Mic className="h-12 w-12 text-muted-foreground" />
-              </div>
-            )}
-          </div>
           
-          <div className="w-full bg-muted p-4 rounded-md h-64 overflow-y-auto mb-4">
+          <div className="bg-muted/50 p-4 h-64 overflow-y-auto">
             {transcript.length > 0 ? (
               transcript.map((line, idx) => (
                 <p key={idx} className={`mb-2 ${line.startsWith('AI:') ? 'text-primary' : ''}`}>
@@ -162,20 +186,8 @@ export const VoiceModal: React.FC<VoiceModalProps> = ({ isOpen, onClose }) => {
               </p>
             )}
           </div>
-          
-          <div className="flex gap-2">
-            {isListening ? (
-              <Button variant="destructive" onClick={handleEndConversation}>
-                End Conversation
-              </Button>
-            ) : (
-              <Button onClick={handleStartConversation}>
-                <Mic className="mr-2 h-4 w-4" /> Start Talking
-              </Button>
-            )}
-          </div>
         </div>
-      </Card>
+      )}
     </div>
   );
 };

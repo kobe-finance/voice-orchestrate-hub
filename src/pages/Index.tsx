@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Mic, ArrowRight, CheckCircle } from "lucide-react";
@@ -104,13 +105,22 @@ const Index = () => {
           <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-2xl mx-auto">
             Experience the future of voice AI with natural, fluid conversations that understand context and deliver results.
           </p>
-          <Button 
-            size="lg" 
-            onClick={handleOpenVoiceModal}
-            className="h-16 px-8 text-lg font-medium rounded-full animate-pulse hover:animate-none transition-all hover:scale-105"
-          >
-            <Mic className="mr-2 h-5 w-5" /> Talk to Me
-          </Button>
+          <div className="relative inline-block">
+            {/* Decorative background element */}
+            <div className="absolute -inset-2 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full blur-lg opacity-70 animate-pulse"></div>
+            <Button 
+              size="lg" 
+              onClick={handleOpenVoiceModal}
+              disabled={isVoiceModalOpen}
+              className={cn(
+                "h-16 px-8 text-lg font-medium rounded-full relative transition-all hover:scale-105 bg-blue-600 hover:bg-blue-700",
+                isVoiceModalOpen && "opacity-50 pointer-events-none"
+              )}
+            >
+              <Mic className="mr-2 h-5 w-5" /> 
+              {isVoiceModalOpen ? "Talking..." : "Talk to Me"}
+            </Button>
+          </div>
         </div>
       </section>
 
@@ -193,12 +203,21 @@ const Index = () => {
             Start talking with our AI assistant today or sign up for a full-featured account.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
-              size="lg" 
-              onClick={handleOpenVoiceModal}
-            >
-              <Mic className="mr-2 h-5 w-5" /> Talk to Me
-            </Button>
+            <div className="relative inline-block">
+              <div className="absolute -inset-1 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full blur-sm opacity-70"></div>
+              <Button 
+                size="lg" 
+                onClick={handleOpenVoiceModal}
+                disabled={isVoiceModalOpen}
+                className={cn(
+                  "relative bg-blue-600 hover:bg-blue-700",
+                  isVoiceModalOpen && "opacity-50 pointer-events-none"
+                )}
+              >
+                <Mic className="mr-2 h-5 w-5" /> 
+                {isVoiceModalOpen ? "Talking..." : "Talk to Me"}
+              </Button>
+            </div>
             <Link to="/onboarding">
               <Button 
                 variant="outline" 
