@@ -19,6 +19,8 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
 interface RAGConfigPanelProps {
   config: {
@@ -33,12 +35,24 @@ interface RAGConfigPanelProps {
   isExpertMode: boolean;
 }
 
+// Define schema for validation
+const formSchema = z.object({
+  chunkSize: z.number().min(128).max(2048),
+  chunkOverlap: z.number().min(0).max(512),
+  embeddingModel: z.string(),
+  relevanceThreshold: z.number().min(0.5).max(0.95),
+  contextWindowSize: z.number().min(1024).max(8192),
+  useQueryReformulation: z.boolean()
+});
+
 const RAGConfigPanel: React.FC<RAGConfigPanelProps> = ({ 
   config, 
   onConfigChange, 
   isExpertMode 
 }) => {
-  const form = useForm({
+  // Setup form with react-hook-form
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
     defaultValues: config
   });
 
@@ -51,29 +65,10 @@ const RAGConfigPanel: React.FC<RAGConfigPanelProps> = ({
     { value: "jina-base-en-v1", label: "Jina Base English v1" }
   ];
 
-  // Handle individual field changes
-  const handleChunkSizeChange = (value: number[]) => {
-    onConfigChange({ chunkSize: value[0] });
-  };
-
-  const handleChunkOverlapChange = (value: number[]) => {
-    onConfigChange({ chunkOverlap: value[0] });
-  };
-
-  const handleThresholdChange = (value: number[]) => {
-    onConfigChange({ relevanceThreshold: value[0] / 100 });
-  };
-
-  const handleContextWindowChange = (value: number[]) => {
-    onConfigChange({ contextWindowSize: value[0] });
-  };
-
-  const handleEmbeddingModelChange = (value: string) => {
-    onConfigChange({ embeddingModel: value });
-  };
-
-  const handleQueryReformulationChange = (checked: boolean) => {
-    onConfigChange({ useQueryReformulation: checked });
+  // Handle form changes that need to be propagated to parent
+  const handleValueChange = (field: string, value: any) => {
+    form.setValue(field as any, value);
+    onConfigChange({ [field]: value });
   };
 
   return (
@@ -85,152 +80,200 @@ const RAGConfigPanel: React.FC<RAGConfigPanelProps> = ({
           : "Basic settings to control how your knowledge base responds to queries."}
       </p>
 
-      <div className="grid gap-6">
-        <Card>
-          <CardContent className="p-6">
-            <h3 className="text-lg font-medium mb-4">Document Processing</h3>
-            
-            <div className="space-y-6">
-              <div className="space-y-4">
-                <div>
-                  <FormLabel>Chunk Size ({config.chunkSize} tokens)</FormLabel>
-                  <FormDescription className="mt-1 mb-3">
-                    Controls how documents are split into chunks for processing
-                  </FormDescription>
-                  <Slider
-                    value={[config.chunkSize]}
-                    min={128}
-                    max={2048}
-                    step={64}
-                    onValueChange={handleChunkSizeChange}
-                  />
-                  <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                    <span>Small (128)</span>
-                    <span>Medium (1024)</span>
-                    <span>Large (2048)</span>
-                  </div>
-                </div>
-                
-                {isExpertMode && (
-                  <div>
-                    <FormLabel>Chunk Overlap ({config.chunkOverlap} tokens)</FormLabel>
-                    <FormDescription className="mt-1 mb-3">
-                      Overlap between consecutive chunks to maintain context
-                    </FormDescription>
-                    <Slider
-                      value={[config.chunkOverlap]}
-                      min={0}
-                      max={512}
-                      step={16}
-                      onValueChange={handleChunkOverlapChange}
-                    />
-                    <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                      <span>None (0)</span>
-                      <span>Medium (256)</span>
-                      <span>High (512)</span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-6">
-            <h3 className="text-lg font-medium mb-4">Embedding & Retrieval</h3>
-            
-            <div className="space-y-6">
-              <div className="space-y-4">
-                <div>
-                  <FormLabel>Embedding Model</FormLabel>
-                  <FormDescription className="mt-1 mb-3">
-                    Model used to convert text into vector embeddings
-                  </FormDescription>
-                  <Select 
-                    value={config.embeddingModel} 
-                    onValueChange={handleEmbeddingModelChange}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select embedding model" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {embeddingModels.map((model) => (
-                        <SelectItem key={model.value} value={model.value}>
-                          {model.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <FormLabel>Relevance Threshold ({Math.round(config.relevanceThreshold * 100)}%)</FormLabel>
-                  <FormDescription className="mt-1 mb-3">
-                    Minimum similarity score for documents to be included in results
-                  </FormDescription>
-                  <Slider
-                    value={[Math.round(config.relevanceThreshold * 100)]}
-                    min={50}
-                    max={95}
-                    step={1}
-                    onValueChange={handleThresholdChange}
-                  />
-                  <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                    <span>Low precision (50%)</span>
-                    <span>Balanced (75%)</span>
-                    <span>High precision (95%)</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        {isExpertMode && (
+      <Form {...form}>
+        <form className="grid gap-6">
           <Card>
             <CardContent className="p-6">
-              <h3 className="text-lg font-medium mb-4">Advanced Settings</h3>
+              <h3 className="text-lg font-medium mb-4">Document Processing</h3>
               
               <div className="space-y-6">
-                <div className="space-y-4">
-                  <div>
-                    <FormLabel>Context Window Size ({config.contextWindowSize} tokens)</FormLabel>
-                    <FormDescription className="mt-1 mb-3">
-                      Maximum context size used for generating responses
-                    </FormDescription>
-                    <Slider
-                      value={[config.contextWindowSize]}
-                      min={1024}
-                      max={8192}
-                      step={1024}
-                      onValueChange={handleContextWindowChange}
-                    />
-                    <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                      <span>Small (1K)</span>
-                      <span>Medium (4K)</span>
-                      <span>Large (8K)</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between pt-2">
-                    <div>
-                      <FormLabel>Query Reformulation</FormLabel>
-                      <FormDescription>
-                        Automatically rewrite queries to improve retrieval quality
-                      </FormDescription>
-                    </div>
-                    <Switch
-                      checked={config.useQueryReformulation}
-                      onCheckedChange={handleQueryReformulationChange}
-                    />
-                  </div>
-                </div>
+                <FormField
+                  control={form.control}
+                  name="chunkSize"
+                  render={({ field }) => (
+                    <FormItem className="space-y-4">
+                      <div>
+                        <FormLabel>Chunk Size ({field.value} tokens)</FormLabel>
+                        <FormDescription className="mt-1 mb-3">
+                          Controls how documents are split into chunks for processing
+                        </FormDescription>
+                        <FormControl>
+                          <Slider
+                            value={[field.value]}
+                            min={128}
+                            max={2048}
+                            step={64}
+                            onValueChange={(value) => handleValueChange("chunkSize", value[0])}
+                          />
+                        </FormControl>
+                        <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                          <span>Small (128)</span>
+                          <span>Medium (1024)</span>
+                          <span>Large (2048)</span>
+                        </div>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+                
+                {isExpertMode && (
+                  <FormField
+                    control={form.control}
+                    name="chunkOverlap"
+                    render={({ field }) => (
+                      <FormItem className="space-y-4">
+                        <div>
+                          <FormLabel>Chunk Overlap ({field.value} tokens)</FormLabel>
+                          <FormDescription className="mt-1 mb-3">
+                            Overlap between consecutive chunks to maintain context
+                          </FormDescription>
+                          <FormControl>
+                            <Slider
+                              value={[field.value]}
+                              min={0}
+                              max={512}
+                              step={16}
+                              onValueChange={(value) => handleValueChange("chunkOverlap", value[0])}
+                            />
+                          </FormControl>
+                          <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                            <span>None (0)</span>
+                            <span>Medium (256)</span>
+                            <span>High (512)</span>
+                          </div>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+                )}
               </div>
             </CardContent>
           </Card>
-        )}
-      </div>
+          
+          <Card>
+            <CardContent className="p-6">
+              <h3 className="text-lg font-medium mb-4">Embedding & Retrieval</h3>
+              
+              <div className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="embeddingModel"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Embedding Model</FormLabel>
+                      <FormDescription className="mt-1 mb-3">
+                        Model used to convert text into vector embeddings
+                      </FormDescription>
+                      <Select 
+                        value={field.value} 
+                        onValueChange={(value) => handleValueChange("embeddingModel", value)}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select embedding model" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {embeddingModels.map((model) => (
+                            <SelectItem key={model.value} value={model.value}>
+                              {model.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="relevanceThreshold"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Relevance Threshold ({Math.round(field.value * 100)}%)</FormLabel>
+                      <FormDescription className="mt-1 mb-3">
+                        Minimum similarity score for documents to be included in results
+                      </FormDescription>
+                      <FormControl>
+                        <Slider
+                          value={[Math.round(field.value * 100)]}
+                          min={50}
+                          max={95}
+                          step={1}
+                          onValueChange={(value) => handleValueChange("relevanceThreshold", value[0] / 100)}
+                        />
+                      </FormControl>
+                      <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                        <span>Low precision (50%)</span>
+                        <span>Balanced (75%)</span>
+                        <span>High precision (95%)</span>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </CardContent>
+          </Card>
+          
+          {isExpertMode && (
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="text-lg font-medium mb-4">Advanced Settings</h3>
+                
+                <div className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="contextWindowSize"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Context Window Size ({field.value} tokens)</FormLabel>
+                        <FormDescription className="mt-1 mb-3">
+                          Maximum context size used for generating responses
+                        </FormDescription>
+                        <FormControl>
+                          <Slider
+                            value={[field.value]}
+                            min={1024}
+                            max={8192}
+                            step={1024}
+                            onValueChange={(value) => handleValueChange("contextWindowSize", value[0])}
+                          />
+                        </FormControl>
+                        <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                          <span>Small (1K)</span>
+                          <span>Medium (4K)</span>
+                          <span>Large (8K)</span>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="useQueryReformulation"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center justify-between pt-2">
+                        <div className="space-y-0.5">
+                          <FormLabel>Query Reformulation</FormLabel>
+                          <FormDescription>
+                            Automatically rewrite queries to improve retrieval quality
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={(checked) => handleValueChange("useQueryReformulation", checked)}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </form>
+      </Form>
     </div>
   );
 };
