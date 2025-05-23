@@ -26,6 +26,8 @@ import {
   CreditCard,
   Users,
   LayoutDashboard,
+  Laptop,
+  Headphones,
   LucideIcon
 } from "lucide-react";
 
@@ -37,6 +39,7 @@ interface NavigationItem {
 
 const navigationItems: NavigationItem[] = [
   { title: "Home", path: "/", icon: Home },
+  { title: "Onboarding", path: "/onboarding", icon: Laptop },
   { title: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
   { title: "Voice Agents", path: "/voice-agents", icon: Mic },
   { title: "Flow Builder", path: "/conversation-flow", icon: Share2 },
@@ -46,6 +49,7 @@ const navigationItems: NavigationItem[] = [
   { title: "Knowledge Base", path: "/knowledge-organization", icon: Database },
   { title: "API Keys", path: "/api-keys", icon: KeyRound },
   { title: "Voice Providers", path: "/voice-providers", icon: Settings },
+  { title: "Voice Selection", path: "/voice-selection", icon: Headphones },
   { title: "Users & Roles", path: "/user-management", icon: Users },
   { title: "Billing", path: "/billing-subscription", icon: CreditCard },
 ];
