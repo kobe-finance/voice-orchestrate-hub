@@ -172,7 +172,7 @@ export const ConversationSearchFilters = ({
                 <SelectValue placeholder="Select sentiment" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Any sentiment</SelectItem>
+                <SelectItem value="any">Any sentiment</SelectItem>
                 {sentimentOptions.map((sentiment) => (
                   <SelectItem key={sentiment} value={sentiment}>
                     {sentiment.charAt(0).toUpperCase() + sentiment.slice(1)}
@@ -194,7 +194,7 @@ export const ConversationSearchFilters = ({
                 <SelectValue placeholder="Select outcome" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Any outcome</SelectItem>
+                <SelectItem value="any">Any outcome</SelectItem>
                 {outcomeOptions.map((outcome) => (
                   <SelectItem key={outcome} value={outcome}>
                     {outcome.charAt(0).toUpperCase() + outcome.slice(1)}
