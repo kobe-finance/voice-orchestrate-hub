@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import Auth from "./pages/Auth";
@@ -38,7 +37,8 @@ const AppLayout = ({ children }) => {
   
   return (
     <div className="min-h-screen flex w-full">
-      {!isDashboardPage && <AppSidebar />}
+      {/* Always render the AppSidebar which contains the "Navigation" menu that we want to keep */}
+      <AppSidebar />
       <SidebarInset>
         {children}
       </SidebarInset>
