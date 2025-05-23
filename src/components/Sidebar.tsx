@@ -25,6 +25,7 @@ import {
   Share2,
   CreditCard,
   Users,
+  LayoutDashboard,
   LucideIcon
 } from "lucide-react";
 
@@ -36,6 +37,7 @@ interface NavigationItem {
 
 const navigationItems: NavigationItem[] = [
   { title: "Home", path: "/", icon: Home },
+  { title: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
   { title: "Voice Agents", path: "/voice-agents", icon: Mic },
   { title: "Flow Builder", path: "/conversation-flow", icon: Share2 },
   { title: "Documents", path: "/document-management", icon: FileText },
