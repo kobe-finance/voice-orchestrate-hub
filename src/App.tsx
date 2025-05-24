@@ -30,45 +30,235 @@ import { Toaster } from "./components/ui/sonner";
 import { SidebarProvider } from "./components/ui/sidebar";
 import { AppSidebar } from "./components/Sidebar";
 import { SidebarInset } from "./components/ui/sidebar";
+import { AuthProvider } from "./hooks/useAuth";
+import { WebSocketProvider } from "./contexts/WebSocketContext";
+import { TenantProvider } from "./contexts/TenantContext";
+import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 
 function App() {
   return (
     <ThemeProvider defaultTheme="light">
       <Router>
-        <SidebarProvider>
-          <div className="min-h-screen flex w-full">
-            <AppSidebar />
-            <SidebarInset>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/login" element={<Auth />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/mfa-verification" element={<MFAVerification />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/onboarding" element={<Onboarding />} />
-                <Route path="/voice-agents" element={<VoiceAgents />} />
-                <Route path="/create-voice-agent" element={<CreateVoiceAgent />} />
-                <Route path="/edit-voice-agent/:id" element={<EditVoiceAgent />} />
-                <Route path="/voice-selection" element={<VoiceSelection />} />
-                <Route path="/voice-providers" element={<VoiceProviderManagement />} />
-                <Route path="/conversation-flow" element={<ConversationFlowBuilder />} />
-                <Route path="/document-management" element={<DocumentManagement />} />
-                <Route path="/knowledge-organization" element={<KnowledgeBaseOrganization />} />
-                <Route path="/rag-configuration" element={<RAGConfiguration />} />
-                <Route path="/integration-marketplace" element={<IntegrationMarketplace />} />
-                <Route path="/api-keys" element={<APIKeyManagement />} />
-                <Route path="/analytics" element={<Analytics />} />
-                <Route path="/custom-actions" element={<CustomActionBuilder />} />
-                <Route path="/conversation-explorer" element={<ConversationExplorer />} />
-                <Route path="/report-builder" element={<ReportBuilder />} />
-                <Route path="/user-management" element={<UserManagement />} />
-                <Route path="/billing-subscription" element={<BillingSubscription />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-              <Toaster />
-            </SidebarInset>
-          </div>
-        </SidebarProvider>
+        <AuthProvider>
+          <TenantProvider>
+            <WebSocketProvider>
+              <SidebarProvider>
+                <div className="min-h-screen flex w-full">
+                  <Routes>
+                    {/* Public routes */}
+                    <Route path="/login" element={<Auth />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
+                    <Route path="/mfa-verification" element={<MFAVerification />} />
+                    
+                    {/* Protected routes */}
+                    <Route path="/" element={
+                      <ProtectedRoute>
+                        <>
+                          <AppSidebar />
+                          <SidebarInset>
+                            <Index />
+                          </SidebarInset>
+                        </>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/dashboard" element={
+                      <ProtectedRoute>
+                        <>
+                          <AppSidebar />
+                          <SidebarInset>
+                            <Dashboard />
+                          </SidebarInset>
+                        </>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/onboarding" element={
+                      <ProtectedRoute>
+                        <>
+                          <AppSidebar />
+                          <SidebarInset>
+                            <Onboarding />
+                          </SidebarInset>
+                        </>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/voice-agents" element={
+                      <ProtectedRoute>
+                        <>
+                          <AppSidebar />
+                          <SidebarInset>
+                            <VoiceAgents />
+                          </SidebarInset>
+                        </>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/create-voice-agent" element={
+                      <ProtectedRoute>
+                        <>
+                          <AppSidebar />
+                          <SidebarInset>
+                            <CreateVoiceAgent />
+                          </SidebarInset>
+                        </>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/edit-voice-agent/:id" element={
+                      <ProtectedRoute>
+                        <>
+                          <AppSidebar />
+                          <SidebarInset>
+                            <EditVoiceAgent />
+                          </SidebarInset>
+                        </>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/voice-selection" element={
+                      <ProtectedRoute>
+                        <>
+                          <AppSidebar />
+                          <SidebarInset>
+                            <VoiceSelection />
+                          </SidebarInset>
+                        </>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/voice-providers" element={
+                      <ProtectedRoute>
+                        <>
+                          <AppSidebar />
+                          <SidebarInset>
+                            <VoiceProviderManagement />
+                          </SidebarInset>
+                        </>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/conversation-flow" element={
+                      <ProtectedRoute>
+                        <>
+                          <AppSidebar />
+                          <SidebarInset>
+                            <ConversationFlowBuilder />
+                          </SidebarInset>
+                        </>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/document-management" element={
+                      <ProtectedRoute>
+                        <>
+                          <AppSidebar />
+                          <SidebarInset>
+                            <DocumentManagement />
+                          </SidebarInset>
+                        </>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/knowledge-organization" element={
+                      <ProtectedRoute>
+                        <>
+                          <AppSidebar />
+                          <SidebarInset>
+                            <KnowledgeBaseOrganization />
+                          </SidebarInset>
+                        </>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/rag-configuration" element={
+                      <ProtectedRoute>
+                        <>
+                          <AppSidebar />
+                          <SidebarInset>
+                            <RAGConfiguration />
+                          </SidebarInset>
+                        </>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/integration-marketplace" element={
+                      <ProtectedRoute>
+                        <>
+                          <AppSidebar />
+                          <SidebarInset>
+                            <IntegrationMarketplace />
+                          </SidebarInset>
+                        </>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/api-keys" element={
+                      <ProtectedRoute>
+                        <>
+                          <AppSidebar />
+                          <SidebarInset>
+                            <APIKeyManagement />
+                          </SidebarInset>
+                        </>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/analytics" element={
+                      <ProtectedRoute>
+                        <>
+                          <AppSidebar />
+                          <SidebarInset>
+                            <Analytics />
+                          </SidebarInset>
+                        </>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/custom-actions" element={
+                      <ProtectedRoute>
+                        <>
+                          <AppSidebar />
+                          <SidebarInset>
+                            <CustomActionBuilder />
+                          </SidebarInset>
+                        </>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/conversation-explorer" element={
+                      <ProtectedRoute>
+                        <>
+                          <AppSidebar />
+                          <SidebarInset>
+                            <ConversationExplorer />
+                          </SidebarInset>
+                        </>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/report-builder" element={
+                      <ProtectedRoute>
+                        <>
+                          <AppSidebar />
+                          <SidebarInset>
+                            <ReportBuilder />
+                          </SidebarInset>
+                        </>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/user-management" element={
+                      <ProtectedRoute requiredRole="admin">
+                        <>
+                          <AppSidebar />
+                          <SidebarInset>
+                            <UserManagement />
+                          </SidebarInset>
+                        </>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/billing-subscription" element={
+                      <ProtectedRoute>
+                        <>
+                          <AppSidebar />
+                          <SidebarInset>
+                            <BillingSubscription />
+                          </SidebarInset>
+                        </>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                  <Toaster />
+                </div>
+              </SidebarProvider>
+            </WebSocketProvider>
+          </TenantProvider>
+        </AuthProvider>
       </Router>
     </ThemeProvider>
   );
