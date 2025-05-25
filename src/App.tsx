@@ -24,6 +24,10 @@ import ReportBuilder from "./pages/ReportBuilder";
 import UserManagement from "./pages/UserManagement";
 import BillingSubscription from "./pages/BillingSubscription";
 import VoiceProviderManagement from "./pages/VoiceProviderManagement";
+import CallManagement from "./pages/CallManagement";
+import BusinessHours from "./pages/BusinessHours";
+import CustomerDatabase from "./pages/CustomerDatabase";
+import AppointmentScheduling from "./pages/AppointmentScheduling";
 
 import { ThemeProvider } from "./components/theme-provider";
 import { Toaster } from "./components/ui/sonner";
@@ -227,6 +231,46 @@ function App() {
                           <AppSidebar />
                           <SidebarInset>
                             <ReportBuilder />
+                          </SidebarInset>
+                        </>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/call-management" element={
+                      <ProtectedRoute>
+                        <>
+                          <AppSidebar />
+                          <SidebarInset>
+                            <CallManagement />
+                          </SidebarInset>
+                        </>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/business-hours" element={
+                      <ProtectedRoute>
+                        <>
+                          <AppSidebar />
+                          <SidebarInset>
+                            <BusinessHours />
+                          </SidebarInset>
+                        </>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/customers" element={
+                      <ProtectedRoute>
+                        <>
+                          <AppSidebar />
+                          <SidebarInset>
+                            <CustomerDatabase />
+                          </SidebarInset>
+                        </>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/appointments" element={
+                      <ProtectedRoute>
+                        <>
+                          <AppSidebar />
+                          <SidebarInset>
+                            <AppointmentScheduling />
                           </SidebarInset>
                         </>
                       </ProtectedRoute>

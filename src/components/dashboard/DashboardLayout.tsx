@@ -9,6 +9,8 @@ import { Bell, User, Search, ChevronDown } from "lucide-react";
 import { SearchInput } from "@/components/ui/search-input";
 import { useNavigate } from "react-router-dom";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { TenantSwitcher } from "@/components/tenant/TenantSwitcher";
+import { ConnectionStatus } from "@/components/ui/connection-status";
 
 export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const navigate = useNavigate();
@@ -47,8 +49,6 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
                 icon={<Search className="h-4 w-4" />}
               />
             </div>
-            
-            {/* Removed the duplicate "Main Navigation" section */}
           </SidebarContent>
           
           <SidebarFooter>
@@ -78,7 +78,13 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
           <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
             <SidebarTrigger />
             
-            <div className="ml-auto flex items-center space-x-4">
+            <div className="flex-1 flex items-center justify-center">
+              <TenantSwitcher />
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <ConnectionStatus />
+              
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button variant="outline" size="icon" className="relative">
@@ -117,4 +123,3 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
     </SidebarProvider>
   );
 };
-

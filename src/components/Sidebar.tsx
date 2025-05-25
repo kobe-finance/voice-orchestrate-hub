@@ -28,6 +28,10 @@ import {
   LayoutDashboard,
   Laptop,
   Headphones,
+  Phone,
+  Clock,
+  UserCheck,
+  Calendar,
   LucideIcon
 } from "lucide-react";
 
@@ -42,11 +46,15 @@ const navigationItems: NavigationItem[] = [
   { title: "Onboarding", path: "/onboarding", icon: Laptop },
   { title: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
   { title: "Voice Agents", path: "/voice-agents", icon: Mic },
+  { title: "Call Management", path: "/call-management", icon: Phone },
   { title: "Flow Builder", path: "/conversation-flow", icon: Share2 },
   { title: "Documents", path: "/document-management", icon: FileText },
   { title: "Analytics", path: "/analytics", icon: BarChart3 },
   { title: "Conversations", path: "/conversation-explorer", icon: MessagesSquare },
   { title: "Knowledge Base", path: "/knowledge-organization", icon: Database },
+  { title: "Customers", path: "/customers", icon: UserCheck },
+  { title: "Appointments", path: "/appointments", icon: Calendar },
+  { title: "Business Hours", path: "/business-hours", icon: Clock },
   { title: "API Keys", path: "/api-keys", icon: KeyRound },
   { title: "Voice Providers", path: "/voice-providers", icon: Settings },
   { title: "Voice Selection", path: "/voice-selection", icon: Headphones },
