@@ -18,6 +18,13 @@ interface RegisterData {
 }
 
 interface AuthContextType {
+  // State properties
+  isAuthenticated: boolean;
+  user: any | null;
+  isLoading: boolean;
+  token: AuthToken | null;
+  
+  // Methods
   login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   logout: () => void;
@@ -30,7 +37,8 @@ const TOKEN_STORAGE_KEY = 'voiceorchestrate_token';
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const navigate = useNavigate();
-  const { user, setUser, setLoading, logout: storeLogout } = useAppStore();
+  const { user, isAuthenticated, isLoading, setUser, setLoading, logout: storeLogout } = useAppStore();
+  const [token, setToken] = React.useState<AuthToken | null>(null);
 
   // Initialize auth state from localStorage
   useEffect(() => {
@@ -45,6 +53,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         // Check if token is still valid
         if (parsedToken.expiresAt > Date.now()) {
           setUser(parsedUser);
+          setToken(parsedToken);
         } else {
           // Token expired, try to refresh
           refreshTokenSilently(parsedToken.refreshToken);
@@ -58,29 +67,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Auto-refresh token before expiration
   useEffect(() => {
-    if (!user) return;
+    if (!user || !token) return;
 
-    const storedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
-    if (!storedToken) return;
+    const timeUntilExpiry = token.expiresAt - Date.now();
+    const refreshTime = Math.max(timeUntilExpiry - 5 * 60 * 1000, 60 * 1000);
 
-    try {
-      const token = JSON.parse(storedToken);
-      const timeUntilExpiry = token.expiresAt - Date.now();
-      const refreshTime = Math.max(timeUntilExpiry - 5 * 60 * 1000, 60 * 1000);
+    const refreshTimer = setTimeout(() => {
+      refreshTokenMethod();
+    }, refreshTime);
 
-      const refreshTimer = setTimeout(() => {
-        refreshToken();
-      }, refreshTime);
-
-      return () => clearTimeout(refreshTimer);
-    } catch (error) {
-      console.error('Error setting up token refresh:', error);
-    }
-  }, [user]);
+    return () => clearTimeout(refreshTimer);
+  }, [user, token]);
 
   const clearAuthData = () => {
     localStorage.removeItem(TOKEN_STORAGE_KEY);
     localStorage.removeItem('voiceorchestrate_user');
+    setToken(null);
     storeLogout();
   };
 
@@ -88,6 +90,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const storage = remember ? localStorage : sessionStorage;
     storage.setItem(TOKEN_STORAGE_KEY, JSON.stringify(tokenData));
     storage.setItem('voiceorchestrate_user', JSON.stringify(userData));
+    setToken(tokenData);
     setUser(userData);
   };
 
@@ -161,6 +164,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       };
 
       localStorage.setItem(TOKEN_STORAGE_KEY, JSON.stringify(newTokenData));
+      setToken(newTokenData);
     } catch (error) {
       console.error('Silent token refresh failed:', error);
       clearAuthData();
@@ -168,15 +172,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const refreshToken = async () => {
-    const storedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
-    if (!storedToken) {
+  const refreshTokenMethod = async () => {
+    if (!token) {
       logout();
       return;
     }
 
     try {
-      const token = JSON.parse(storedToken);
       await refreshTokenSilently(token.refreshToken);
     } catch (error) {
       logout();
@@ -190,10 +192,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const value: AuthContextType = {
+    isAuthenticated,
+    user,
+    isLoading,
+    token,
     login,
     register,
     logout,
-    refreshToken,
+    refreshToken: refreshTokenMethod,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
