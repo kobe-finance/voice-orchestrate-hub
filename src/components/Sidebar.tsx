@@ -36,7 +36,11 @@ import {
   Building2,
   DollarSign,
   Zap,
-  LucideIcon
+  LucideIcon,
+  Truck,
+  TrendingUp,
+  Mail,
+  Shield
 } from "lucide-react";
 
 interface NavigationItem {
@@ -54,14 +58,18 @@ const navigationItems: NavigationItem[] = [
   { title: "Flow Builder", path: "/conversation-flow", icon: Share2 },
   { title: "Documents", path: "/document-management", icon: FileText },
   { title: "Analytics", path: "/analytics", icon: BarChart3 },
+  { title: "Advanced Analytics", path: "/advanced-analytics", icon: TrendingUp },
   { title: "Conversations", path: "/conversation-explorer", icon: MessagesSquare },
   { title: "Knowledge Base", path: "/knowledge-organization", icon: Database },
   { title: "Customers", path: "/customers", icon: UserCheck },
   { title: "Appointments", path: "/appointments", icon: Calendar },
   { title: "Business Hours", path: "/business-hours", icon: Clock },
   { title: "CRM Integration", path: "/crm-integration", icon: Building2 },
+  { title: "Field Service", path: "/field-service", icon: Truck },
   { title: "Financial & Invoicing", path: "/financial-invoicing", icon: DollarSign },
+  { title: "Marketing Automation", path: "/marketing-automation", icon: Mail },
   { title: "Workflow Automation", path: "/workflow-automation", icon: Zap },
+  { title: "Quality Assurance", path: "/quality-assurance", icon: Shield },
   { title: "API Keys", path: "/api-keys", icon: KeyRound },
   { title: "Voice Providers", path: "/voice-providers", icon: Settings },
   { title: "Voice Selection", path: "/voice-selection", icon: Headphones },

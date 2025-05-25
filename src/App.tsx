@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import Auth from "./pages/Auth";
@@ -30,6 +31,10 @@ import AppointmentScheduling from "./pages/AppointmentScheduling";
 import CRMIntegration from "./pages/CRMIntegration";
 import FinancialInvoicing from "./pages/FinancialInvoicing";
 import WorkflowAutomation from "./pages/WorkflowAutomation";
+import FieldServiceIntegration from "./pages/FieldServiceIntegration";
+import AdvancedAnalytics from "./pages/AdvancedAnalytics";
+import MarketingAutomation from "./pages/MarketingAutomation";
+import QualityAssurance from "./pages/QualityAssurance";
 
 import { ThemeProvider } from "./components/theme-provider";
 import { Toaster } from "./components/ui/sonner";
@@ -212,6 +217,16 @@ function App() {
                         </>
                       </ProtectedRoute>
                     } />
+                    <Route path="/advanced-analytics" element={
+                      <ProtectedRoute>
+                        <>
+                          <AppSidebar />
+                          <SidebarInset>
+                            <AdvancedAnalytics />
+                          </SidebarInset>
+                        </>
+                      </ProtectedRoute>
+                    } />
                     <Route path="/custom-actions" element={
                       <ProtectedRoute>
                         <>
@@ -328,6 +343,36 @@ function App() {
                           <AppSidebar />
                           <SidebarInset>
                             <WorkflowAutomation />
+                          </SidebarInset>
+                        </>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/field-service" element={
+                      <ProtectedRoute>
+                        <>
+                          <AppSidebar />
+                          <SidebarInset>
+                            <FieldServiceIntegration />
+                          </SidebarInset>
+                        </>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/marketing-automation" element={
+                      <ProtectedRoute>
+                        <>
+                          <AppSidebar />
+                          <SidebarInset>
+                            <MarketingAutomation />
+                          </SidebarInset>
+                        </>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/quality-assurance" element={
+                      <ProtectedRoute>
+                        <>
+                          <AppSidebar />
+                          <SidebarInset>
+                            <QualityAssurance />
                           </SidebarInset>
                         </>
                       </ProtectedRoute>
