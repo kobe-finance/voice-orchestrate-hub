@@ -1,28 +1,13 @@
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/components/ui/sonner';
-
-interface User {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: string;
-  tenantId: string;
-  isEmailVerified: boolean;
-}
+import { useAppStore } from '@/stores/useAppStore';
 
 interface AuthToken {
   accessToken: string;
   refreshToken: string;
   expiresAt: number;
-}
-
-interface LoginCredentials {
-  email: string;
-  password: string;
-  rememberMe?: boolean;
 }
 
 interface RegisterData {
@@ -33,10 +18,6 @@ interface RegisterData {
 }
 
 interface AuthContextType {
-  user: User | null;
-  token: AuthToken | null;
-  isLoading: boolean;
-  isAuthenticated: boolean;
   login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   logout: () => void;
@@ -46,18 +27,15 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const TOKEN_STORAGE_KEY = 'voiceorchestrate_token';
-const USER_STORAGE_KEY = 'voiceorchestrate_user';
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<AuthToken | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { user, setUser, setLoading, logout: storeLogout } = useAppStore();
 
   // Initialize auth state from localStorage
   useEffect(() => {
     const storedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
-    const storedUser = localStorage.getItem(USER_STORAGE_KEY);
+    const storedUser = localStorage.getItem('voiceorchestrate_user');
 
     if (storedToken && storedUser) {
       try {
@@ -66,7 +44,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         
         // Check if token is still valid
         if (parsedToken.expiresAt > Date.now()) {
-          setToken(parsedToken);
           setUser(parsedUser);
         } else {
           // Token expired, try to refresh
@@ -77,74 +54,66 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         clearAuthData();
       }
     }
-  }, []);
+  }, [setUser]);
 
   // Auto-refresh token before expiration
   useEffect(() => {
-    if (!token) return;
+    if (!user) return;
 
-    const timeUntilExpiry = token.expiresAt - Date.now();
-    const refreshTime = Math.max(timeUntilExpiry - 5 * 60 * 1000, 60 * 1000); // 5 minutes before expiry or 1 minute minimum
+    const storedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
+    if (!storedToken) return;
 
-    const refreshTimer = setTimeout(() => {
-      refreshToken();
-    }, refreshTime);
+    try {
+      const token = JSON.parse(storedToken);
+      const timeUntilExpiry = token.expiresAt - Date.now();
+      const refreshTime = Math.max(timeUntilExpiry - 5 * 60 * 1000, 60 * 1000);
 
-    return () => clearTimeout(refreshTimer);
-  }, [token]);
+      const refreshTimer = setTimeout(() => {
+        refreshToken();
+      }, refreshTime);
+
+      return () => clearTimeout(refreshTimer);
+    } catch (error) {
+      console.error('Error setting up token refresh:', error);
+    }
+  }, [user]);
 
   const clearAuthData = () => {
     localStorage.removeItem(TOKEN_STORAGE_KEY);
-    localStorage.removeItem(USER_STORAGE_KEY);
-    setToken(null);
-    setUser(null);
+    localStorage.removeItem('voiceorchestrate_user');
+    storeLogout();
   };
 
-  const storeAuthData = (tokenData: AuthToken, userData: User, remember: boolean = false) => {
-    if (remember) {
-      localStorage.setItem(TOKEN_STORAGE_KEY, JSON.stringify(tokenData));
-      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
-    } else {
-      sessionStorage.setItem(TOKEN_STORAGE_KEY, JSON.stringify(tokenData));
-      sessionStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
-    }
-    setToken(tokenData);
+  const storeAuthData = (tokenData: AuthToken, userData: any, remember: boolean = false) => {
+    const storage = remember ? localStorage : sessionStorage;
+    storage.setItem(TOKEN_STORAGE_KEY, JSON.stringify(tokenData));
+    storage.setItem('voiceorchestrate_user', JSON.stringify(userData));
     setUser(userData);
   };
 
   const login = async (email: string, password: string, rememberMe: boolean = false) => {
-    setIsLoading(true);
+    setLoading(true);
     try {
-      // Simulate API call - replace with actual API endpoint
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
+      // Simulate API call with enhanced error handling
+      await new Promise((resolve, reject) => {
+        setTimeout(() => {
+          // Simulate occasional failures for demo
+          if (Math.random() > 0.9) {
+            reject(new Error('Network error'));
+          } else {
+            resolve(true);
+          }
+        }, 1500);
       });
 
-      if (!response.ok) {
-        throw new Error('Login failed');
-      }
-
-      const data = await response.json();
-      const tokenData: AuthToken = {
-        accessToken: data.accessToken,
-        refreshToken: data.refreshToken,
-        expiresAt: Date.now() + data.expiresIn * 1000,
-      };
-
-      storeAuthData(tokenData, data.user, rememberMe);
-    } catch (error) {
-      // For demo purposes, simulate successful login
+      // Mock successful response
       const mockTokenData: AuthToken = {
-        accessToken: 'mock_access_token',
-        refreshToken: 'mock_refresh_token',
+        accessToken: 'mock_access_token_' + Date.now(),
+        refreshToken: 'mock_refresh_token_' + Date.now(),
         expiresAt: Date.now() + 3600 * 1000, // 1 hour
       };
 
-      const mockUser: User = {
+      const mockUser = {
         id: '1',
         email,
         firstName: 'John',
@@ -156,87 +125,71 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       storeAuthData(mockTokenData, mockUser, rememberMe);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   const register = async (data: RegisterData) => {
-    setIsLoading(true);
+    setLoading(true);
     try {
-      // Simulate API call - replace with actual API endpoint
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
+      // Simulate API call
+      await new Promise((resolve, reject) => {
+        setTimeout(() => {
+          if (Math.random() > 0.9) {
+            reject(new Error('Registration failed'));
+          } else {
+            resolve(true);
+          }
+        }, 2000);
       });
 
-      if (!response.ok) {
-        throw new Error('Registration failed');
-      }
-
-      const responseData = await response.json();
-      // For registration, we might not log the user in immediately
-      // They might need to verify their email first
-    } catch (error) {
-      // For demo purposes, simulate successful registration
-      console.log('Registration successful (mock)');
+      console.log('Registration successful (mock):', data);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   const refreshTokenSilently = async (refreshTokenValue: string) => {
     try {
-      const response = await fetch('/api/auth/refresh', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ refreshToken: refreshTokenValue }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Token refresh failed');
-      }
-
-      const data = await response.json();
+      // Simulate refresh token API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       const newTokenData: AuthToken = {
-        accessToken: data.accessToken,
-        refreshToken: data.refreshToken,
-        expiresAt: Date.now() + data.expiresIn * 1000,
+        accessToken: 'refreshed_access_token_' + Date.now(),
+        refreshToken: refreshTokenValue,
+        expiresAt: Date.now() + 3600 * 1000,
       };
 
-      setToken(newTokenData);
       localStorage.setItem(TOKEN_STORAGE_KEY, JSON.stringify(newTokenData));
     } catch (error) {
       console.error('Silent token refresh failed:', error);
       clearAuthData();
-      navigate('/login');
+      navigate('/auth');
     }
   };
 
   const refreshToken = async () => {
-    if (!token?.refreshToken) {
+    const storedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
+    if (!storedToken) {
       logout();
       return;
     }
 
-    await refreshTokenSilently(token.refreshToken);
+    try {
+      const token = JSON.parse(storedToken);
+      await refreshTokenSilently(token.refreshToken);
+    } catch (error) {
+      logout();
+    }
   };
 
   const logout = () => {
     clearAuthData();
-    navigate('/login');
+    navigate('/auth');
     toast.success('Logged out successfully');
   };
 
   const value: AuthContextType = {
-    user,
-    token,
-    isLoading,
-    isAuthenticated: !!user && !!token,
     login,
     register,
     logout,
