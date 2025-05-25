@@ -114,7 +114,7 @@ const VoiceAgents = () => {
           </Button>
           <Button 
             className="bg-primary hover:bg-primary/90"
-            onClick={() => navigate("/voice-agents/create")}
+            onClick={() => navigate("/create-voice-agent")}
           >
             <Plus className="mr-2 h-4 w-4" /> Create New Agent
           </Button>

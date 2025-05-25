@@ -13,6 +13,7 @@ import {
   SidebarMenuButton, 
   SidebarMenuItem 
 } from "@/components/ui/sidebar";
+import { TenantSwitcher } from "@/components/tenant/TenantSwitcher";
 import { 
   Home, 
   Mic, 
@@ -32,6 +33,9 @@ import {
   Clock,
   UserCheck,
   Calendar,
+  Building2,
+  DollarSign,
+  Zap,
   LucideIcon
 } from "lucide-react";
 
@@ -55,6 +59,9 @@ const navigationItems: NavigationItem[] = [
   { title: "Customers", path: "/customers", icon: UserCheck },
   { title: "Appointments", path: "/appointments", icon: Calendar },
   { title: "Business Hours", path: "/business-hours", icon: Clock },
+  { title: "CRM Integration", path: "/crm-integration", icon: Building2 },
+  { title: "Financial & Invoicing", path: "/financial-invoicing", icon: DollarSign },
+  { title: "Workflow Automation", path: "/workflow-automation", icon: Zap },
   { title: "API Keys", path: "/api-keys", icon: KeyRound },
   { title: "Voice Providers", path: "/voice-providers", icon: Settings },
   { title: "Voice Selection", path: "/voice-selection", icon: Headphones },
@@ -68,10 +75,11 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader>
-        <div className="p-2">
+        <div className="p-2 space-y-4">
           <Link to="/" className="flex items-center gap-2 px-2">
             <div className="text-2xl font-bold">VoiceOrchestrate™</div>
           </Link>
+          <TenantSwitcher />
         </div>
       </SidebarHeader>
       <SidebarContent>

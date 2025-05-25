@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import Auth from "./pages/Auth";
@@ -28,6 +27,9 @@ import CallManagement from "./pages/CallManagement";
 import BusinessHours from "./pages/BusinessHours";
 import CustomerDatabase from "./pages/CustomerDatabase";
 import AppointmentScheduling from "./pages/AppointmentScheduling";
+import CRMIntegration from "./pages/CRMIntegration";
+import FinancialInvoicing from "./pages/FinancialInvoicing";
+import WorkflowAutomation from "./pages/WorkflowAutomation";
 
 import { ThemeProvider } from "./components/theme-provider";
 import { Toaster } from "./components/ui/sonner";
@@ -296,6 +298,36 @@ function App() {
                           <AppSidebar />
                           <SidebarInset>
                             <BillingSubscription />
+                          </SidebarInset>
+                        </>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/crm-integration" element={
+                      <ProtectedRoute>
+                        <>
+                          <AppSidebar />
+                          <SidebarInset>
+                            <CRMIntegration />
+                          </SidebarInset>
+                        </>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/financial-invoicing" element={
+                      <ProtectedRoute>
+                        <>
+                          <AppSidebar />
+                          <SidebarInset>
+                            <FinancialInvoicing />
+                          </SidebarInset>
+                        </>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/workflow-automation" element={
+                      <ProtectedRoute>
+                        <>
+                          <AppSidebar />
+                          <SidebarInset>
+                            <WorkflowAutomation />
                           </SidebarInset>
                         </>
                       </ProtectedRoute>
