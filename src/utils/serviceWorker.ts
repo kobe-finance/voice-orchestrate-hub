@@ -67,11 +67,18 @@ export const requestNotificationPermission = async (): Promise<NotificationPermi
   return 'denied';
 };
 
-// Background sync for offline actions
+// Background sync for offline actions with proper type checking
 export const scheduleBackgroundSync = (tag: string) => {
-  if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
+  if ('serviceWorker' in navigator) {
     navigator.serviceWorker.ready.then((registration) => {
-      return registration.sync.register(tag);
+      // Check if background sync is supported
+      if ('sync' in registration && registration.sync) {
+        return registration.sync.register(tag);
+      } else {
+        console.log('Background sync not supported');
+      }
+    }).catch((error) => {
+      console.error('Background sync registration failed:', error);
     });
   }
 };
