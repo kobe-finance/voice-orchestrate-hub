@@ -1,3 +1,4 @@
+import type { SyncManager } from '../types/service-worker';
 
 // Service Worker registration and management
 export const registerServiceWorker = async (): Promise<ServiceWorkerRegistration | null> => {
