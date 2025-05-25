@@ -1,6 +1,6 @@
 
 // Service Worker and Background Sync API type declarations
-interface SyncManager {
+export interface SyncManager {
   register(tag: string): Promise<void>;
   getTags(): Promise<string[]>;
 }
