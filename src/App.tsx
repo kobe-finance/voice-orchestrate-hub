@@ -41,7 +41,12 @@ import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 
 function App() {
   return (
-    <ThemeProvider defaultTheme="light">
+    <ThemeProvider 
+      attribute="class"
+      defaultTheme="light"
+      enableSystem={false}
+      disableTransitionOnChange
+    >
       <Router>
         <AuthProvider>
           <TenantProvider>
