@@ -73,7 +73,7 @@ export const scheduleBackgroundSync = (tag: string) => {
     navigator.serviceWorker.ready.then((registration) => {
       // Check if background sync is supported
       if ('sync' in registration && registration.sync) {
-        return registration.sync.register(tag);
+        return (registration.sync as SyncManager).register(tag);
       } else {
         console.log('Background sync not supported');
       }
