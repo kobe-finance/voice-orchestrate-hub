@@ -2,15 +2,15 @@
 import { useState, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
 
-interface OptimisticAction<T> {
+interface OptimisticAction<T, R> {
   id: string;
   optimisticData: T;
   rollbackData: T;
-  promise: Promise<T>;
+  promise: Promise<R>;
 }
 
 export const useOptimisticUpdates = <T>() => {
-  const [pendingActions, setPendingActions] = useState<Map<string, OptimisticAction<T>>>(new Map());
+  const [pendingActions, setPendingActions] = useState<Map<string, OptimisticAction<T, any>>>(new Map());
   const actionCounter = useRef(0);
 
   const executeOptimistic = useCallback(async <R>(
@@ -28,7 +28,7 @@ export const useOptimisticUpdates = <T>() => {
     // Apply optimistic update immediately
     const optimisticData = optimisticUpdate();
     
-    const action: OptimisticAction<T> = {
+    const action: OptimisticAction<T, R> = {
       id: actionId,
       optimisticData,
       rollbackData,
