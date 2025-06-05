@@ -40,7 +40,8 @@ import {
   Truck,
   TrendingUp,
   Mail,
-  Shield
+  Shield,
+  Volume2
 } from "lucide-react";
 
 interface NavigationItem {
@@ -71,7 +72,7 @@ const navigationItems: NavigationItem[] = [
   { title: "Workflow Automation", path: "/workflow-automation", icon: Zap },
   { title: "Quality Assurance", path: "/quality-assurance", icon: Shield },
   { title: "API Keys", path: "/api-keys", icon: KeyRound },
-  { title: "Voice Providers", path: "/voice-providers", icon: Settings },
+  { title: "Voice Providers", path: "/voice-providers", icon: Volume2 },
   { title: "Voice Selection", path: "/voice-selection", icon: Headphones },
   { title: "Users & Roles", path: "/user-management", icon: Users },
   { title: "Billing", path: "/billing-subscription", icon: CreditCard },
