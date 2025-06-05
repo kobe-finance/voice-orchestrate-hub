@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { ErrorBoundary } from '../ErrorBoundary';
 
 // Test component that throws an error
@@ -20,25 +21,25 @@ describe('ErrorBoundary', () => {
   });
 
   it('renders children when there is no error', () => {
-    render(
+    const { getByText } = render(
       <ErrorBoundary>
         <ThrowError shouldThrow={false} />
       </ErrorBoundary>
     );
 
-    expect(screen.getByText('No error')).toBeInTheDocument();
+    expect(getByText('No error')).toBeInTheDocument();
   });
 
   it('renders error UI when there is an error', () => {
-    render(
+    const { getByText } = render(
       <ErrorBoundary>
         <ThrowError shouldThrow={true} />
       </ErrorBoundary>
     );
 
-    expect(screen.getByText('Something went wrong')).toBeInTheDocument();
-    expect(screen.getByText('Try Again')).toBeInTheDocument();
-    expect(screen.getByText('Refresh Page')).toBeInTheDocument();
+    expect(getByText('Something went wrong')).toBeInTheDocument();
+    expect(getByText('Try Again')).toBeInTheDocument();
+    expect(getByText('Refresh Page')).toBeInTheDocument();
   });
 
   it('calls onError callback when error occurs', () => {
@@ -56,25 +57,26 @@ describe('ErrorBoundary', () => {
   it('renders custom fallback when provided', () => {
     const customFallback = <div>Custom error message</div>;
     
-    render(
+    const { getByText } = render(
       <ErrorBoundary fallback={customFallback}>
         <ThrowError shouldThrow={true} />
       </ErrorBoundary>
     );
 
-    expect(screen.getByText('Custom error message')).toBeInTheDocument();
+    expect(getByText('Custom error message')).toBeInTheDocument();
   });
 
   it('resets error state when Try Again is clicked', () => {
-    const { rerender } = render(
+    const { getByText, rerender } = render(
       <ErrorBoundary>
         <ThrowError shouldThrow={true} />
       </ErrorBoundary>
     );
 
-    expect(screen.getByText('Something went wrong')).toBeInTheDocument();
+    expect(getByText('Something went wrong')).toBeInTheDocument();
 
-    fireEvent.click(screen.getByText('Try Again'));
+    const tryAgainButton = getByText('Try Again');
+    tryAgainButton.click();
 
     rerender(
       <ErrorBoundary>
@@ -82,6 +84,6 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
 
-    expect(screen.getByText('No error')).toBeInTheDocument();
+    expect(getByText('No error')).toBeInTheDocument();
   });
 });

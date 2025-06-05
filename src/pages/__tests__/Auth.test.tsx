@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { render, waitFor, fireEvent, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import Auth from '../Auth';
@@ -27,63 +28,60 @@ const renderWithRouter = (component: React.ReactElement) => {
 
 describe('Auth Page', () => {
   it('renders login form by default', () => {
-    renderWithRouter(<Auth />);
+    const { getByText, getByRole } = renderWithRouter(<Auth />);
     
-    expect(screen.getByText('VoiceOrchestrate™')).toBeInTheDocument();
-    expect(screen.getByRole('tab', { name: 'Login' })).toBeInTheDocument();
-    expect(screen.getByRole('tab', { name: 'Register' })).toBeInTheDocument();
+    expect(getByText('VoiceOrchestrate™')).toBeInTheDocument();
+    expect(getByRole('tab', { name: 'Login' })).toBeInTheDocument();
+    expect(getByRole('tab', { name: 'Register' })).toBeInTheDocument();
   });
 
   it('switches between login and register tabs', async () => {
     const user = userEvent.setup();
-    renderWithRouter(<Auth />);
+    const { getByRole, getByLabelText } = renderWithRouter(<Auth />);
     
-    const registerTab = screen.getByRole('tab', { name: 'Register' });
+    const registerTab = getByRole('tab', { name: 'Register' });
     await user.click(registerTab);
     
-    expect(screen.getByLabelText('First Name')).toBeInTheDocument();
-    expect(screen.getByLabelText('Last Name')).toBeInTheDocument();
+    expect(getByLabelText('First Name')).toBeInTheDocument();
+    expect(getByLabelText('Last Name')).toBeInTheDocument();
   });
 
   it('validates login form fields', async () => {
     const user = userEvent.setup();
-    renderWithRouter(<Auth />);
+    const { getByRole, findByText } = renderWithRouter(<Auth />);
     
-    const submitButton = screen.getByRole('button', { name: 'Log in' });
+    const submitButton = getByRole('button', { name: 'Log in' });
     await user.click(submitButton);
     
-    await waitFor(() => {
-      expect(screen.getByText('Email is required')).toBeInTheDocument();
-    });
+    const errorMessage = await findByText('Email is required');
+    expect(errorMessage).toBeInTheDocument();
   });
 
   it('validates register form fields', async () => {
     const user = userEvent.setup();
-    renderWithRouter(<Auth />);
+    const { getByRole, findByText } = renderWithRouter(<Auth />);
     
-    const registerTab = screen.getByRole('tab', { name: 'Register' });
+    const registerTab = getByRole('tab', { name: 'Register' });
     await user.click(registerTab);
     
-    const submitButton = screen.getByRole('button', { name: 'Create account' });
+    const submitButton = getByRole('button', { name: 'Create account' });
     await user.click(submitButton);
     
-    await waitFor(() => {
-      expect(screen.getByText('First name is required')).toBeInTheDocument();
-    });
+    const errorMessage = await findByText('First name is required');
+    expect(errorMessage).toBeInTheDocument();
   });
 
   it('renders SSO buttons', () => {
-    renderWithRouter(<Auth />);
+    const { getByText } = renderWithRouter(<Auth />);
     
-    expect(screen.getByText('Google')).toBeInTheDocument();
-    expect(screen.getByText('Microsoft')).toBeInTheDocument();
+    expect(getByText('Google')).toBeInTheDocument();
+    expect(getByText('Microsoft')).toBeInTheDocument();
   });
 
   it('handles forgot password navigation', async () => {
-    const user = userEvent.setup();
-    renderWithRouter(<Auth />);
+    const { getByText } = renderWithRouter(<Auth />);
     
-    const forgotPasswordButton = screen.getByText('Forgot password?');
+    const forgotPasswordButton = getByText('Forgot password?');
     expect(forgotPasswordButton).toBeInTheDocument();
   });
 });
