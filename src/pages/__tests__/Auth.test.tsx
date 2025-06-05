@@ -1,7 +1,5 @@
-
 import React from 'react';
-import { render, waitFor, fireEvent } from '@testing-library/react';
-import { screen } from '@testing-library/dom';
+import { render, waitFor, fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import Auth from '../Auth';

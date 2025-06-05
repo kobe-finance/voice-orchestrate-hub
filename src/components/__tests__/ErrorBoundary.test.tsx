@@ -1,7 +1,5 @@
-
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
-import { screen } from '@testing-library/dom';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { ErrorBoundary } from '../ErrorBoundary';
 
 // Test component that throws an error
