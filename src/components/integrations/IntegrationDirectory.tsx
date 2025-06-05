@@ -1,23 +1,172 @@
-
-import React, { useState } from "react";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import React from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { ExternalLink } from "lucide-react";
-import { toast } from "sonner";
+import { Star, ExternalLink, Download, CheckCircle, Clock } from "lucide-react";
 
 interface Integration {
   id: string;
   name: string;
   description: string;
   category: string;
+  rating: number;
+  reviews: number;
+  price: "Free" | "Paid" | "Freemium";
+  status: "installed" | "available" | "coming-soon";
+  featured: boolean;
   logo: string;
-  popular: boolean;
-  connected: boolean;
+  tags: string[];
 }
+
+const integrations: Integration[] = [
+  // LLM Providers
+  {
+    id: "openai",
+    name: "OpenAI",
+    description: "Advanced AI models including GPT-4 for natural language processing and conversation generation.",
+    category: "llms",
+    rating: 4.9,
+    reviews: 2847,
+    price: "Paid",
+    status: "available",
+    featured: true,
+    logo: "🤖",
+    tags: ["AI", "NLP", "Conversations"]
+  },
+  {
+    id: "anthropic",
+    name: "Anthropic Claude",
+    description: "Constitutional AI for safe, helpful, and honest conversations with advanced reasoning capabilities.",
+    category: "llms",
+    rating: 4.8,
+    reviews: 1234,
+    price: "Paid",
+    status: "available",
+    featured: true,
+    logo: "🧠",
+    tags: ["AI", "Safety", "Reasoning"]
+  },
+  {
+    id: "google-gemini",
+    name: "Google Gemini",
+    description: "Google's most capable AI model with multimodal understanding and generation.",
+    category: "llms",
+    rating: 4.7,
+    reviews: 892,
+    price: "Freemium",
+    status: "available",
+    featured: false,
+    logo: "✨",
+    tags: ["AI", "Multimodal", "Google"]
+  },
+  {
+    id: "deepseek",
+    name: "DeepSeek",
+    description: "High-performance AI models optimized for reasoning and code generation tasks.",
+    category: "llms",
+    rating: 4.6,
+    reviews: 567,
+    price: "Paid",
+    status: "available",
+    featured: false,
+    logo: "🔍",
+    tags: ["AI", "Code", "Reasoning"]
+  },
+  {
+    id: "grok",
+    name: "Grok (xAI)",
+    description: "Real-time AI with access to current information and witty conversational abilities.",
+    category: "llms",
+    rating: 4.5,
+    reviews: 423,
+    price: "Paid",
+    status: "available",
+    featured: false,
+    logo: "🚀",
+    tags: ["AI", "Real-time", "Current"]
+  },
+  {
+    id: "llama",
+    name: "Meta Llama",
+    description: "Open-source large language models for research and commercial applications.",
+    category: "llms",
+    rating: 4.4,
+    reviews: 789,
+    price: "Free",
+    status: "available",
+    featured: false,
+    logo: "🦙",
+    tags: ["AI", "Open-source", "Meta"]
+  },
+  // CRM Systems
+  {
+    id: "salesforce",
+    name: "Salesforce",
+    description: "Connect your voice agents with Salesforce CRM for seamless customer data management.",
+    category: "crm",
+    rating: 4.5,
+    reviews: 1283,
+    price: "Paid",
+    status: "installed",
+    featured: true,
+    logo: "☁️",
+    tags: ["CRM", "Sales", "Enterprise"]
+  },
+  {
+    id: "hubspot",
+    name: "HubSpot",
+    description: "Integrate with HubSpot CRM to sync contacts, deals, and conversation logs automatically.",
+    category: "crm",
+    rating: 4.6,
+    reviews: 892,
+    price: "Freemium",
+    status: "available",
+    featured: true,
+    logo: "🧡",
+    tags: ["CRM", "Marketing", "Inbound"]
+  },
+  // Telephony
+  {
+    id: "twilio",
+    name: "Twilio",
+    description: "Cloud communications platform for voice, messaging, and video capabilities.",
+    category: "telephony",
+    rating: 4.7,
+    reviews: 2134,
+    price: "Paid",
+    status: "available",
+    featured: true,
+    logo: "📞",
+    tags: ["Voice", "SMS", "API"]
+  },
+  {
+    id: "vonage",
+    name: "Vonage",
+    description: "Global communications APIs for voice, video, and messaging applications.",
+    category: "telephony",
+    rating: 4.4,
+    reviews: 567,
+    price: "Paid",
+    status: "available",
+    featured: false,
+    logo: "📱",
+    tags: ["Voice", "Global", "API"]
+  },
+  // Voice Providers
+  {
+    id: "elevenlabs",
+    name: "ElevenLabs",
+    description: "Ultra-realistic AI voice generation with emotional nuance and multiple languages.",
+    category: "voice-providers",
+    rating: 4.8,
+    reviews: 1456,
+    price: "Freemium",
+    status: "available",
+    featured: true,
+    logo: "🎤",
+    tags: ["Voice", "AI", "TTS"]
+  },
+];
 
 interface IntegrationDirectoryProps {
   searchQuery: string;
@@ -25,446 +174,143 @@ interface IntegrationDirectoryProps {
   viewType: "grid" | "list";
 }
 
-export const IntegrationDirectory: React.FC<IntegrationDirectoryProps> = ({
-  searchQuery,
-  selectedCategory,
-  viewType,
-}) => {
-  const [selectedIntegration, setSelectedIntegration] = useState<Integration | null>(null);
-  const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [isSetupOpen, setIsSetupOpen] = useState(false);
-  const [isConnecting, setIsConnecting] = useState(false);
-  
-  // Mock integration data
-  const integrations: Integration[] = [
-    {
-      id: "salesforce",
-      name: "Salesforce",
-      description: "Connect to Salesforce CRM to synchronize customer data and interactions",
-      category: "crm",
-      logo: "https://placekitten.com/100/100?image=1",
-      popular: true,
-      connected: false,
-    },
-    {
-      id: "hubspot",
-      name: "HubSpot",
-      description: "Integrate with HubSpot for marketing, sales, and customer service",
-      category: "crm",
-      logo: "https://placekitten.com/100/100?image=2",
-      popular: true,
-      connected: false,
-    },
-    {
-      id: "zoom",
-      name: "Zoom",
-      description: "Connect voice agents to Zoom meetings and webinars",
-      category: "telephony",
-      logo: "https://placekitten.com/100/100?image=3",
-      popular: true,
-      connected: false,
-    },
-    {
-      id: "twilio",
-      name: "Twilio",
-      description: "Power voice communications with Twilio's telephony services",
-      category: "telephony",
-      logo: "https://placekitten.com/100/100?image=4",
-      popular: true,
-      connected: false,
-    },
-    {
-      id: "google_calendar",
-      name: "Google Calendar",
-      description: "Allow voice agents to manage and schedule appointments",
-      category: "scheduling",
-      logo: "https://placekitten.com/100/100?image=5",
-      popular: true,
-      connected: false,
-    },
-    {
-      id: "calendly",
-      name: "Calendly",
-      description: "Integrate with Calendly for simplified appointment scheduling",
-      category: "scheduling",
-      logo: "https://placekitten.com/100/100?image=6",
-      popular: false,
-      connected: false,
-    },
-    {
-      id: "mailchimp",
-      name: "Mailchimp",
-      description: "Connect to Mailchimp for email marketing campaigns",
-      category: "email",
-      logo: "https://placekitten.com/100/100?image=7",
-      popular: false,
-      connected: false,
-    },
-    {
-      id: "zapier",
-      name: "Zapier",
-      description: "Create custom automation workflows with thousands of apps",
-      category: "webhook",
-      logo: "https://placekitten.com/100/100?image=8",
-      popular: true,
-      connected: false,
-    },
-    {
-      id: "quickbooks",
-      name: "QuickBooks",
-      description: "Integrate with QuickBooks for accounting and financial data",
-      category: "accounting",
-      logo: "https://placekitten.com/100/100?image=9",
-      popular: false,
-      connected: false,
-    }
-  ];
-
+export function IntegrationDirectory({ searchQuery, selectedCategory, viewType }: IntegrationDirectoryProps) {
   const filteredIntegrations = integrations.filter((integration) => {
     const matchesSearch = integration.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          integration.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory ? integration.category === selectedCategory : true;
+                         integration.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         integration.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+    
+    const matchesCategory = !selectedCategory || integration.category === selectedCategory;
     
     return matchesSearch && matchesCategory;
   });
 
-  const handleOpenDetails = (integration: Integration) => {
-    setSelectedIntegration(integration);
-    setIsDetailOpen(true);
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "installed":
+        return <CheckCircle className="h-4 w-4 text-green-600" />;
+      case "coming-soon":
+        return <Clock className="h-4 w-4 text-orange-600" />;
+      default:
+        return null;
+    }
   };
 
-  const handleConnectIntegration = () => {
-    if (!selectedIntegration) return;
-    
-    setIsDetailOpen(false);
-    setIsSetupOpen(true);
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case "installed":
+        return "Installed";
+      case "coming-soon":
+        return "Coming Soon";
+      default:
+        return "Install";
+    }
   };
 
-  const handleFinishSetup = () => {
-    setIsConnecting(true);
-    
-    // Simulate API connection
-    setTimeout(() => {
-      setIsConnecting(false);
-      setIsSetupOpen(false);
-      toast.success(`Successfully connected to ${selectedIntegration?.name}`);
-    }, 1500);
-  };
+  if (viewType === "list") {
+    return (
+      <div className="space-y-4">
+        {filteredIntegrations.map((integration) => (
+          <Card key={integration.id} className="hover:shadow-md transition-shadow">
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between">
+                <div className="flex items-start space-x-4 flex-1">
+                  <div className="text-2xl">{integration.logo}</div>
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <h3 className="text-lg font-semibold">{integration.name}</h3>
+                      {integration.featured && (
+                        <Badge variant="secondary">Featured</Badge>
+                      )}
+                      <Badge variant="outline">{integration.price}</Badge>
+                    </div>
+                    <p className="text-muted-foreground mb-3">{integration.description}</p>
+                    <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                      <div className="flex items-center">
+                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 mr-1" />
+                        {integration.rating} ({integration.reviews} reviews)
+                      </div>
+                      <div className="flex space-x-1">
+                        {integration.tags.map((tag) => (
+                          <Badge key={tag} variant="outline" className="text-xs">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  {getStatusIcon(integration.status)}
+                  <Button
+                    variant={integration.status === "installed" ? "outline" : "default"}
+                    size="sm"
+                    disabled={integration.status === "coming-soon"}
+                  >
+                    {integration.status === "installed" && <CheckCircle className="mr-2 h-4 w-4" />}
+                    {getStatusText(integration.status)}
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
 
   return (
-    <>
-      {viewType === "grid" ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredIntegrations.map((integration) => (
-            <Card key={integration.id} className="overflow-hidden hover:shadow-md transition-shadow">
-              <CardHeader className="pb-0">
-                <div className="flex items-center space-x-2">
-                  <div className="w-12 h-12 rounded-md overflow-hidden">
-                    <img 
-                      src={integration.logo}
-                      alt={`${integration.name} logo`}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg">{integration.name}</CardTitle>
-                    {integration.popular && (
-                      <Badge variant="secondary" className="text-xs mt-1">Popular</Badge>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {filteredIntegrations.map((integration) => (
+        <Card key={integration.id} className="hover:shadow-md transition-shadow">
+          <CardHeader>
+            <div className="flex items-start justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="text-2xl">{integration.logo}</div>
+                <div>
+                  <CardTitle className="text-lg">{integration.name}</CardTitle>
+                  <div className="flex items-center space-x-2 mt-1">
+                    {integration.featured && (
+                      <Badge variant="secondary" className="text-xs">Featured</Badge>
                     )}
+                    <Badge variant="outline" className="text-xs">{integration.price}</Badge>
                   </div>
                 </div>
-              </CardHeader>
-              <CardContent className="pt-4">
-                <p className="text-muted-foreground text-sm line-clamp-3">
-                  {integration.description}
-                </p>
-              </CardContent>
-              <CardFooter className="flex justify-between">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleOpenDetails(integration)}
-                >
-                  Details
-                </Button>
-                <Button
-                  variant={integration.connected ? "secondary" : "default"}
-                  size="sm"
-                  onClick={() => {
-                    if (!integration.connected) {
-                      handleOpenDetails(integration);
-                    }
-                  }}
-                >
-                  {integration.connected ? "Connected" : "Connect"}
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <Card>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[250px]">Integration</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead className="w-[120px]">Category</TableHead>
-                <TableHead className="text-right w-[150px]">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredIntegrations.map((integration) => (
-                <TableRow key={integration.id}>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-md overflow-hidden">
-                        <img 
-                          src={integration.logo}
-                          alt={`${integration.name} logo`}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <span>{integration.name}</span>
-                      {integration.popular && (
-                        <Badge variant="secondary" className="text-xs">Popular</Badge>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground text-sm">
-                    {integration.description}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline">
-                      {integration.category.charAt(0).toUpperCase() + integration.category.slice(1)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="mr-2"
-                      onClick={() => handleOpenDetails(integration)}
-                    >
-                      Details
-                    </Button>
-                    <Button
-                      variant={integration.connected ? "secondary" : "default"}
-                      size="sm"
-                      onClick={() => {
-                        if (!integration.connected) {
-                          handleOpenDetails(integration);
-                        }
-                      }}
-                    >
-                      {integration.connected ? "Connected" : "Connect"}
-                    </Button>
-                  </TableCell>
-                </TableRow>
+              </div>
+              {getStatusIcon(integration.status)}
+            </div>
+          </CardHeader>
+          <CardContent>
+            <CardDescription className="mb-4">
+              {integration.description}
+            </CardDescription>
+            
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center text-sm text-muted-foreground">
+                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 mr-1" />
+                {integration.rating} ({integration.reviews})
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-1 mb-4">
+              {integration.tags.map((tag) => (
+                <Badge key={tag} variant="outline" className="text-xs">
+                  {tag}
+                </Badge>
               ))}
-            </TableBody>
-          </Table>
+            </div>
+
+            <Button 
+              className="w-full" 
+              variant={integration.status === "installed" ? "outline" : "default"}
+              disabled={integration.status === "coming-soon"}
+            >
+              {integration.status === "installed" && <CheckCircle className="mr-2 h-4 w-4" />}
+              {getStatusText(integration.status)}
+            </Button>
+          </CardContent>
         </Card>
-      )}
-
-      {/* Integration Details Dialog */}
-      <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-        <DialogContent className="sm:max-w-[600px]">
-          {selectedIntegration && (
-            <>
-              <DialogHeader>
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 rounded-md overflow-hidden">
-                    <img 
-                      src={selectedIntegration.logo}
-                      alt={`${selectedIntegration.name} logo`}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <DialogTitle>{selectedIntegration.name}</DialogTitle>
-                </div>
-                <DialogDescription>{selectedIntegration.description}</DialogDescription>
-              </DialogHeader>
-              
-              <div className="space-y-4">
-                <div className="bg-muted/40 p-4 rounded-md">
-                  <h4 className="font-medium mb-2">Integration Benefits</h4>
-                  <ul className="space-y-1 text-sm list-disc pl-5">
-                    <li>Seamless data synchronization</li>
-                    <li>Real-time conversation context</li>
-                    <li>Automated workflow triggers</li>
-                    <li>Custom event handling</li>
-                  </ul>
-                </div>
-                
-                <div>
-                  <h4 className="font-medium mb-2">Requirements</h4>
-                  <p className="text-sm text-muted-foreground">
-                    You'll need administrator access to your {selectedIntegration.name} account and API credentials to complete this integration.
-                  </p>
-                </div>
-                
-                <div>
-                  <h4 className="font-medium mb-2">Documentation</h4>
-                  <a 
-                    href="#" 
-                    className="text-sm text-primary flex items-center hover:underline"
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                  >
-                    View integration documentation <ExternalLink className="ml-1 h-3 w-3" />
-                  </a>
-                </div>
-              </div>
-              
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setIsDetailOpen(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleConnectIntegration}>
-                  Connect {selectedIntegration.name}
-                </Button>
-              </DialogFooter>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Setup Wizard Sheet */}
-      <Sheet open={isSetupOpen} onOpenChange={setIsSetupOpen}>
-        <SheetContent className="sm:max-w-[600px] overflow-y-auto">
-          {selectedIntegration && (
-            <>
-              <SheetHeader>
-                <SheetTitle>Connect to {selectedIntegration.name}</SheetTitle>
-                <SheetDescription>
-                  Follow these steps to connect your {selectedIntegration.name} account
-                </SheetDescription>
-              </SheetHeader>
-              
-              <div className="py-6 space-y-6">
-                <div className="space-y-4">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0 h-8 w-8 rounded-full bg-primary/20 text-primary flex items-center justify-center">
-                      1
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-sm font-medium">Generate API Credentials</h3>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Log in to your {selectedIntegration.name} account and generate API credentials
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0 h-8 w-8 rounded-full bg-primary/20 text-primary flex items-center justify-center">
-                      2
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-sm font-medium">Enter API Keys</h3>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Enter the API key and secret from {selectedIntegration.name}
-                      </p>
-                      <div className="mt-4 space-y-2">
-                        <div className="grid w-full items-center gap-1.5">
-                          <label htmlFor="apiKey" className="text-sm font-medium">
-                            API Key
-                          </label>
-                          <input
-                            id="apiKey"
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                            placeholder="Enter API Key"
-                          />
-                        </div>
-                        <div className="grid w-full items-center gap-1.5">
-                          <label htmlFor="apiSecret" className="text-sm font-medium">
-                            API Secret
-                          </label>
-                          <input
-                            id="apiSecret"
-                            type="password"
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                            placeholder="Enter API Secret"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0 h-8 w-8 rounded-full bg-primary/20 text-primary flex items-center justify-center">
-                      3
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-sm font-medium">Configure Permissions</h3>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Select the data access permissions for this integration
-                      </p>
-                      <div className="mt-4 space-y-2">
-                        <div className="flex items-center space-x-2">
-                          <input 
-                            type="checkbox" 
-                            id="readData" 
-                            className="h-4 w-4 rounded border-gray-300 focus:ring-primary"
-                            defaultChecked
-                          />
-                          <label htmlFor="readData" className="text-sm">
-                            Read data
-                          </label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <input 
-                            type="checkbox" 
-                            id="writeData" 
-                            className="h-4 w-4 rounded border-gray-300 focus:ring-primary"
-                          />
-                          <label htmlFor="writeData" className="text-sm">
-                            Write data
-                          </label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <input 
-                            type="checkbox" 
-                            id="deleteData" 
-                            className="h-4 w-4 rounded border-gray-300 focus:ring-primary"
-                          />
-                          <label htmlFor="deleteData" className="text-sm">
-                            Delete data
-                          </label>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="bg-muted/40 rounded-md p-4">
-                  <h4 className="text-sm font-medium">Need Help?</h4>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Visit our documentation for detailed instructions on connecting {selectedIntegration.name}.
-                  </p>
-                  <a
-                    href="#"
-                    className="text-sm text-primary flex items-center mt-2 hover:underline"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    View setup guide <ExternalLink className="ml-1 h-3 w-3" />
-                  </a>
-                </div>
-                
-                <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={() => setIsSetupOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleFinishSetup} disabled={isConnecting}>
-                    {isConnecting ? "Connecting..." : "Complete Setup"}
-                  </Button>
-                </div>
-              </div>
-            </>
-          )}
-        </SheetContent>
-      </Sheet>
-    </>
+      ))}
+    </div>
   );
-};
+}

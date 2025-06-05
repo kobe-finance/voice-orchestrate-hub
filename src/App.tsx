@@ -32,7 +32,6 @@ import CRMIntegration from "./pages/CRMIntegration";
 import FinancialInvoicing from "./pages/FinancialInvoicing";
 import WorkflowAutomation from "./pages/WorkflowAutomation";
 import FieldServiceIntegration from "./pages/FieldServiceIntegration";
-import AdvancedAnalytics from "./pages/AdvancedAnalytics";
 import MarketingAutomation from "./pages/MarketingAutomation";
 import QualityAssurance from "./pages/QualityAssurance";
 
@@ -203,16 +202,6 @@ function App() {
                         <AppSidebar />
                         <SidebarInset>
                           <Analytics />
-                        </SidebarInset>
-                      </SidebarProvider>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/advanced-analytics" element={
-                    <ProtectedRoute>
-                      <SidebarProvider>
-                        <AppSidebar />
-                        <SidebarInset>
-                          <AdvancedAnalytics />
                         </SidebarInset>
                       </SidebarProvider>
                     </ProtectedRoute>

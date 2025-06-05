@@ -1,457 +1,328 @@
-import React, { useState } from "react";
-import { Layout } from "@/components/Layout";
-import { PageHeader } from "@/components/ui/page-header";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-  BarChart, 
-  Bar, 
-  LineChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  Legend
-} from "recharts";
-import { 
-  Table, 
-  TableBody, 
-  TableCaption, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  ChartContainer, 
-  ChartTooltip, 
-  ChartTooltipContent
-} from "@/components/ui/chart";
-import { ChartLine, ChartPie, BarChartHorizontal, Calendar, Download } from "lucide-react";
 
-// Analytics data
-const analyticsData = [
-  { name: "Jan", calls: 400, duration: 240, completed: 380, transferred: 20, csat: 4.2 },
-  { name: "Feb", calls: 300, duration: 180, completed: 280, transferred: 20, csat: 4.0 },
-  { name: "Mar", calls: 500, duration: 320, completed: 460, transferred: 40, csat: 4.3 },
-  { name: "Apr", calls: 280, duration: 250, completed: 250, transferred: 30, csat: 4.1 },
-  { name: "May", calls: 590, duration: 370, completed: 540, transferred: 50, csat: 4.4 },
-  { name: "Jun", calls: 490, duration: 300, completed: 450, transferred: 40, csat: 4.2 },
-  { name: "Jul", calls: 600, duration: 410, completed: 550, transferred: 50, csat: 4.5 },
-];
-
-const performanceData = [
-  { name: "Mon", responseTime: 1.2, accuracy: 92 },
-  { name: "Tue", responseTime: 1.5, accuracy: 89 },
-  { name: "Wed", responseTime: 0.9, accuracy: 94 },
-  { name: "Thu", responseTime: 1.1, accuracy: 91 },
-  { name: "Fri", responseTime: 1.3, accuracy: 88 },
-  { name: "Sat", responseTime: 0.8, accuracy: 95 },
-  { name: "Sun", responseTime: 1.0, accuracy: 93 },
-];
-
-// Intent recognition data
-const intentRecognitionData = [
-  { name: "Correctly Identified", value: 85 },
-  { name: "Partially Identified", value: 10 },
-  { name: "Misidentified", value: 5 },
-];
-
-const COLORS = ['#10B981', '#FBBF24', '#EF4444'];
-
-// Detailed call data for tables
-const callDetailsData = [
-  { id: "C-1001", date: "2023-07-01", duration: "4m 12s", agent: "Sales Agent", outcome: "Completed", satisfaction: 5 },
-  { id: "C-1002", date: "2023-07-01", duration: "2m 45s", agent: "Support Agent", outcome: "Transferred", satisfaction: 3 },
-  { id: "C-1003", date: "2023-07-02", duration: "6m 20s", agent: "Sales Agent", outcome: "Completed", satisfaction: 4 },
-  { id: "C-1004", date: "2023-07-02", duration: "3m 15s", agent: "Booking Agent", outcome: "Completed", satisfaction: 5 },
-  { id: "C-1005", date: "2023-07-03", duration: "1m 50s", agent: "Support Agent", outcome: "Incomplete", satisfaction: 2 },
-  { id: "C-1006", date: "2023-07-03", duration: "5m 10s", agent: "Sales Agent", outcome: "Completed", satisfaction: 4 },
-  { id: "C-1007", date: "2023-07-04", duration: "2m 30s", agent: "Support Agent", outcome: "Completed", satisfaction: 5 },
-];
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { BarChart3, TrendingUp, PieChart, LineChart, Download, RefreshCw, Filter, Phone, Clock, Users, DollarSign } from 'lucide-react';
+import { LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell, AreaChart, Area } from 'recharts';
 
 const Analytics = () => {
-  const [timePeriod, setTimePeriod] = useState("monthly");
-  
-  const handleExportData = () => {
-    // In a real implementation, this would generate and download a CSV/Excel file
-    console.log("Exporting analytics data...");
-    alert("Analytics data export started. Your file will download shortly.");
-  };
+  const [timeRange, setTimeRange] = useState('7d');
+
+  // Mock data for charts
+  const callVolumeData = [
+    { date: '2025-05-19', calls: 145, conversions: 35, duration: 4.2 },
+    { date: '2025-05-20', calls: 162, conversions: 42, duration: 4.5 },
+    { date: '2025-05-21', calls: 178, conversions: 48, duration: 3.8 },
+    { date: '2025-05-22', calls: 155, conversions: 38, duration: 4.1 },
+    { date: '2025-05-23', calls: 189, conversions: 52, duration: 4.6 },
+    { date: '2025-05-24', calls: 201, conversions: 58, duration: 4.3 },
+    { date: '2025-05-25', calls: 167, conversions: 45, duration: 4.0 }
+  ];
+
+  const agentPerformanceData = [
+    { agent: 'Sales Agent', calls: 324, avgDuration: 4.2, satisfaction: 4.8 },
+    { agent: 'Support Agent', calls: 267, avgDuration: 6.1, satisfaction: 4.6 },
+    { agent: 'Booking Agent', calls: 189, avgDuration: 3.5, satisfaction: 4.9 }
+  ];
+
+  const intentDistributionData = [
+    { name: 'Product Inquiry', value: 35, color: '#2563EB' },
+    { name: 'Support Request', value: 28, color: '#F97316' },
+    { name: 'Booking', value: 22, color: '#10B981' },
+    { name: 'Complaint', value: 10, color: '#EF4444' },
+    { name: 'Other', value: 5, color: '#6B7280' }
+  ];
+
+  const realtimeData = [
+    { time: '09:00', activeCalls: 12, queueLength: 3 },
+    { time: '09:30', activeCalls: 18, queueLength: 5 },
+    { time: '10:00', activeCalls: 25, queueLength: 8 },
+    { time: '10:30', activeCalls: 22, queueLength: 4 },
+    { time: '11:00', activeCalls: 31, queueLength: 12 },
+  ];
 
   return (
-    <Layout>
-      <div className="container py-6 max-w-7xl mx-auto">
-        <PageHeader
-          title="Call Analytics Dashboard"
-          description="Comprehensive analysis of your voice agents' performance"
-          className="mb-6"
-        />
-        
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-4">
-            <Select value={timePeriod} onValueChange={setTimePeriod}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select Time Period" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="daily">Daily</SelectItem>
-                <SelectItem value="weekly">Weekly</SelectItem>
-                <SelectItem value="monthly">Monthly</SelectItem>
-                <SelectItem value="quarterly">Quarterly</SelectItem>
-                <SelectItem value="yearly">Yearly</SelectItem>
-              </SelectContent>
-            </Select>
-            
-            <Button variant="outline" className="flex items-center gap-2">
-              <Calendar size={18} />
-              <span>Custom Date Range</span>
-            </Button>
-          </div>
-          
-          <Button onClick={handleExportData} className="flex items-center gap-2">
-            <Download size={18} />
-            <span>Export Data</span>
+    <div className="container mx-auto py-6 space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold">Analytics & Business Intelligence</h1>
+          <p className="text-muted-foreground">Comprehensive insights and analytics for your voice operations</p>
+        </div>
+        <div className="flex gap-2">
+          <Select value={timeRange} onValueChange={setTimeRange}>
+            <SelectTrigger className="w-32">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="1d">Last Day</SelectItem>
+              <SelectItem value="7d">Last 7 Days</SelectItem>
+              <SelectItem value="30d">Last 30 Days</SelectItem>
+              <SelectItem value="90d">Last 90 Days</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button variant="outline">
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Refresh
+          </Button>
+          <Button variant="outline">
+            <Download className="mr-2 h-4 w-4" />
+            Export
           </Button>
         </div>
-        
-        <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="mb-4">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="performance">Agent Performance</TabsTrigger>
-            <TabsTrigger value="engagement">User Engagement</TabsTrigger>
-            <TabsTrigger value="details">Call Details</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="overview" className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Total Calls</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">3,160</div>
-                  <p className="text-xs text-muted-foreground">+12.5% from last month</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Avg. Call Duration</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">3m 24s</div>
-                  <p className="text-xs text-muted-foreground">-0.8% from last month</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Completion Rate</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">92.4%</div>
-                  <p className="text-xs text-muted-foreground">+1.6% from last month</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">CSAT Score</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">4.3/5</div>
-                  <p className="text-xs text-muted-foreground">+0.2 from last month</p>
-                </CardContent>
-              </Card>
-            </div>
+      </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
-              <Card className="col-span-1">
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <ChartLine className="mr-2" size={20} /> Call Volume Trend
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="h-80">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart
-                      data={analyticsData}
-                      margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip />
-                      <Line type="monotone" dataKey="calls" stroke="#2563EB" strokeWidth={2} dot={{ r: 4 }} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
+      {/* KPI Dashboard */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Calls</CardTitle>
+            <Phone className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">1,287</div>
+            <p className="text-xs text-muted-foreground">+12.5% from last period</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Conversion Rate</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">28.4%</div>
+            <p className="text-xs text-muted-foreground">+3.2% improvement</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Avg Call Duration</CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">4m 52s</div>
+            <p className="text-xs text-muted-foreground">-8% more efficient</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Customer Satisfaction</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">4.7/5</div>
+            <p className="text-xs text-muted-foreground">+0.2 increase</p>
+          </CardContent>
+        </Card>
+      </div>
 
-              <Card className="col-span-1">
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <ChartPie className="mr-2" size={20} /> Intent Recognition Accuracy
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="h-80">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={intentRecognitionData}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        outerRadius={100}
-                        fill="#8884d8"
-                        dataKey="value"
-                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                      >
-                        {intentRecognitionData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                      <Legend />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-            </div>
+      <Tabs defaultValue="overview" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="realtime">Real-time</TabsTrigger>
+          <TabsTrigger value="performance">Performance</TabsTrigger>
+          <TabsTrigger value="insights">AI Insights</TabsTrigger>
+          <TabsTrigger value="reports">Custom Reports</TabsTrigger>
+        </TabsList>
 
+        <TabsContent value="overview" className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center">
-                  <BarChartHorizontal className="mr-2" size={20} /> Monthly Performance Metrics
-                </CardTitle>
+                <CardTitle>Call Volume & Conversions</CardTitle>
+                <CardDescription>Track call volume and conversion trends over time</CardDescription>
               </CardHeader>
-              <CardContent className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={analyticsData}
-                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                  >
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <RechartsLineChart data={callVolumeData}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
+                    <XAxis dataKey="date" />
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="calls" name="Calls" fill="#2563EB" />
-                    <Bar dataKey="completed" name="Completed" fill="#10B981" />
-                    <Bar dataKey="transferred" name="Transferred" fill="#F97316" />
-                  </BarChart>
+                    <Line type="monotone" dataKey="calls" stroke="#2563EB" strokeWidth={2} />
+                    <Line type="monotone" dataKey="conversions" stroke="#F97316" strokeWidth={2} />
+                  </RechartsLineChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>
-          </TabsContent>
-
-          <TabsContent value="performance" className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Avg. Response Time</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">1.1s</div>
-                  <p className="text-xs text-muted-foreground">-0.2s from last period</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Accuracy Rate</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">91.8%</div>
-                  <p className="text-xs text-muted-foreground">+1.4% from last period</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Completion Rate</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">87.3%</div>
-                  <p className="text-xs text-muted-foreground">+3.2% from last period</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Error Rate</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">2.4%</div>
-                  <p className="text-xs text-muted-foreground">-0.8% from last period</p>
-                </CardContent>
-              </Card>
-            </div>
 
             <Card>
               <CardHeader>
-                <CardTitle>Performance Metrics</CardTitle>
-              </CardHeader>
-              <CardContent className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={performanceData}
-                    margin={{
-                      top: 20,
-                      right: 30,
-                      left: 20,
-                      bottom: 5,
-                    }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis yAxisId="left" orientation="left" stroke="#2563EB" />
-                    <YAxis yAxisId="right" orientation="right" stroke="#10B981" />
-                    <Tooltip />
-                    <Bar yAxisId="left" dataKey="responseTime" name="Response Time (s)" fill="#2563EB" />
-                    <Bar yAxisId="right" dataKey="accuracy" name="Accuracy (%)" fill="#10B981" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="engagement" className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-3">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Top User Locations</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2">
-                    <li className="flex justify-between">
-                      <span>United States</span>
-                      <span className="font-medium">42%</span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span>United Kingdom</span>
-                      <span className="font-medium">18%</span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span>Canada</span>
-                      <span className="font-medium">11%</span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span>Germany</span>
-                      <span className="font-medium">9%</span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span>Australia</span>
-                      <span className="font-medium">7%</span>
-                    </li>
-                  </ul>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>User Devices</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2">
-                    <li className="flex justify-between">
-                      <span>Mobile</span>
-                      <span className="font-medium">64%</span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span>Desktop</span>
-                      <span className="font-medium">28%</span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span>Tablet</span>
-                      <span className="font-medium">8%</span>
-                    </li>
-                  </ul>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>User Satisfaction</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2">
-                    <li className="flex justify-between">
-                      <span>Very Satisfied</span>
-                      <span className="font-medium">47%</span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span>Satisfied</span>
-                      <span className="font-medium">35%</span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span>Neutral</span>
-                      <span className="font-medium">12%</span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span>Dissatisfied</span>
-                      <span className="font-medium">5%</span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span>Very Dissatisfied</span>
-                      <span className="font-medium">1%</span>
-                    </li>
-                  </ul>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="details" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Call Details</CardTitle>
+                <CardTitle>Intent Distribution</CardTitle>
+                <CardDescription>Breakdown of customer call intents</CardDescription>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>ID</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Duration</TableHead>
-                      <TableHead>Agent</TableHead>
-                      <TableHead>Outcome</TableHead>
-                      <TableHead>Satisfaction</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {callDetailsData.map((call) => (
-                      <TableRow key={call.id}>
-                        <TableCell className="font-medium">{call.id}</TableCell>
-                        <TableCell>{call.date}</TableCell>
-                        <TableCell>{call.duration}</TableCell>
-                        <TableCell>{call.agent}</TableCell>
-                        <TableCell>
-                          <span
-                            className={`px-2 py-1 rounded-full text-xs ${
-                              call.outcome === "Completed"
-                                ? "bg-green-100 text-green-800"
-                                : call.outcome === "Transferred"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : "bg-red-100 text-red-800"
-                            }`}
-                          >
-                            {call.outcome}
-                          </span>
-                        </TableCell>
-                        <TableCell>{call.satisfaction}/5</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                <ResponsiveContainer width="100%" height={300}>
+                  <RechartsPieChart>
+                    <Pie dataKey="value" data={intentDistributionData} cx="50%" cy="50%" outerRadius={80} fill="#8884d8">
+                      {intentDistributionData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend />
+                  </RechartsPieChart>
+                </ResponsiveContainer>
               </CardContent>
             </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
-    </Layout>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Agent Performance Comparison</CardTitle>
+              <CardDescription>Compare performance metrics across different agents</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={agentPerformanceData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="agent" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="calls" fill="#2563EB" />
+                  <Bar dataKey="avgDuration" fill="#F97316" />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="realtime" className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Live Call Activity</CardTitle>
+                <CardDescription>Real-time call volume and queue status</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <AreaChart data={realtimeData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="time" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Area type="monotone" dataKey="activeCalls" stackId="1" stroke="#2563EB" fill="#2563EB" />
+                    <Area type="monotone" dataKey="queueLength" stackId="2" stroke="#F97316" fill="#F97316" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Current Metrics</CardTitle>
+                <CardDescription>Live performance indicators</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center p-4 border rounded">
+                    <div className="text-2xl font-bold text-green-600">23</div>
+                    <div className="text-sm text-muted-foreground">Active Calls</div>
+                  </div>
+                  <div className="text-center p-4 border rounded">
+                    <div className="text-2xl font-bold text-orange-600">7</div>
+                    <div className="text-sm text-muted-foreground">In Queue</div>
+                  </div>
+                  <div className="text-center p-4 border rounded">
+                    <div className="text-2xl font-bold text-blue-600">3.2s</div>
+                    <div className="text-sm text-muted-foreground">Avg Wait Time</div>
+                  </div>
+                  <div className="text-center p-4 border rounded">
+                    <div className="text-2xl font-bold text-green-600">98.5%</div>
+                    <div className="text-sm text-muted-foreground">System Uptime</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="performance" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Performance Metrics</CardTitle>
+              <CardDescription>Detailed performance analysis and benchmarks</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="text-center p-4 border rounded">
+                  <div className="text-2xl font-bold text-green-600">98.5%</div>
+                  <div className="text-sm text-muted-foreground">Uptime</div>
+                </div>
+                <div className="text-center p-4 border rounded">
+                  <div className="text-2xl font-bold text-blue-600">1.2s</div>
+                  <div className="text-sm text-muted-foreground">Avg Response Time</div>
+                </div>
+                <div className="text-center p-4 border rounded">
+                  <div className="text-2xl font-bold text-orange-600">92%</div>
+                  <div className="text-sm text-muted-foreground">First Call Resolution</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="insights" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>AI-Powered Insights</CardTitle>
+              <CardDescription>Machine learning insights and recommendations</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="p-4 border-l-4 border-blue-500 bg-blue-50">
+                  <h4 className="font-medium">Peak Hour Optimization</h4>
+                  <p className="text-sm text-muted-foreground">Consider adding 2 more agents during 2-4 PM to reduce wait times by 23%</p>
+                </div>
+                <div className="p-4 border-l-4 border-green-500 bg-green-50">
+                  <h4 className="font-medium">Script Performance</h4>
+                  <p className="text-sm text-muted-foreground">The updated greeting script increased conversion rates by 15%</p>
+                </div>
+                <div className="p-4 border-l-4 border-orange-500 bg-orange-50">
+                  <h4 className="font-medium">Customer Sentiment Trend</h4>
+                  <p className="text-sm text-muted-foreground">Sentiment has improved by 12% after implementing new follow-up procedures</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="reports" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Custom Report Builder</CardTitle>
+              <CardDescription>Create and schedule custom analytics reports</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {[
+                  { name: 'Weekly Performance Report', schedule: 'Every Monday', lastRun: '2025-05-20' },
+                  { name: 'Monthly KPI Dashboard', schedule: 'First of month', lastRun: '2025-05-01' },
+                  { name: 'Agent Efficiency Report', schedule: 'Bi-weekly', lastRun: '2025-05-15' }
+                ].map((report, index) => (
+                  <Card key={index}>
+                    <CardHeader>
+                      <CardTitle className="text-lg">{report.name}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2 text-sm">
+                        <div>Schedule: {report.schedule}</div>
+                        <div>Last Run: {report.lastRun}</div>
+                        <Button size="sm" className="w-full">View Report</Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 };
 
