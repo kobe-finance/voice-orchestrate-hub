@@ -1,10 +1,9 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SearchInput } from "@/components/ui/search-input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Search, Copy, Trash, Edit, Filter, GitBranch } from "lucide-react";
+import { Plus, Search, Copy, Trash, Edit, Filter, GitBranch, Sparkles } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
@@ -111,6 +110,12 @@ const VoiceAgents = () => {
             onClick={() => navigate("/conversation-flow")}
           >
             <GitBranch className="h-4 w-4" /> Conversation Flows
+          </Button>
+          <Button 
+            variant="outline"
+            onClick={() => navigate("/agent-template-gallery")}
+          >
+            <Sparkles className="mr-2 h-4 w-4" /> Templates
           </Button>
           <Button 
             className="bg-primary hover:bg-primary/90"
