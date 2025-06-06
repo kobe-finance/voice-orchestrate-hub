@@ -152,7 +152,7 @@ export const ToolTestInterface = ({ tool, onTest }: ToolTestInterfaceProps) => {
                 updateInput(param.name, e.target.value);
               }
             }}
-            placeholder="Enter JSON object, e.g., {\"key\": \"value\"}"
+            placeholder='Enter JSON object, e.g., {"key": "value"}'
             rows={4}
           />
         );
