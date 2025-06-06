@@ -12,6 +12,19 @@ import { Sun, Moon, Monitor } from "lucide-react";
 
 export function ModeToggle() {
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <Button variant="outline" size="icon">
+        <Sun className="h-4 w-4" />
+      </Button>
+    );
+  }
 
   return (
     <DropdownMenu>
