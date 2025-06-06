@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
@@ -9,224 +10,187 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { ArrowRight, Code, Database, ExternalLink, Mail, Play, Plus, Save, Webhook } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { ArrowRight, Code, Database, ExternalLink, Mail, Plus, Save, Webhook, Settings, Eye, Copy, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { ParameterBuilder } from "@/components/tools/ParameterBuilder";
+import { ToolTestInterface } from "@/components/tools/ToolTestInterface";
+import { ToolDefinition, ToolParameter } from "@/types/tool";
 
-// Sample data for templates and actions
-const actionTemplates = [
+// Sample data for templates and existing tools
+const toolTemplates = [
   { 
     id: "api-call", 
     name: "API Call", 
-    description: "Make HTTP requests to external APIs", 
+    description: "Make HTTP requests to external APIs with full parameter control", 
     icon: <Code className="h-5 w-5" />,
-    category: "integration" 
+    category: "api" 
   },
   { 
     id: "data-lookup", 
-    name: "Data Lookup", 
-    description: "Query databases or data sources", 
+    name: "Database Query", 
+    description: "Query databases with custom SQL or NoSQL queries", 
     icon: <Database className="h-5 w-5" />,
-    category: "data" 
+    category: "database" 
   },
   { 
     id: "crm-update", 
-    name: "CRM Update", 
-    description: "Create or update CRM records", 
+    name: "CRM Integration", 
+    description: "Create, read, update CRM records with field mapping", 
     icon: <ExternalLink className="h-5 w-5" />,
-    category: "integration" 
+    category: "crm" 
   },
   { 
     id: "email-trigger", 
-    name: "Email Trigger", 
-    description: "Send email notifications", 
+    name: "Email Automation", 
+    description: "Send emails with dynamic content and attachments", 
     icon: <Mail className="h-5 w-5" />,
-    category: "notification" 
+    category: "email" 
   },
   { 
     id: "webhook", 
     name: "Webhook Dispatch", 
-    description: "Send webhook endpoints", 
+    description: "Send webhook requests with custom payloads and authentication", 
     icon: <Webhook className="h-5 w-5" />,
-    category: "integration" 
+    category: "webhook" 
   },
 ];
 
-const existingActions = [
+const existingTools: ToolDefinition[] = [
   { 
     id: "1", 
-    name: "Lookup Customer", 
-    type: "API Call", 
-    lastUsed: "2025-05-20", 
-    usageCount: 128,
-    status: "active" 
+    name: "Customer Lookup", 
+    description: "Look up customer information by phone or email",
+    category: "crm",
+    parameters: [
+      { name: "identifier", type: "string", description: "Phone number or email", required: true },
+      { name: "include_history", type: "boolean", description: "Include call history", required: false, defaultValue: false }
+    ],
+    endpoint: {
+      url: "https://api.example.com/customers/lookup",
+      method: "GET"
+    },
+    errorHandling: { onError: "fallback", fallbackValue: "Customer not found" },
+    llmConfig: {
+      functionName: "lookup_customer",
+      functionDescription: "Find customer information using phone number or email address",
+      whenToUse: "When user provides contact information and you need to identify the customer"
+    },
+    isActive: true,
+    createdAt: "2025-05-20T10:00:00Z",
+    updatedAt: "2025-05-20T10:00:00Z",
+    usageCount: 128
   },
   { 
     id: "2", 
-    name: "Create Support Ticket", 
-    type: "CRM Update", 
-    lastUsed: "2025-05-19", 
-    usageCount: 56,
-    status: "active" 
-  },
-  { 
-    id: "3", 
-    name: "Send Confirmation Email", 
-    type: "Email Trigger", 
-    lastUsed: "2025-05-18", 
-    usageCount: 89,
-    status: "active" 
-  },
+    name: "Schedule Appointment", 
+    description: "Book appointments in the calendar system",
+    category: "calendar",
+    parameters: [
+      { name: "customer_id", type: "string", description: "Customer identifier", required: true },
+      { name: "service_type", type: "string", description: "Type of service", required: true, enum: ["plumbing", "electrical", "hvac"] },
+      { name: "preferred_date", type: "string", description: "Preferred appointment date (YYYY-MM-DD)", required: true },
+      { name: "notes", type: "string", description: "Additional notes", required: false }
+    ],
+    endpoint: {
+      url: "https://api.example.com/appointments",
+      method: "POST"
+    },
+    errorHandling: { onError: "retry", retryCount: 3 },
+    llmConfig: {
+      functionName: "schedule_appointment",
+      functionDescription: "Book an appointment for a customer service",
+      whenToUse: "When customer wants to schedule a service appointment"
+    },
+    isActive: true,
+    createdAt: "2025-05-19T14:30:00Z",
+    updatedAt: "2025-05-19T14:30:00Z",
+    usageCount: 89
+  }
 ];
 
 const CustomActionBuilder = () => {
-  const [step, setStep] = useState(1);
-  const [activeTab, setActiveTab] = useState("templates");
+  const [activeTab, setActiveTab] = useState("tools");
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
-  const [actionName, setActionName] = useState("");
-  const [actionDescription, setActionDescription] = useState("");
-  const [actionType, setActionType] = useState("");
-  const [actionConfig, setActionConfig] = useState({});
-  const [testResult, setTestResult] = useState<string | null>(null);
-  const [isTestLoading, setIsTestLoading] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [currentTool, setCurrentTool] = useState<Partial<ToolDefinition>>({
+    name: "",
+    description: "",
+    category: "api",
+    parameters: [],
+    errorHandling: { onError: "retry", retryCount: 3 },
+    llmConfig: {
+      functionName: "",
+      functionDescription: "",
+      whenToUse: ""
+    },
+    isActive: true
+  });
+
+  const handleCreateNew = () => {
+    setSelectedTemplate(null);
+    setCurrentTool({
+      name: "",
+      description: "",
+      category: "api",
+      parameters: [],
+      errorHandling: { onError: "retry", retryCount: 3 },
+      llmConfig: {
+        functionName: "",
+        functionDescription: "",
+        whenToUse: ""
+      },
+      isActive: true
+    });
+    setIsCreating(true);
+  };
 
   const handleTemplateSelect = (templateId: string) => {
-    setSelectedTemplate(templateId);
-    const template = actionTemplates.find(t => t.id === templateId);
+    const template = toolTemplates.find(t => t.id === templateId);
     if (template) {
-      setActionType(template.name);
-      setStep(2);
+      setSelectedTemplate(templateId);
+      setCurrentTool({
+        name: template.name,
+        description: template.description,
+        category: template.category as any,
+        parameters: [],
+        errorHandling: { onError: "retry", retryCount: 3 },
+        llmConfig: {
+          functionName: template.name.toLowerCase().replace(/\s+/g, '_'),
+          functionDescription: template.description,
+          whenToUse: `When you need to ${template.description.toLowerCase()}`
+        },
+        isActive: true
+      });
+      setIsCreating(true);
     }
   };
 
-  const handleActionTest = () => {
-    setIsTestLoading(true);
-    // Simulate API call/test execution
-    setTimeout(() => {
-      setTestResult(JSON.stringify({ 
-        status: "success", 
-        message: "Action executed successfully", 
-        data: { id: "test-123", timestamp: new Date().toISOString() } 
-      }, null, 2));
-      setIsTestLoading(false);
-    }, 1500);
-  };
-
-  const handleActionSave = () => {
-    // Validation
-    if (!actionName || !actionType) {
+  const handleSave = () => {
+    if (!currentTool.name || !currentTool.description || !currentTool.llmConfig?.functionName) {
       toast.error("Please fill in all required fields");
       return;
     }
 
-    // Save action (would connect to API in a real implementation)
-    toast.success("Custom action saved successfully");
-    
-    // Reset form and go back to templates
-    setStep(1);
-    setSelectedTemplate(null);
-    setActionName("");
-    setActionDescription("");
-    setActionType("");
-    setActionConfig({});
-    setTestResult(null);
-    setActiveTab("actions"); // Switch to the actions list
+    toast.success("Tool saved successfully");
+    setIsCreating(false);
+    setActiveTab("tools");
   };
 
-  // Render form based on selected action type
-  const renderConfigForm = () => {
-    switch (actionType) {
-      case "API Call":
-        return (
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Endpoint URL</label>
-              <Input placeholder="https://api.example.com/endpoint" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Method</label>
-              <Select defaultValue="GET">
-                <SelectTrigger>
-                  <SelectValue placeholder="Select method" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="GET">GET</SelectItem>
-                  <SelectItem value="POST">POST</SelectItem>
-                  <SelectItem value="PUT">PUT</SelectItem>
-                  <SelectItem value="DELETE">DELETE</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Headers</label>
-              <Textarea placeholder='{"Content-Type": "application/json"}' className="font-mono text-sm" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Body</label>
-              <Textarea placeholder='{"key": "{{value}}"}' className="font-mono text-sm" />
-              <p className="text-xs text-muted-foreground mt-1">Use {"{{variable}}"} syntax for dynamic values</p>
-            </div>
-          </div>
-        );
-      case "Email Trigger":
-        return (
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Recipients</label>
-              <Input placeholder="{{customer.email}}, support@example.com" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Subject</label>
-              <Input placeholder="Your request {{request.id}} has been processed" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Email Template</label>
-              <Select defaultValue="default">
-                <SelectTrigger>
-                  <SelectValue placeholder="Select template" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="default">Default Template</SelectItem>
-                  <SelectItem value="confirmation">Confirmation Email</SelectItem>
-                  <SelectItem value="alert">Alert Notification</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Email Body</label>
-              <Textarea placeholder="Dear {{customer.name}}, 
-              
-Thank you for your recent inquiry. We're happy to help with {{request.details}}.
-
-Best regards,
-The Support Team" 
-              rows={6} />
-            </div>
-          </div>
-        );
-      case "Webhook Dispatch":
-        return (
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Webhook URL</label>
-              <Input placeholder="https://hooks.example.com/trigger/abc123" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Payload</label>
-              <Textarea placeholder='{"event": "voice_agent_action", "data": {{conversation_data}}}' className="font-mono text-sm" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Secret (Optional)</label>
-              <Input type="password" placeholder="Webhook secret for authentication" />
-            </div>
-          </div>
-        );
-      default:
-        return (
-          <div className="py-8 text-center text-muted-foreground">
-            Please select an action type to configure
-          </div>
-        );
-    }
+  const handleTest = async (input: Record<string, any>) => {
+    // Simulate tool execution
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (Math.random() > 0.8) {
+          reject(new Error("Simulated API error"));
+        } else {
+          resolve({
+            status: "success",
+            data: { result: "Tool executed successfully", input, timestamp: new Date().toISOString() }
+          });
+        }
+      }, 1000);
+    });
   };
 
   return (
@@ -234,204 +198,69 @@ The Support Team"
       <div className="container mx-auto py-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold">Custom Action Builder</h1>
-            <p className="text-muted-foreground">Create and manage custom actions for your voice agents</p>
+            <h1 className="text-2xl font-bold">Tool & Plugin Management</h1>
+            <p className="text-muted-foreground">Create and manage tools that your voice agents can use</p>
           </div>
-          <Button onClick={() => { setStep(1); setSelectedTemplate(null); }}>
-            <Plus className="mr-2 h-4 w-4" /> New Action
+          <Button onClick={handleCreateNew}>
+            <Plus className="mr-2 h-4 w-4" /> Create Tool
           </Button>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="templates">Action Templates</TabsTrigger>
-            <TabsTrigger value="actions">My Actions</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="tools">My Tools</TabsTrigger>
+            <TabsTrigger value="templates">Templates</TabsTrigger>
+            <TabsTrigger value="create" disabled={!isCreating}>Tool Builder</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="templates" className="mt-6">
-            {step === 1 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {actionTemplates.map((template) => (
-                  <Card 
-                    key={template.id} 
-                    className={`cursor-pointer hover:border-primary transition-colors ${selectedTemplate === template.id ? 'border-primary' : ''}`}
-                    onClick={() => handleTemplateSelect(template.id)}
-                  >
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <div className="p-2 bg-primary/10 rounded-full">
-                          {template.icon}
-                        </div>
-                        <Badge variant="outline">{template.category}</Badge>
-                      </div>
-                      <CardTitle className="mt-2">{template.name}</CardTitle>
-                      <CardDescription>{template.description}</CardDescription>
-                    </CardHeader>
-                    <CardFooter>
-                      <Button variant="ghost" className="w-full" onClick={() => handleTemplateSelect(template.id)}>
-                        Select <ArrowRight className="ml-2 h-4 w-4" />
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Configure Action: {actionType}</CardTitle>
-                  <CardDescription>Fill in the details for your custom action</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-6">
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Action Name *</label>
-                        <Input 
-                          placeholder="E.g., Send Welcome Email" 
-                          value={actionName} 
-                          onChange={(e) => setActionName(e.target.value)} 
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Description</label>
-                        <Textarea 
-                          placeholder="Briefly describe what this action does" 
-                          value={actionDescription} 
-                          onChange={(e) => setActionDescription(e.target.value)} 
-                        />
-                      </div>
-                    </div>
-
-                    <div className="border-t pt-4">
-                      <h3 className="text-lg font-medium mb-4">Parameter Configuration</h3>
-                      {renderConfigForm()}
-                    </div>
-
-                    <div className="border-t pt-4">
-                      <h3 className="text-lg font-medium mb-4">Error Handling</h3>
-                      <div className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-medium mb-1">On Error</label>
-                          <Select defaultValue="retry">
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select error behavior" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="retry">Retry (up to 3 times)</SelectItem>
-                              <SelectItem value="fallback">Use fallback value</SelectItem>
-                              <SelectItem value="abort">Abort conversation</SelectItem>
-                              <SelectItem value="ignore">Ignore and continue</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                    </div>
-
-                    {testResult && (
-                      <div className="border-t pt-4">
-                        <h3 className="text-lg font-medium mb-2">Test Result</h3>
-                        <div className="bg-muted p-3 rounded-md">
-                          <pre className="text-sm overflow-auto whitespace-pre-wrap">{testResult}</pre>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-                <CardFooter className="flex justify-between">
-                  <Button variant="outline" onClick={() => setStep(1)}>Back to Templates</Button>
-                  <div className="space-x-2">
-                    <Button 
-                      variant="outline" 
-                      onClick={handleActionTest}
-                      disabled={isTestLoading}
-                    >
-                      {isTestLoading ? (
-                        <div className="flex items-center">Testing...</div>
-                      ) : (
-                        <div className="flex items-center">
-                          <Play className="mr-2 h-4 w-4" /> Test Action
-                        </div>
-                      )}
-                    </Button>
-                    <Button onClick={handleActionSave}>
-                      <Save className="mr-2 h-4 w-4" /> Save Action
-                    </Button>
-                  </div>
-                </CardFooter>
-              </Card>
-            )}
-          </TabsContent>
-          
-          <TabsContent value="actions" className="mt-6">
+          <TabsContent value="tools" className="mt-6">
             <Card>
               <CardHeader>
-                <CardTitle>Your Custom Actions</CardTitle>
-                <CardDescription>View and manage all your configured actions</CardDescription>
+                <CardTitle>Active Tools</CardTitle>
+                <CardDescription>Tools available to your voice agents</CardDescription>
               </CardHeader>
               <CardContent>
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Name</TableHead>
-                      <TableHead>Type</TableHead>
+                      <TableHead>Category</TableHead>
+                      <TableHead>Parameters</TableHead>
                       <TableHead>Usage</TableHead>
-                      <TableHead>Last Used</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {existingActions.map((action) => (
-                      <TableRow key={action.id}>
-                        <TableCell className="font-medium">{action.name}</TableCell>
-                        <TableCell>{action.type}</TableCell>
-                        <TableCell>{action.usageCount} calls</TableCell>
-                        <TableCell>{action.lastUsed}</TableCell>
+                    {existingTools.map((tool) => (
+                      <TableRow key={tool.id}>
                         <TableCell>
-                          <Badge variant={action.status === "active" ? "default" : "outline"}>
-                            {action.status === "active" ? "Active" : "Inactive"}
+                          <div>
+                            <div className="font-medium">{tool.name}</div>
+                            <div className="text-sm text-muted-foreground">{tool.description}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{tool.category}</Badge>
+                        </TableCell>
+                        <TableCell>{tool.parameters.length} params</TableCell>
+                        <TableCell>{tool.usageCount} calls</TableCell>
+                        <TableCell>
+                          <Badge variant={tool.isActive ? "default" : "outline"}>
+                            {tool.isActive ? "Active" : "Inactive"}
                           </Badge>
                         </TableCell>
                         <TableCell>
                           <div className="flex space-x-2">
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <Button variant="outline" size="sm">View</Button>
-                              </DialogTrigger>
-                              <DialogContent className="sm:max-w-[600px]">
-                                <DialogHeader>
-                                  <DialogTitle>{action.name}</DialogTitle>
-                                  <DialogDescription>Action details and configuration</DialogDescription>
-                                </DialogHeader>
-                                <div className="grid gap-4 py-4">
-                                  <div className="grid grid-cols-4 items-center gap-4">
-                                    <label className="text-right text-sm font-medium">Type:</label>
-                                    <div className="col-span-3">{action.type}</div>
-                                  </div>
-                                  <div className="grid grid-cols-4 items-center gap-4">
-                                    <label className="text-right text-sm font-medium">Status:</label>
-                                    <div className="col-span-3">
-                                      <Badge variant={action.status === "active" ? "default" : "outline"}>
-                                        {action.status === "active" ? "Active" : "Inactive"}
-                                      </Badge>
-                                    </div>
-                                  </div>
-                                  <div className="grid grid-cols-4 items-center gap-4">
-                                    <label className="text-right text-sm font-medium">Usage:</label>
-                                    <div className="col-span-3">{action.usageCount} calls</div>
-                                  </div>
-                                  <div className="grid grid-cols-4 items-center gap-4">
-                                    <label className="text-right text-sm font-medium">Last Used:</label>
-                                    <div className="col-span-3">{action.lastUsed}</div>
-                                  </div>
-                                </div>
-                                <DialogFooter>
-                                  <Button variant="outline">Close</Button>
-                                  <Button>Edit</Button>
-                                </DialogFooter>
-                              </DialogContent>
-                            </Dialog>
-                            <Button variant="outline" size="sm">Edit</Button>
+                            <Button variant="ghost" size="sm">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm">
+                              <Settings className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm">
+                              <Copy className="h-4 w-4" />
+                            </Button>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -440,6 +269,154 @@ The Support Team"
                 </Table>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="templates" className="mt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {toolTemplates.map((template) => (
+                <Card 
+                  key={template.id} 
+                  className="cursor-pointer hover:border-primary transition-colors"
+                  onClick={() => handleTemplateSelect(template.id)}
+                >
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div className="p-2 bg-primary/10 rounded-full">
+                        {template.icon}
+                      </div>
+                      <Badge variant="outline">{template.category}</Badge>
+                    </div>
+                    <CardTitle className="mt-2">{template.name}</CardTitle>
+                    <CardDescription>{template.description}</CardDescription>
+                  </CardHeader>
+                  <CardFooter>
+                    <Button variant="ghost" className="w-full">
+                      Use Template <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="create" className="mt-6">
+            {isCreating && (
+              <div className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Basic Information</CardTitle>
+                    <CardDescription>Define the core properties of your tool</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Tool Name *</label>
+                        <Input 
+                          value={currentTool.name || ""} 
+                          onChange={(e) => setCurrentTool({...currentTool, name: e.target.value})}
+                          placeholder="e.g., Customer Lookup" 
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Category *</label>
+                        <Select 
+                          value={currentTool.category} 
+                          onValueChange={(value: any) => setCurrentTool({...currentTool, category: value})}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="api">API Integration</SelectItem>
+                            <SelectItem value="database">Database</SelectItem>
+                            <SelectItem value="crm">CRM</SelectItem>
+                            <SelectItem value="email">Email</SelectItem>
+                            <SelectItem value="webhook">Webhook</SelectItem>
+                            <SelectItem value="calendar">Calendar</SelectItem>
+                            <SelectItem value="custom">Custom</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Description *</label>
+                      <Textarea 
+                        value={currentTool.description || ""} 
+                        onChange={(e) => setCurrentTool({...currentTool, description: e.target.value})}
+                        placeholder="Describe what this tool does and when to use it" 
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>LLM Function Configuration</CardTitle>
+                    <CardDescription>Configure how the LLM will understand and use this tool</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Function Name *</label>
+                      <Input 
+                        value={currentTool.llmConfig?.functionName || ""} 
+                        onChange={(e) => setCurrentTool({
+                          ...currentTool, 
+                          llmConfig: {...currentTool.llmConfig!, functionName: e.target.value}
+                        })}
+                        placeholder="e.g., lookup_customer (snake_case)" 
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">Use snake_case for function names</p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Function Description *</label>
+                      <Textarea 
+                        value={currentTool.llmConfig?.functionDescription || ""} 
+                        onChange={(e) => setCurrentTool({
+                          ...currentTool, 
+                          llmConfig: {...currentTool.llmConfig!, functionDescription: e.target.value}
+                        })}
+                        placeholder="Describe what this function does for the LLM" 
+                        rows={2}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">When to Use *</label>
+                      <Textarea 
+                        value={currentTool.llmConfig?.whenToUse || ""} 
+                        onChange={(e) => setCurrentTool({
+                          ...currentTool, 
+                          llmConfig: {...currentTool.llmConfig!, whenToUse: e.target.value}
+                        })}
+                        placeholder="Explain when the LLM should call this function" 
+                        rows={2}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <ParameterBuilder
+                  parameters={currentTool.parameters || []}
+                  onChange={(parameters) => setCurrentTool({...currentTool, parameters})}
+                  title="Input Parameters"
+                />
+
+                {currentTool.parameters && currentTool.parameters.length > 0 && (
+                  <ToolTestInterface
+                    tool={currentTool as ToolDefinition}
+                    onTest={handleTest}
+                  />
+                )}
+
+                <div className="flex justify-end gap-4">
+                  <Button variant="outline" onClick={() => setIsCreating(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleSave}>
+                    <Save className="mr-2 h-4 w-4" /> Save Tool
+                  </Button>
+                </div>
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </div>
