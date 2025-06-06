@@ -32,7 +32,6 @@ export const ToolTestInterface = ({ tool, onTest }: ToolTestInterfaceProps) => {
     setTestResult(null);
 
     try {
-      // Validate required parameters
       const missingRequired = tool.parameters
         .filter(p => p.required && !testInput[p.name])
         .map(p => p.name);
