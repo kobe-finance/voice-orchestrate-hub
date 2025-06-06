@@ -183,6 +183,36 @@ const DocumentManagement = () => {
     return true;
   });
 
+  const handleBackToConversationFlow = () => {
+    try {
+      navigate("/conversation-flow");
+    } catch (error) {
+      console.error("Navigation error:", error);
+      // Fallback navigation
+      window.location.href = "/conversation-flow";
+    }
+  };
+
+  const handleNavigateToRAGConfig = () => {
+    try {
+      navigate("/rag-configuration");
+    } catch (error) {
+      console.error("Navigation error:", error);
+      // Fallback navigation
+      window.location.href = "/rag-configuration";
+    }
+  };
+
+  const handleNavigateToKnowledgeOrg = () => {
+    try {
+      navigate("/knowledge-organization");
+    } catch (error) {
+      console.error("Navigation error:", error);
+      // Fallback navigation
+      window.location.href = "/knowledge-organization";
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b sticky top-0 z-10 bg-background">
@@ -191,7 +221,7 @@ const DocumentManagement = () => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate("/conversation-flow")}
+              onClick={handleBackToConversationFlow}
             >
               <ArrowLeft size={16} />
               <span className="ml-2">Back</span>
@@ -202,7 +232,7 @@ const DocumentManagement = () => {
             <Button 
               variant="outline" 
               size="sm"
-              onClick={() => navigate("/rag-configuration")}
+              onClick={handleNavigateToRAGConfig}
             >
               <Settings className="mr-2 h-4 w-4" />
               Configure RAG
@@ -210,7 +240,7 @@ const DocumentManagement = () => {
             <Button 
               variant="outline" 
               size="sm"
-              onClick={() => navigate("/knowledge-organization")}
+              onClick={handleNavigateToKnowledgeOrg}
             >
               <ListTree className="mr-2 h-4 w-4" />
               Organize
