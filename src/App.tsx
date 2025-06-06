@@ -23,6 +23,8 @@ import QualityAssurance from './pages/QualityAssurance';
 import Onboarding from './pages/Onboarding';
 import AgentTemplateGallery from "@/pages/AgentTemplateGallery";
 import ToolsPlugins from './pages/ToolsPlugins';
+import RAGConfiguration from './pages/RAGConfiguration';
+import KnowledgeBaseOrganization from './pages/KnowledgeBaseOrganization';
 
 const queryClient = new QueryClient();
 
@@ -54,6 +56,8 @@ function App() {
               <Route path="/quality-assurance" element={<QualityAssurance />} />
               <Route path="/agent-template-gallery" element={<AgentTemplateGallery />} />
               <Route path="/tools-plugins" element={<ToolsPlugins />} />
+              <Route path="/rag-configuration" element={<RAGConfiguration />} />
+              <Route path="/knowledge-organization" element={<KnowledgeBaseOrganization />} />
             </Routes>
           </div>
         </Router>

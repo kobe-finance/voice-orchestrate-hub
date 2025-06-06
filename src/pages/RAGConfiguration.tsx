@@ -1,106 +1,21 @@
 
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Settings, TestTube, BarChart } from "lucide-react";
+import { ArrowLeft, Database, Settings, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent } from "@/components/ui/card";
-import RAGConfigPanel from "@/components/rag/RAGConfigPanel";
-import RAGPerformanceMetrics from "@/components/rag/RAGPerformanceMetrics";
-import RAGTestQuery from "@/components/rag/RAGTestQuery";
+import { RAGConfigPanel } from "@/components/rag/RAGConfigPanel";
+import { RAGPerformanceMetrics } from "@/components/rag/RAGPerformanceMetrics";
+import { RAGTestQuery } from "@/components/rag/RAGTestQuery";
+import PlatformKnowledgeManager from "@/components/rag/PlatformKnowledgeManager";
 
 const RAGConfiguration = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("config");
-  const [isExpertMode, setIsExpertMode] = useState(false);
+  const [activeTab, setActiveTab] = useState("configuration");
 
-  // RAG configuration settings with sensible defaults
-  const [ragConfig, setRagConfig] = useState({
-    chunkSize: 1024,
-    chunkOverlap: 200,
-    embeddingModel: "openai-ada-002",
-    relevanceThreshold: 0.75,
-    contextWindowSize: 4096,
-    useQueryReformulation: true,
-  });
-
-  // Performance metrics (mock data)
-  const [performanceMetrics, setPerformanceMetrics] = useState({
-    latency: 450,
-    precision: 0.82,
-    recall: 0.76,
-    f1Score: 0.79,
-    queriesPerMinute: 12,
-  });
-
-  // Test query results
-  const [testResults, setTestResults] = useState<Array<{
-    documentId: string;
-    documentName: string;
-    relevanceScore: number;
-    snippet: string;
-  }> | null>(null);
-
-  // Handle configuration changes
-  const handleConfigChange = (newConfig: Partial<typeof ragConfig>) => {
-    const updatedConfig = { ...ragConfig, ...newConfig };
-    setRagConfig(updatedConfig);
-    
-    // In a real app, this would trigger a backend call to update settings
-    // and possibly get updated performance metrics
-    
-    // Mock performance impact based on configuration changes
-    simulatePerformanceImpact(updatedConfig);
-  };
-
-  // Simulate performance impact of configuration changes (mock functionality)
-  const simulatePerformanceImpact = (config: typeof ragConfig) => {
-    // For demonstration: simulate how different settings affect performance metrics
-    const latencyImpact = Math.max(
-      200,
-      450 - (config.contextWindowSize / 1024 * 50) + 
-      (config.chunkSize / 200 * 30) +
-      (config.useQueryReformulation ? 120 : 0)
-    );
-    
-    const precisionImpact = Math.min(
-      0.95,
-      0.82 + (config.relevanceThreshold - 0.75) * 0.3
-    );
-    
-    setPerformanceMetrics({
-      latency: Math.round(latencyImpact),
-      precision: Number(precisionImpact.toFixed(2)),
-      recall: Number((0.76 - (config.relevanceThreshold - 0.75) * 0.4).toFixed(2)),
-      f1Score: Number((0.79 + (config.relevanceThreshold - 0.75) * 0.1).toFixed(2)),
-      queriesPerMinute: Math.round(60000 / latencyImpact),
-    });
-  };
-  
-  // Handle test query submission
-  const runTestQuery = (query: string) => {
-    // In a real app, this would call your backend to run the test query
-    // For now, we'll simulate test results
-    setTestResults([
-      {
-        documentId: "1",
-        documentName: "Product Manual.pdf",
-        relevanceScore: 0.92,
-        snippet: "The configuration settings can be adjusted using the control panel. To modify the parameters, access the settings through the main interface..."
-      },
-      {
-        documentId: "3", 
-        documentName: "Technical Specification.txt",
-        relevanceScore: 0.85,
-        snippet: "Technical parameters include adjustable thresholds for relevance scoring and context window size. These values can be configured to optimize performance..."
-      },
-      {
-        documentId: "2",
-        documentName: "Customer FAQ.docx",
-        relevanceScore: 0.71,
-        snippet: "Frequently asked questions about system configuration and settings. How do I change the default settings? Where can I find advanced configuration options?"
-      }
-    ]);
+  const handleBackToDocuments = () => {
+    navigate("/document-management");
   };
 
   return (
@@ -111,79 +26,79 @@ const RAGConfiguration = () => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate("/conversation-flow")}
+              onClick={handleBackToDocuments}
             >
               <ArrowLeft size={16} />
-              <span className="ml-2">Back</span>
+              <span className="ml-2">Back to Documents</span>
             </Button>
             <h1 className="text-xl font-semibold">RAG Configuration</h1>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button 
-              variant={isExpertMode ? "default" : "outline"} 
-              size="sm"
-              onClick={() => setIsExpertMode(true)}
-            >
-              <Settings className="mr-2 h-4 w-4" />
-              Expert Mode
-            </Button>
-            <Button 
-              variant={!isExpertMode ? "default" : "outline"} 
-              size="sm"
-              onClick={() => setIsExpertMode(false)}
-            >
-              <Settings className="mr-2 h-4 w-4" />
-              Basic Mode
-            </Button>
           </div>
         </div>
       </header>
 
       <div className="container py-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-6">
-            <TabsTrigger value="config" className="flex items-center gap-2">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="configuration" className="flex items-center gap-2">
               <Settings size={16} />
-              <span>Configuration</span>
+              Configuration
+            </TabsTrigger>
+            <TabsTrigger value="knowledge-bases" className="flex items-center gap-2">
+              <Database size={16} />
+              Knowledge Bases
             </TabsTrigger>
             <TabsTrigger value="performance" className="flex items-center gap-2">
-              <BarChart size={16} />
-              <span>Performance</span>
+              <BarChart3 size={16} />
+              Performance
             </TabsTrigger>
-            <TabsTrigger value="test" className="flex items-center gap-2">
-              <TestTube size={16} />
-              <span>Test Query</span>
+            <TabsTrigger value="testing" className="flex items-center gap-2">
+              <Database size={16} />
+              Testing
             </TabsTrigger>
           </TabsList>
-          
-          <TabsContent value="config">
+
+          <TabsContent value="configuration">
             <Card>
-              <CardContent className="p-6">
-                <RAGConfigPanel 
-                  config={ragConfig}
-                  onConfigChange={handleConfigChange}
-                  isExpertMode={isExpertMode}
-                />
+              <CardHeader>
+                <CardTitle>RAG System Configuration</CardTitle>
+                <CardDescription>
+                  Configure retrieval-augmented generation settings for your AI agents
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <RAGConfigPanel />
               </CardContent>
             </Card>
           </TabsContent>
-          
+
+          <TabsContent value="knowledge-bases">
+            <PlatformKnowledgeManager />
+          </TabsContent>
+
           <TabsContent value="performance">
             <Card>
-              <CardContent className="p-6">
-                <RAGPerformanceMetrics metrics={performanceMetrics} />
+              <CardHeader>
+                <CardTitle>Performance Metrics</CardTitle>
+                <CardDescription>
+                  Monitor RAG system performance and retrieval accuracy
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <RAGPerformanceMetrics />
               </CardContent>
             </Card>
           </TabsContent>
-          
-          <TabsContent value="test">
+
+          <TabsContent value="testing">
             <Card>
-              <CardContent className="p-6">
-                <RAGTestQuery 
-                  onRunTest={runTestQuery} 
-                  testResults={testResults} 
-                  config={ragConfig}
-                />
+              <CardHeader>
+                <CardTitle>RAG Testing Interface</CardTitle>
+                <CardDescription>
+                  Test queries against your knowledge base and evaluate responses
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <RAGTestQuery />
               </CardContent>
             </Card>
           </TabsContent>
