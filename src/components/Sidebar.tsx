@@ -11,7 +11,10 @@ import {
   SidebarHeader, 
   SidebarMenu, 
   SidebarMenuButton, 
-  SidebarMenuItem 
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem
 } from "@/components/ui/sidebar";
 import { TenantSwitcher } from "@/components/tenant/TenantSwitcher";
 import { 
@@ -43,13 +46,16 @@ import {
   Wrench,
   TrendingUp,
   FileBarChart,
-  Palette
+  Palette,
+  ChevronRight
 } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface NavigationItem {
   title: string;
   path: string;
   icon: LucideIcon;
+  submenu?: NavigationItem[];
 }
 
 const navigationItems: NavigationItem[] = [
@@ -60,8 +66,14 @@ const navigationItems: NavigationItem[] = [
   { title: "Call Management", path: "/call-management", icon: Phone },
   { title: "Flow Builder", path: "/conversation-flow", icon: Share2 },
   { title: "Documents", path: "/document-management", icon: FileText },
-  { title: "Analytics", path: "/analytics", icon: BarChart3 },
-  { title: "Advanced Analytics", path: "/advanced-analytics", icon: TrendingUp },
+  { 
+    title: "Analytics", 
+    path: "/analytics", 
+    icon: BarChart3,
+    submenu: [
+      { title: "Advanced Analytics", path: "/advanced-analytics", icon: TrendingUp }
+    ]
+  },
   { title: "Conversations", path: "/conversation-explorer", icon: MessagesSquare },
   { title: "Knowledge Base", path: "/knowledge-organization", icon: Database },
   { title: "RAG Configuration", path: "/rag-configuration", icon: Brain },
@@ -87,6 +99,61 @@ const navigationItems: NavigationItem[] = [
 export function AppSidebar() {
   const location = useLocation();
   
+  const renderMenuItem = (item: NavigationItem) => {
+    if (item.submenu && item.submenu.length > 0) {
+      return (
+        <Collapsible key={item.title}>
+          <SidebarMenuItem>
+            <CollapsibleTrigger asChild>
+              <SidebarMenuButton tooltip={item.title}>
+                <item.icon />
+                <span>{item.title}</span>
+                <ChevronRight className="ml-auto h-4 w-4" />
+              </SidebarMenuButton>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarMenuSub>
+                <SidebarMenuSubItem>
+                  <SidebarMenuSubButton asChild isActive={location.pathname === item.path}>
+                    <Link to={item.path}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuSubButton>
+                </SidebarMenuSubItem>
+                {item.submenu.map((subItem) => (
+                  <SidebarMenuSubItem key={subItem.title}>
+                    <SidebarMenuSubButton asChild isActive={location.pathname === subItem.path}>
+                      <Link to={subItem.path}>
+                        <subItem.icon />
+                        <span>{subItem.title}</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                ))}
+              </SidebarMenuSub>
+            </CollapsibleContent>
+          </SidebarMenuItem>
+        </Collapsible>
+      );
+    }
+
+    return (
+      <SidebarMenuItem key={item.title}>
+        <SidebarMenuButton 
+          asChild 
+          isActive={location.pathname === item.path}
+          tooltip={item.title}
+        >
+          <Link to={item.path}>
+            <item.icon />
+            <span>{item.title}</span>
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    );
+  };
+  
   return (
     <Sidebar>
       <SidebarHeader>
@@ -102,20 +169,7 @@ export function AppSidebar() {
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navigationItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    asChild 
-                    isActive={location.pathname === item.path}
-                    tooltip={item.title}
-                  >
-                    <Link to={item.path}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {navigationItems.map(renderMenuItem)}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
