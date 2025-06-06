@@ -30,7 +30,14 @@ import ToolsPlugins from './pages/ToolsPlugins';
 import RAGConfiguration from './pages/RAGConfiguration';
 import KnowledgeBaseOrganization from './pages/KnowledgeBaseOrganization';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    },
+  },
+});
 
 // App layout component for pages that need sidebar
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -49,9 +56,9 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-        <TenantProvider>
-          <Router>
+      <Router>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+          <TenantProvider>
             <div className="min-h-screen bg-background">
               <Routes>
                 <Route path="/" element={<Onboarding />} />
@@ -80,9 +87,9 @@ function App() {
                 <Route path="/knowledge-organization" element={<AppLayout><KnowledgeBaseOrganization /></AppLayout>} />
               </Routes>
             </div>
-          </Router>
-        </TenantProvider>
-      </ThemeProvider>
+          </TenantProvider>
+        </ThemeProvider>
+      </Router>
     </QueryClientProvider>
   );
 }

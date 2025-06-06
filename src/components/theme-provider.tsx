@@ -10,15 +10,16 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
     setMounted(true)
   }, [])
 
+  // Don't render the ThemeProvider until mounted to avoid hydration issues
   if (!mounted) {
-    return <>{children}</>
+    return <div style={{ visibility: 'hidden' }}>{children}</div>
   }
 
   return (
     <NextThemesProvider 
       attribute="class"
       defaultTheme="light"
-      enableSystem
+      enableSystem={false}
       disableTransitionOnChange
       {...props}
     >
