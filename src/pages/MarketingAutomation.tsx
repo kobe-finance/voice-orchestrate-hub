@@ -8,7 +8,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Mail, MessageSquare, Target, Users, TrendingUp, Send, Plus, Edit } from 'lucide-react';
+import { Mail, MessageSquare, Target, Users, TrendingUp, Send, Plus, Edit, Settings } from 'lucide-react';
+import { CampaignWizard } from '@/components/marketing/CampaignWizard';
+import { ContactListManager } from '@/components/marketing/ContactListManager';
+import { CampaignScheduler } from '@/components/marketing/CampaignScheduler';
 
 const MarketingAutomation = () => {
   const [campaigns, setCampaigns] = useState([
@@ -16,6 +19,8 @@ const MarketingAutomation = () => {
     { id: 'MKT-002', name: 'Follow-up SMS Campaign', type: 'sms', status: 'active', opens: 189, clicks: 45, conversions: 18 },
     { id: 'MKT-003', name: 'Webinar Promotion', type: 'email', status: 'paused', opens: 156, clicks: 34, conversions: 12 }
   ]);
+
+  const [isWizardOpen, setIsWizardOpen] = useState(false);
 
   const getStatusBadge = (status: string) => {
     return status === 'active' 
@@ -29,6 +34,19 @@ const MarketingAutomation = () => {
       : <Badge className="bg-purple-100 text-purple-800">SMS</Badge>;
   };
 
+  const handleSaveCampaign = (campaignData: any) => {
+    const newCampaign = {
+      id: `MKT-${String(campaigns.length + 1).padStart(3, '0')}`,
+      name: campaignData.name,
+      type: campaignData.type,
+      status: 'active',
+      opens: 0,
+      clicks: 0,
+      conversions: 0
+    };
+    setCampaigns([...campaigns, newCampaign]);
+  };
+
   return (
     <div className="container mx-auto py-6 space-y-6">
       <div className="flex justify-between items-center">
@@ -36,10 +54,16 @@ const MarketingAutomation = () => {
           <h1 className="text-2xl font-bold">Marketing Automation</h1>
           <p className="text-muted-foreground">Automate marketing campaigns and lead nurturing</p>
         </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Create Campaign
-        </Button>
+        <div className="flex space-x-2">
+          <Button variant="outline">
+            <Settings className="mr-2 h-4 w-4" />
+            Tools & Plugins
+          </Button>
+          <Button onClick={() => setIsWizardOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Create Campaign
+          </Button>
+        </div>
       </div>
 
       {/* Overview Cards */}
@@ -89,6 +113,8 @@ const MarketingAutomation = () => {
       <Tabs defaultValue="campaigns" className="space-y-4">
         <TabsList>
           <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
+          <TabsTrigger value="contacts">Contact Lists</TabsTrigger>
+          <TabsTrigger value="scheduler">Scheduler</TabsTrigger>
           <TabsTrigger value="sequences">Drip Sequences</TabsTrigger>
           <TabsTrigger value="templates">Templates</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
@@ -136,6 +162,14 @@ const MarketingAutomation = () => {
               </Table>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="contacts" className="space-y-4">
+          <ContactListManager />
+        </TabsContent>
+
+        <TabsContent value="scheduler" className="space-y-4">
+          <CampaignScheduler />
         </TabsContent>
 
         <TabsContent value="sequences" className="space-y-4">
@@ -269,6 +303,12 @@ const MarketingAutomation = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <CampaignWizard
+        isOpen={isWizardOpen}
+        onClose={() => setIsWizardOpen(false)}
+        onSave={handleSaveCampaign}
+      />
     </div>
   );
 };

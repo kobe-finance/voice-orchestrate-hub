@@ -39,7 +39,8 @@ import {
   Truck,
   Mail,
   Shield,
-  Brain
+  Brain,
+  Wrench
 } from "lucide-react";
 
 interface NavigationItem {
@@ -65,6 +66,7 @@ const navigationItems: NavigationItem[] = [
   { title: "Marketing Automation", path: "/marketing-automation", icon: Mail },
   { title: "Workflow Automation", path: "/workflow-automation", icon: Zap },
   { title: "Quality Assurance", path: "/quality-assurance", icon: Shield },
+  { title: "Tools & Plugins", path: "/tools-plugins", icon: Wrench },
   { title: "API Integrations", path: "/integration-marketplace", icon: Brain },
   { title: "Users & Roles", path: "/user-management", icon: Users },
   { title: "Billing", path: "/billing-subscription", icon: CreditCard },

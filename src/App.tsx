@@ -22,6 +22,7 @@ import WorkflowAutomation from './pages/WorkflowAutomation';
 import QualityAssurance from './pages/QualityAssurance';
 import Onboarding from './pages/Onboarding';
 import AgentTemplateGallery from "@/pages/AgentTemplateGallery";
+import ToolsPlugins from './pages/ToolsPlugins';
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,7 @@ function App() {
               <Route path="/workflow-automation" element={<WorkflowAutomation />} />
               <Route path="/quality-assurance" element={<QualityAssurance />} />
               <Route path="/agent-template-gallery" element={<AgentTemplateGallery />} />
+              <Route path="/tools-plugins" element={<ToolsPlugins />} />
             </Routes>
           </div>
         </Router>
