@@ -40,7 +40,10 @@ import {
   Mail,
   Shield,
   Brain,
-  Wrench
+  Wrench,
+  TrendingUp,
+  FileBarChart,
+  Palette
 } from "lucide-react";
 
 interface NavigationItem {
@@ -53,21 +56,30 @@ const navigationItems: NavigationItem[] = [
   { title: "Onboarding", path: "/onboarding", icon: Laptop },
   { title: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
   { title: "Voice Agents", path: "/voice-agents", icon: Mic },
+  { title: "Agent Templates", path: "/agent-template-gallery", icon: Palette },
   { title: "Call Management", path: "/call-management", icon: Phone },
   { title: "Flow Builder", path: "/conversation-flow", icon: Share2 },
   { title: "Documents", path: "/document-management", icon: FileText },
   { title: "Analytics", path: "/analytics", icon: BarChart3 },
+  { title: "Advanced Analytics", path: "/advanced-analytics", icon: TrendingUp },
   { title: "Conversations", path: "/conversation-explorer", icon: MessagesSquare },
   { title: "Knowledge Base", path: "/knowledge-organization", icon: Database },
+  { title: "RAG Configuration", path: "/rag-configuration", icon: Brain },
   { title: "Customers", path: "/customers", icon: UserCheck },
   { title: "Appointments", path: "/appointments", icon: Calendar },
   { title: "Business Hours", path: "/business-hours", icon: Clock },
+  { title: "CRM Integration", path: "/crm-integration", icon: Building2 },
+  { title: "Field Service", path: "/field-service-integration", icon: Truck },
   { title: "Financial & Invoicing", path: "/financial-invoicing", icon: DollarSign },
   { title: "Marketing Automation", path: "/marketing-automation", icon: Mail },
   { title: "Workflow Automation", path: "/workflow-automation", icon: Zap },
   { title: "Quality Assurance", path: "/quality-assurance", icon: Shield },
   { title: "Tools & Plugins", path: "/tools-plugins", icon: Wrench },
   { title: "API Integrations", path: "/integration-marketplace", icon: Brain },
+  { title: "Report Builder", path: "/report-builder", icon: FileBarChart },
+  { title: "API Keys", path: "/api-key-management", icon: KeyRound },
+  { title: "Voice Providers", path: "/voice-provider-management", icon: Headphones },
+  { title: "Voice Selection", path: "/voice-selection", icon: Settings },
   { title: "Users & Roles", path: "/user-management", icon: Users },
   { title: "Billing", path: "/billing-subscription", icon: CreditCard },
 ];
