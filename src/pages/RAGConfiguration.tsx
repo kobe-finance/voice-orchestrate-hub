@@ -5,9 +5,9 @@ import { ArrowLeft, Database, Settings, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RAGConfigPanel } from "@/components/rag/RAGConfigPanel";
-import { RAGPerformanceMetrics } from "@/components/rag/RAGPerformanceMetrics";
-import { RAGTestQuery } from "@/components/rag/RAGTestQuery";
+import RAGConfigPanel from "@/components/rag/RAGConfigPanel";
+import RAGPerformanceMetrics from "@/components/rag/RAGPerformanceMetrics";
+import RAGTestQuery from "@/components/rag/RAGTestQuery";
 import PlatformKnowledgeManager from "@/components/rag/PlatformKnowledgeManager";
 
 const RAGConfiguration = () => {

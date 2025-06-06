@@ -10,6 +10,7 @@ import { SearchInput } from "@/components/ui/search-input";
 import { useNavigate } from "react-router-dom";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { TenantSwitcher } from "@/components/tenant/TenantSwitcher";
+import { TenantIsolationIndicator } from "@/components/tenant/TenantIsolationIndicator";
 import { ConnectionStatus } from "@/components/ui/connection-status";
 
 export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -83,6 +84,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
             </div>
             
             <div className="flex items-center space-x-4">
+              <TenantIsolationIndicator />
               <ConnectionStatus />
               
               <Tooltip>
