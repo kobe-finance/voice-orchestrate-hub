@@ -32,49 +32,52 @@ import KnowledgeBaseOrganization from './pages/KnowledgeBaseOrganization';
 
 const queryClient = new QueryClient();
 
+// App layout component for pages that need sidebar
+const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  return (
+    <SidebarProvider defaultOpen={true}>
+      <div className="flex min-h-screen w-full">
+        <AppSidebar />
+        <main className="flex-1">
+          {children}
+        </main>
+      </div>
+    </SidebarProvider>
+  );
+};
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
+      <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
         <TenantProvider>
           <Router>
             <div className="min-h-screen bg-background">
               <Routes>
                 <Route path="/" element={<Onboarding />} />
                 <Route path="/onboarding" element={<Onboarding />} />
-                <Route path="/*" element={
-                  <SidebarProvider defaultOpen={true}>
-                    <div className="flex min-h-screen w-full">
-                      <AppSidebar />
-                      <main className="flex-1">
-                        <Routes>
-                          <Route path="/dashboard" element={<Dashboard />} />
-                          <Route path="/voice-agents" element={<VoiceAgents />} />
-                          <Route path="/voice-agents/edit/:id" element={<EditVoiceAgent />} />
-                          <Route path="/create-voice-agent" element={<CreateVoiceAgent />} />
-                          <Route path="/call-management" element={<CallManagement />} />
-                          <Route path="/conversation-explorer" element={<ConversationExplorer />} />
-                          <Route path="/document-management" element={<DocumentManagement />} />
-                          <Route path="/analytics" element={<Analytics />} />
-                          <Route path="/advanced-analytics" element={<AdvancedAnalytics />} />
-                          <Route path="/user-management" element={<UserManagement />} />
-                          <Route path="/billing-subscription" element={<BillingSubscription />} />
-                          <Route path="/integration-marketplace" element={<IntegrationMarketplace />} />
-                          <Route path="/conversation-flow" element={<ConversationFlowBuilder />} />
-                          <Route path="/business-hours" element={<BusinessHours />} />
-                          <Route path="/financial-invoicing" element={<FinancialInvoicing />} />
-                          <Route path="/marketing-automation" element={<MarketingAutomation />} />
-                          <Route path="/workflow-automation" element={<WorkflowAutomation />} />
-                          <Route path="/quality-assurance" element={<QualityAssurance />} />
-                          <Route path="/agent-template-gallery" element={<AgentTemplateGallery />} />
-                          <Route path="/tools-plugins" element={<ToolsPlugins />} />
-                          <Route path="/rag-configuration" element={<RAGConfiguration />} />
-                          <Route path="/knowledge-organization" element={<KnowledgeBaseOrganization />} />
-                        </Routes>
-                      </main>
-                    </div>
-                  </SidebarProvider>
-                } />
+                <Route path="/dashboard" element={<AppLayout><Dashboard /></AppLayout>} />
+                <Route path="/voice-agents" element={<AppLayout><VoiceAgents /></AppLayout>} />
+                <Route path="/voice-agents/edit/:id" element={<AppLayout><EditVoiceAgent /></AppLayout>} />
+                <Route path="/create-voice-agent" element={<AppLayout><CreateVoiceAgent /></AppLayout>} />
+                <Route path="/call-management" element={<AppLayout><CallManagement /></AppLayout>} />
+                <Route path="/conversation-explorer" element={<AppLayout><ConversationExplorer /></AppLayout>} />
+                <Route path="/document-management" element={<AppLayout><DocumentManagement /></AppLayout>} />
+                <Route path="/analytics" element={<AppLayout><Analytics /></AppLayout>} />
+                <Route path="/advanced-analytics" element={<AppLayout><AdvancedAnalytics /></AppLayout>} />
+                <Route path="/user-management" element={<AppLayout><UserManagement /></AppLayout>} />
+                <Route path="/billing-subscription" element={<AppLayout><BillingSubscription /></AppLayout>} />
+                <Route path="/integration-marketplace" element={<AppLayout><IntegrationMarketplace /></AppLayout>} />
+                <Route path="/conversation-flow" element={<AppLayout><ConversationFlowBuilder /></AppLayout>} />
+                <Route path="/business-hours" element={<AppLayout><BusinessHours /></AppLayout>} />
+                <Route path="/financial-invoicing" element={<AppLayout><FinancialInvoicing /></AppLayout>} />
+                <Route path="/marketing-automation" element={<AppLayout><MarketingAutomation /></AppLayout>} />
+                <Route path="/workflow-automation" element={<AppLayout><WorkflowAutomation /></AppLayout>} />
+                <Route path="/quality-assurance" element={<AppLayout><QualityAssurance /></AppLayout>} />
+                <Route path="/agent-template-gallery" element={<AppLayout><AgentTemplateGallery /></AppLayout>} />
+                <Route path="/tools-plugins" element={<AppLayout><ToolsPlugins /></AppLayout>} />
+                <Route path="/rag-configuration" element={<AppLayout><RAGConfiguration /></AppLayout>} />
+                <Route path="/knowledge-organization" element={<AppLayout><KnowledgeBaseOrganization /></AppLayout>} />
               </Routes>
             </div>
           </Router>
