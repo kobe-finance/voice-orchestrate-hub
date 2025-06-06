@@ -28,7 +28,13 @@ import AgentTemplateGallery from "@/pages/AgentTemplateGallery";
 import ToolsPlugins from './pages/ToolsPlugins';
 import RAGConfiguration from './pages/RAGConfiguration';
 import KnowledgeBaseOrganization from './pages/KnowledgeBaseOrganization';
+import Index from './pages/Index';
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+
+// Debug React availability
+console.log('React object:', React);
+console.log('React.useContext:', React.useContext);
+console.log('React.useEffect:', React.useEffect);
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -63,7 +69,7 @@ function App() {
           <TenantProvider>
             <div className="min-h-screen bg-background">
               <Routes>
-                <Route path="/" element={<Onboarding />} />
+                <Route path="/" element={<Index />} />
                 <Route path="/onboarding" element={<Onboarding />} />
                 <Route path="/dashboard" element={<AppLayout><Dashboard /></AppLayout>} />
                 <Route path="/voice-agents" element={<AppLayout><VoiceAgents /></AppLayout>} />
