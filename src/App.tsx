@@ -7,6 +7,8 @@ import { SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/Sidebar"
 import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import Dashboard from './pages/Dashboard';
 import VoiceAgents from './pages/VoiceAgents';
 import CreateVoiceAgent from './pages/CreateVoiceAgent';
@@ -100,6 +102,8 @@ function App() {
                     <Route path="/rag-configuration" element={<AppLayout><RAGConfiguration /></AppLayout>} />
                     <Route path="/knowledge-organization" element={<AppLayout><KnowledgeBaseOrganization /></AppLayout>} />
                   </Routes>
+                  <Toaster />
+                  <SonnerToaster />
                 </div>
               </TenantProvider>
             </AuthProvider>
