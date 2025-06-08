@@ -3,7 +3,6 @@ import React from "react";
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ModeToggle } from "@/components/theme/ModeToggle";
 import { Button } from "@/components/ui/button";
 import { Bell, User, Search, ChevronDown } from "lucide-react";
 import { SearchInput } from "@/components/ui/search-input";
@@ -15,6 +14,8 @@ import { ConnectionStatus } from "@/components/ui/connection-status";
 
 export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const navigate = useNavigate();
+
+  console.log('DashboardLayout rendering without theme dependencies');
 
   return (
     <SidebarProvider defaultOpen={true}>
@@ -115,8 +116,6 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
                   </NavigationMenuItem>
                 </NavigationMenuList>
               </NavigationMenu>
-              
-              <ModeToggle />
             </div>
           </header>
           <main>{children}</main>

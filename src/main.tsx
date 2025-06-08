@@ -10,9 +10,19 @@ if (typeof window !== 'undefined') {
   (window as any).React = React;
 }
 
-// Clear any existing React context issues
-if (typeof window !== 'undefined' && window.location.hash) {
-  window.location.hash = '';
+// Clear any existing React context issues and cached modules
+if (typeof window !== 'undefined') {
+  // Clear any theme-related localStorage to prevent conflicts
+  try {
+    localStorage.removeItem('theme');
+    localStorage.removeItem('next-themes-theme');
+  } catch (e) {
+    console.log('Unable to clear theme storage:', e);
+  }
+  
+  if (window.location.hash) {
+    window.location.hash = '';
+  }
 }
 
 console.log('Main.tsx - React version:', React.version);
@@ -21,6 +31,8 @@ console.log('Main.tsx - React hooks available:', {
   useState: typeof React.useState,
   useEffect: typeof React.useEffect
 });
+
+console.log('Main.tsx - Initializing without theme dependencies');
 
 // Initialize app performance monitoring and service worker
 initializeApp().then(() => {
