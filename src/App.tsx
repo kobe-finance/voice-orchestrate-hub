@@ -16,7 +16,6 @@ import CallManagement from './pages/CallManagement';
 import ConversationExplorer from './pages/ConversationExplorer';
 import DocumentManagement from './pages/DocumentManagement';
 import Analytics from './pages/Analytics';
-import AdvancedAnalytics from './pages/AdvancedAnalytics';
 import UserManagement from './pages/UserManagement';
 import BillingSubscription from './pages/BillingSubscription';
 import IntegrationMarketplace from './pages/IntegrationMarketplace';
@@ -84,7 +83,6 @@ function App() {
                   <Route path="/conversation-explorer" element={<AppLayout><ConversationExplorer /></AppLayout>} />
                   <Route path="/document-management" element={<AppLayout><DocumentManagement /></AppLayout>} />
                   <Route path="/analytics" element={<AppLayout><Analytics /></AppLayout>} />
-                  <Route path="/advanced-analytics" element={<AppLayout><AdvancedAnalytics /></AppLayout>} />
                   <Route path="/user-management" element={<AppLayout><UserManagement /></AppLayout>} />
                   <Route path="/billing-subscription" element={<AppLayout><BillingSubscription /></AppLayout>} />
                   <Route path="/integration-marketplace" element={<AppLayout><IntegrationMarketplace /></AppLayout>} />

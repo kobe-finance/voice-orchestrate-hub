@@ -44,7 +44,6 @@ import {
   Shield,
   Brain,
   Wrench,
-  TrendingUp,
   FileBarChart,
   Palette,
   ChevronRight
@@ -66,14 +65,7 @@ const navigationItems: NavigationItem[] = [
   { title: "Call Management", path: "/call-management", icon: Phone },
   { title: "Flow Builder", path: "/conversation-flow", icon: Share2 },
   { title: "Documents", path: "/document-management", icon: FileText },
-  { 
-    title: "Analytics", 
-    path: "/analytics", 
-    icon: BarChart3,
-    submenu: [
-      { title: "Advanced Analytics", path: "/advanced-analytics", icon: TrendingUp }
-    ]
-  },
+  { title: "Analytics", path: "/analytics", icon: BarChart3 },
   { title: "Conversations", path: "/conversation-explorer", icon: MessagesSquare },
   { title: "Knowledge Base", path: "/knowledge-organization", icon: Database },
   { title: "RAG Configuration", path: "/rag-configuration", icon: Brain },

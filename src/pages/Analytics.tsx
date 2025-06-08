@@ -48,7 +48,7 @@ const Analytics = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold">Analytics & Business Intelligence</h1>
-          <p className="text-muted-foreground">Comprehensive insights and analytics for your voice operations</p>
+          <p className="text-muted-foreground">Comprehensive insights, advanced analytics, and real-time monitoring for your voice operations</p>
         </div>
         <div className="flex gap-2">
           <Select value={timeRange} onValueChange={setTimeRange}>
@@ -124,6 +124,7 @@ const Analytics = () => {
           <TabsTrigger value="performance">Performance</TabsTrigger>
           <TabsTrigger value="insights">AI Insights</TabsTrigger>
           <TabsTrigger value="reports">Custom Reports</TabsTrigger>
+          <TabsTrigger value="advanced">Advanced BI</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
@@ -244,14 +245,14 @@ const Analytics = () => {
         <TabsContent value="performance" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Performance Metrics</CardTitle>
-              <CardDescription>Detailed performance analysis and benchmarks</CardDescription>
+              <CardTitle>Performance Metrics & Benchmarks</CardTitle>
+              <CardDescription>Detailed performance analysis and system benchmarks</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="text-center p-4 border rounded">
                   <div className="text-2xl font-bold text-green-600">98.5%</div>
-                  <div className="text-sm text-muted-foreground">Uptime</div>
+                  <div className="text-sm text-muted-foreground">System Uptime</div>
                 </div>
                 <div className="text-center p-4 border rounded">
                   <div className="text-2xl font-bold text-blue-600">1.2s</div>
@@ -269,8 +270,8 @@ const Analytics = () => {
         <TabsContent value="insights" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>AI-Powered Insights</CardTitle>
-              <CardDescription>Machine learning insights and recommendations</CardDescription>
+              <CardTitle>AI-Powered Insights & Recommendations</CardTitle>
+              <CardDescription>Machine learning insights and automated recommendations</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -286,6 +287,10 @@ const Analytics = () => {
                   <h4 className="font-medium">Customer Sentiment Trend</h4>
                   <p className="text-sm text-muted-foreground">Sentiment has improved by 12% after implementing new follow-up procedures</p>
                 </div>
+                <div className="p-4 border-l-4 border-purple-500 bg-purple-50">
+                  <h4 className="font-medium">Predictive Analytics</h4>
+                  <p className="text-sm text-muted-foreground">Model predicts 18% increase in call volume next Tuesday based on historical patterns</p>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -294,15 +299,18 @@ const Analytics = () => {
         <TabsContent value="reports" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Custom Report Builder</CardTitle>
-              <CardDescription>Create and schedule custom analytics reports</CardDescription>
+              <CardTitle>Custom Report Builder & Scheduler</CardTitle>
+              <CardDescription>Create, schedule, and manage custom analytics reports</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[
                   { name: 'Weekly Performance Report', schedule: 'Every Monday', lastRun: '2025-05-20' },
                   { name: 'Monthly KPI Dashboard', schedule: 'First of month', lastRun: '2025-05-01' },
-                  { name: 'Agent Efficiency Report', schedule: 'Bi-weekly', lastRun: '2025-05-15' }
+                  { name: 'Agent Efficiency Report', schedule: 'Bi-weekly', lastRun: '2025-05-15' },
+                  { name: 'Customer Journey Analysis', schedule: 'Weekly', lastRun: '2025-05-22' },
+                  { name: 'Revenue Attribution Report', schedule: 'Monthly', lastRun: '2025-05-01' },
+                  { name: 'Quality Metrics Report', schedule: 'Daily', lastRun: '2025-05-25' }
                 ].map((report, index) => (
                   <Card key={index}>
                     <CardHeader>
@@ -317,6 +325,41 @@ const Analytics = () => {
                     </CardContent>
                   </Card>
                 ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="advanced" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Advanced Business Intelligence</CardTitle>
+              <CardDescription>Deep analytics, cohort analysis, and enterprise-grade BI tools</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <h4 className="font-medium">Cohort Analysis</h4>
+                  <div className="p-4 border rounded">
+                    <div className="text-2xl font-bold text-blue-600">87%</div>
+                    <div className="text-sm text-muted-foreground">Customer Retention (30 days)</div>
+                  </div>
+                  <div className="p-4 border rounded">
+                    <div className="text-2xl font-bold text-green-600">$248</div>
+                    <div className="text-sm text-muted-foreground">Average Customer LTV</div>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <h4 className="font-medium">Predictive Models</h4>
+                  <div className="p-4 border rounded">
+                    <div className="text-2xl font-bold text-purple-600">94%</div>
+                    <div className="text-sm text-muted-foreground">Churn Prediction Accuracy</div>
+                  </div>
+                  <div className="p-4 border rounded">
+                    <div className="text-2xl font-bold text-orange-600">+23%</div>
+                    <div className="text-sm text-muted-foreground">Forecasted Revenue Growth</div>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
