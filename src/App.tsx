@@ -31,6 +31,7 @@ import AgentTemplateGallery from "@/pages/AgentTemplateGallery";
 import ToolsPlugins from './pages/ToolsPlugins';
 import RAGConfiguration from './pages/RAGConfiguration';
 import KnowledgeBaseOrganization from './pages/KnowledgeBaseOrganization';
+import ReportBuilder from './pages/ReportBuilder';
 import Index from './pages/Index';
 import Auth from './pages/Auth';
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -97,6 +98,7 @@ function App() {
                   <Route path="/tools-plugins" element={<AppLayout><ToolsPlugins /></AppLayout>} />
                   <Route path="/rag-configuration" element={<AppLayout><RAGConfiguration /></AppLayout>} />
                   <Route path="/knowledge-organization" element={<AppLayout><KnowledgeBaseOrganization /></AppLayout>} />
+                  <Route path="/report-builder" element={<AppLayout><ReportBuilder /></AppLayout>} />
                 </Routes>
                 <Toaster />
                 <SonnerToaster />
