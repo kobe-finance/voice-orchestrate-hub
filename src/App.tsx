@@ -1,5 +1,5 @@
 
-import * as React from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TenantProvider } from "@/contexts/TenantContext"
@@ -35,8 +35,18 @@ import Index from './pages/Index';
 import Auth from './pages/Auth';
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
-console.log('App.tsx - React version:', React.version);
-console.log('App.tsx - Starting render without ThemeProvider');
+// Ensure React is properly available
+if (!React || !React.useEffect) {
+  console.error('React is not properly available:', { React, useEffect: React?.useEffect });
+  throw new Error('React hooks are not available');
+}
+
+console.log('App.tsx - React validation:', {
+  React: !!React,
+  useEffect: !!React.useEffect,
+  useState: !!React.useState,
+  useContext: !!React.useContext
+});
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -62,14 +72,18 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 function App() {
-  console.log('App component rendering without theme provider...');
+  console.log('App component rendering - React hooks check:', {
+    useEffect: typeof React.useEffect,
+    useState: typeof React.useState,
+    useContext: typeof React.useContext
+  });
   
   return (
     <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <Router>
-          <AuthProvider>
-            <TenantProvider>
+      <Router>
+        <AuthProvider>
+          <TenantProvider>
+            <QueryClientProvider client={queryClient}>
               <div className="min-h-screen bg-background">
                 <Routes>
                   <Route path="/" element={<Index />} />
@@ -101,10 +115,10 @@ function App() {
                 <Toaster />
                 <SonnerToaster />
               </div>
-            </TenantProvider>
-          </AuthProvider>
-        </Router>
-      </QueryClientProvider>
+            </QueryClientProvider>
+          </TenantProvider>
+        </AuthProvider>
+      </Router>
     </ErrorBoundary>
   );
 }

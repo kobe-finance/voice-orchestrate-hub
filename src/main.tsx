@@ -1,56 +1,68 @@
 
-import * as React from 'react'
+import React from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 import { initializeApp } from './utils/appInitialization'
 
-// Ensure React is available globally and properly initialized
+// Critical: Ensure React is available globally
 if (typeof window !== 'undefined') {
   (window as any).React = React;
 }
 
-// Clear any existing React context issues and cached modules
+// Enhanced cache clearing for persistent issues
 if (typeof window !== 'undefined') {
-  // Clear any theme-related localStorage to prevent conflicts
+  // Clear all theme and React-related localStorage
   try {
-    localStorage.removeItem('theme');
-    localStorage.removeItem('next-themes-theme');
-    localStorage.removeItem('vite:deps-cache');
+    const keysToRemove = ['theme', 'next-themes-theme', 'vite:deps-cache'];
+    keysToRemove.forEach(key => localStorage.removeItem(key));
+    
+    // Clear all keys that might contain cached React or component data
+    Object.keys(localStorage).forEach(key => {
+      if (key.includes('react') || key.includes('component') || key.includes('vite')) {
+        localStorage.removeItem(key);
+      }
+    });
   } catch (e) {
     console.log('Unable to clear storage:', e);
   }
   
-  // Clear any hash fragments
+  // Clear hash fragments
   if (window.location.hash) {
     window.location.hash = '';
   }
   
-  // Force a browser cache clear for the session
+  // Force clear all caches
   if ('caches' in window) {
     caches.keys().then(names => {
       names.forEach(name => {
-        if (name.includes('vite') || name.includes('next-themes')) {
-          caches.delete(name);
-        }
+        caches.delete(name);
       });
     });
   }
 }
 
-console.log('Main.tsx - React version:', React.version);
-console.log('Main.tsx - React hooks available:', {
-  useContext: typeof React.useContext,
-  useState: typeof React.useState,
-  useEffect: typeof React.useEffect
+// Validate React before proceeding
+console.log('Main.tsx - React validation:', {
+  React: !!React,
+  version: React.version,
+  hooks: {
+    useEffect: typeof React.useEffect,
+    useState: typeof React.useState,
+    useContext: typeof React.useContext
+  }
 });
 
-console.log('Main.tsx - Initializing without any theme dependencies');
-console.log('Main.tsx - Window object check:', typeof window);
+if (!React || !React.useEffect) {
+  console.error('CRITICAL: React hooks are not available!');
+  throw new Error('React is not properly loaded');
+}
+
+console.log('Main.tsx - Initializing app with validated React');
 
 // Initialize app performance monitoring and service worker
 initializeApp().then(() => {
-  console.log('Performance monitoring and service worker initialized');
+  console.log('App initialization complete');
 }).catch(error => {
   console.error('App initialization error:', error);
 });
@@ -60,10 +72,10 @@ if (!container) {
   throw new Error('Root element not found');
 }
 
-// Ensure container is properly cleaned before mounting
+// Ensure container is clean
 container.innerHTML = '';
 
-console.log('Main.tsx - About to create root and render App');
+console.log('Main.tsx - Creating root and rendering App');
 
 const root = createRoot(container);
 root.render(<App />);
