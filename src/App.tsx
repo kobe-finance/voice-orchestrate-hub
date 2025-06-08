@@ -36,16 +36,14 @@ import Index from './pages/Index';
 import Auth from './pages/Auth';
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
-// Debug React availability
-console.log('React object:', React);
-console.log('React.useContext:', React.useContext);
-console.log('React.useEffect:', React.useEffect);
+console.log('App.tsx - React version:', React.version);
+console.log('App.tsx - Starting render');
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 5 * 60 * 1000,
     },
   },
 });

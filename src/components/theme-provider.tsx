@@ -1,6 +1,5 @@
 
 import * as React from "react"
-import { createContext, useContext } from "react"
 
 type Theme = "dark" | "light" | "system"
 
@@ -9,7 +8,7 @@ type ThemeProviderContextType = {
   setTheme: (theme: Theme) => void
 }
 
-const ThemeProviderContext = createContext<ThemeProviderContextType | undefined>(undefined)
+const ThemeProviderContext = React.createContext<ThemeProviderContextType | undefined>(undefined)
 
 export function ThemeProvider({ 
   children, 
@@ -21,10 +20,12 @@ export function ThemeProvider({
 }) {
   const [theme, setTheme] = React.useState<Theme>(defaultTheme)
 
-  const value = {
+  console.log('ThemeProvider rendering with theme:', theme)
+
+  const value = React.useMemo(() => ({
     theme,
     setTheme,
-  }
+  }), [theme])
 
   return (
     <ThemeProviderContext.Provider value={value} {...props}>
@@ -34,10 +35,12 @@ export function ThemeProvider({
 }
 
 export const useTheme = () => {
-  const context = useContext(ThemeProviderContext)
+  const context = React.useContext(ThemeProviderContext)
 
-  if (context === undefined)
-    throw new Error("useTheme must be used within a ThemeProvider")
+  if (context === undefined) {
+    console.warn("useTheme must be used within a ThemeProvider, returning default values")
+    return { theme: "system" as Theme, setTheme: () => {} }
+  }
 
   return context
 }
