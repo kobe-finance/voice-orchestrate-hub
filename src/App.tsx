@@ -6,7 +6,6 @@ import { TenantProvider } from "@/contexts/TenantContext"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/Sidebar"
 import { AuthProvider } from "@/hooks/useAuth";
-import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import Dashboard from './pages/Dashboard';
@@ -37,7 +36,7 @@ import Auth from './pages/Auth';
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 console.log('App.tsx - React version:', React.version);
-console.log('App.tsx - Starting render');
+console.log('App.tsx - Starting render without ThemeProvider');
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -63,50 +62,48 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 function App() {
-  console.log('App component rendering...');
+  console.log('App component rendering without theme provider...');
   
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider defaultTheme="system">
-          <Router>
-            <AuthProvider>
-              <TenantProvider>
-                <div className="min-h-screen bg-background">
-                  <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/auth" element={<Auth />} />
-                    <Route path="/onboarding" element={<Onboarding />} />
-                    <Route path="/dashboard" element={<AppLayout><Dashboard /></AppLayout>} />
-                    <Route path="/voice-agents" element={<AppLayout><VoiceAgents /></AppLayout>} />
-                    <Route path="/voice-agents/edit/:id" element={<AppLayout><EditVoiceAgent /></AppLayout>} />
-                    <Route path="/create-voice-agent" element={<AppLayout><CreateVoiceAgent /></AppLayout>} />
-                    <Route path="/call-management" element={<AppLayout><CallManagement /></AppLayout>} />
-                    <Route path="/conversation-explorer" element={<AppLayout><ConversationExplorer /></AppLayout>} />
-                    <Route path="/document-management" element={<AppLayout><DocumentManagement /></AppLayout>} />
-                    <Route path="/analytics" element={<AppLayout><Analytics /></AppLayout>} />
-                    <Route path="/advanced-analytics" element={<AppLayout><AdvancedAnalytics /></AppLayout>} />
-                    <Route path="/user-management" element={<AppLayout><UserManagement /></AppLayout>} />
-                    <Route path="/billing-subscription" element={<AppLayout><BillingSubscription /></AppLayout>} />
-                    <Route path="/integration-marketplace" element={<AppLayout><IntegrationMarketplace /></AppLayout>} />
-                    <Route path="/conversation-flow" element={<AppLayout><ConversationFlowBuilder /></AppLayout>} />
-                    <Route path="/business-hours" element={<AppLayout><BusinessHours /></AppLayout>} />
-                    <Route path="/financial-invoicing" element={<AppLayout><FinancialInvoicing /></AppLayout>} />
-                    <Route path="/marketing-automation" element={<AppLayout><MarketingAutomation /></AppLayout>} />
-                    <Route path="/workflow-automation" element={<AppLayout><WorkflowAutomation /></AppLayout>} />
-                    <Route path="/quality-assurance" element={<AppLayout><QualityAssurance /></AppLayout>} />
-                    <Route path="/agent-template-gallery" element={<AppLayout><AgentTemplateGallery /></AppLayout>} />
-                    <Route path="/tools-plugins" element={<AppLayout><ToolsPlugins /></AppLayout>} />
-                    <Route path="/rag-configuration" element={<AppLayout><RAGConfiguration /></AppLayout>} />
-                    <Route path="/knowledge-organization" element={<AppLayout><KnowledgeBaseOrganization /></AppLayout>} />
-                  </Routes>
-                  <Toaster />
-                  <SonnerToaster />
-                </div>
-              </TenantProvider>
-            </AuthProvider>
-          </Router>
-        </ThemeProvider>
+        <Router>
+          <AuthProvider>
+            <TenantProvider>
+              <div className="min-h-screen bg-background">
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/onboarding" element={<Onboarding />} />
+                  <Route path="/dashboard" element={<AppLayout><Dashboard /></AppLayout>} />
+                  <Route path="/voice-agents" element={<AppLayout><VoiceAgents /></AppLayout>} />
+                  <Route path="/voice-agents/edit/:id" element={<AppLayout><EditVoiceAgent /></AppLayout>} />
+                  <Route path="/create-voice-agent" element={<AppLayout><CreateVoiceAgent /></AppLayout>} />
+                  <Route path="/call-management" element={<AppLayout><CallManagement /></AppLayout>} />
+                  <Route path="/conversation-explorer" element={<AppLayout><ConversationExplorer /></AppLayout>} />
+                  <Route path="/document-management" element={<AppLayout><DocumentManagement /></AppLayout>} />
+                  <Route path="/analytics" element={<AppLayout><Analytics /></AppLayout>} />
+                  <Route path="/advanced-analytics" element={<AppLayout><AdvancedAnalytics /></AppLayout>} />
+                  <Route path="/user-management" element={<AppLayout><UserManagement /></AppLayout>} />
+                  <Route path="/billing-subscription" element={<AppLayout><BillingSubscription /></AppLayout>} />
+                  <Route path="/integration-marketplace" element={<AppLayout><IntegrationMarketplace /></AppLayout>} />
+                  <Route path="/conversation-flow" element={<AppLayout><ConversationFlowBuilder /></AppLayout>} />
+                  <Route path="/business-hours" element={<AppLayout><BusinessHours /></AppLayout>} />
+                  <Route path="/financial-invoicing" element={<AppLayout><FinancialInvoicing /></AppLayout>} />
+                  <Route path="/marketing-automation" element={<AppLayout><MarketingAutomation /></AppLayout>} />
+                  <Route path="/workflow-automation" element={<AppLayout><WorkflowAutomation /></AppLayout>} />
+                  <Route path="/quality-assurance" element={<AppLayout><QualityAssurance /></AppLayout>} />
+                  <Route path="/agent-template-gallery" element={<AppLayout><AgentTemplateGallery /></AppLayout>} />
+                  <Route path="/tools-plugins" element={<AppLayout><ToolsPlugins /></AppLayout>} />
+                  <Route path="/rag-configuration" element={<AppLayout><RAGConfiguration /></AppLayout>} />
+                  <Route path="/knowledge-organization" element={<AppLayout><KnowledgeBaseOrganization /></AppLayout>} />
+                </Routes>
+                <Toaster />
+                <SonnerToaster />
+              </div>
+            </TenantProvider>
+          </AuthProvider>
+        </Router>
       </QueryClientProvider>
     </ErrorBoundary>
   );
