@@ -35,19 +35,6 @@ import Index from './pages/Index';
 import Auth from './pages/Auth';
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
-// Ensure React is properly available
-if (!React || !React.useEffect) {
-  console.error('React is not properly available:', { React, useEffect: React?.useEffect });
-  throw new Error('React hooks are not available');
-}
-
-console.log('App.tsx - React validation:', {
-  React: !!React,
-  useEffect: !!React.useEffect,
-  useState: !!React.useState,
-  useContext: !!React.useContext
-});
-
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -72,18 +59,12 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 function App() {
-  console.log('App component rendering - React hooks check:', {
-    useEffect: typeof React.useEffect,
-    useState: typeof React.useState,
-    useContext: typeof React.useContext
-  });
-  
   return (
     <ErrorBoundary>
-      <Router>
-        <AuthProvider>
-          <TenantProvider>
-            <QueryClientProvider client={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        <Router>
+          <AuthProvider>
+            <TenantProvider>
               <div className="min-h-screen bg-background">
                 <Routes>
                   <Route path="/" element={<Index />} />
@@ -115,10 +96,10 @@ function App() {
                 <Toaster />
                 <SonnerToaster />
               </div>
-            </QueryClientProvider>
-          </TenantProvider>
-        </AuthProvider>
-      </Router>
+            </TenantProvider>
+          </AuthProvider>
+        </Router>
+      </QueryClientProvider>
     </ErrorBoundary>
   );
 }
