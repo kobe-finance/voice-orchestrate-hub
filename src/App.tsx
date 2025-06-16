@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -42,6 +41,7 @@ import CRMIntegration from './pages/CRMIntegration';
 import AppointmentScheduling from './pages/AppointmentScheduling';
 import CustomerDatabase from './pages/CustomerDatabase';
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import KnowledgeBase from './pages/KnowledgeBase';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -85,7 +85,11 @@ function App() {
                     <Route path="/create-voice-agent" element={<AppLayout><CreateVoiceAgent /></AppLayout>} />
                     <Route path="/call-management" element={<AppLayout><CallManagement /></AppLayout>} />
                     <Route path="/conversation-explorer" element={<AppLayout><ConversationExplorer /></AppLayout>} />
-                    <Route path="/document-management" element={<AppLayout><DocumentManagement /></AppLayout>} />
+                    <Route path="/knowledge-base" element={<AppLayout><KnowledgeBase /></AppLayout>} />
+                    {/* Redirect old routes to new unified Knowledge Base */}
+                    <Route path="/document-management" element={<AppLayout><KnowledgeBase /></AppLayout>} />
+                    <Route path="/rag-configuration" element={<AppLayout><KnowledgeBase /></AppLayout>} />
+                    <Route path="/knowledge-organization" element={<AppLayout><KnowledgeBase /></AppLayout>} />
                     <Route path="/analytics" element={<AppLayout><Analytics /></AppLayout>} />
                     <Route path="/user-management" element={<AppLayout><UserManagement /></AppLayout>} />
                     <Route path="/billing-subscription" element={<AppLayout><BillingSubscription /></AppLayout>} />
@@ -98,8 +102,6 @@ function App() {
                     <Route path="/quality-assurance" element={<AppLayout><QualityAssurance /></AppLayout>} />
                     <Route path="/agent-template-gallery" element={<AppLayout><AgentTemplateGallery /></AppLayout>} />
                     <Route path="/tools-plugins" element={<AppLayout><ToolsPlugins /></AppLayout>} />
-                    <Route path="/rag-configuration" element={<AppLayout><RAGConfiguration /></AppLayout>} />
-                    <Route path="/knowledge-organization" element={<AppLayout><KnowledgeBaseOrganization /></AppLayout>} />
                     <Route path="/report-builder" element={<AppLayout><ReportBuilder /></AppLayout>} />
                     <Route path="/field-service-integration" element={<AppLayout><FieldServiceIntegration /></AppLayout>} />
                     <Route path="/api-key-management" element={<AppLayout><APIKeyManagement /></AppLayout>} />

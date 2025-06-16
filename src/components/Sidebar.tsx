@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { 
@@ -64,11 +63,9 @@ const navigationItems: NavigationItem[] = [
   { title: "Agent Templates", path: "/agent-template-gallery", icon: Palette },
   { title: "Call Management", path: "/call-management", icon: Phone },
   { title: "Flow Builder", path: "/conversation-flow", icon: Share2 },
-  { title: "Documents", path: "/document-management", icon: FileText },
+  { title: "Knowledge Base", path: "/knowledge-base", icon: Database },
   { title: "Analytics", path: "/analytics", icon: BarChart3 },
   { title: "Conversations", path: "/conversation-explorer", icon: MessagesSquare },
-  { title: "Knowledge Base", path: "/knowledge-organization", icon: Database },
-  { title: "RAG Configuration", path: "/rag-configuration", icon: Brain },
   { title: "Customers", path: "/customers", icon: UserCheck },
   { title: "Appointments", path: "/appointments", icon: Calendar },
   { title: "Business Hours", path: "/business-hours", icon: Clock },
