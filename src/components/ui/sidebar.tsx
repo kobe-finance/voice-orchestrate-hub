@@ -3,7 +3,7 @@ import { Slot } from "@radix-ui/react-slot"
 import { VariantProps, cva } from "class-variance-authority"
 import { PanelLeft } from "lucide-react"
 
-import { useIsMobile } from "@/hooks/use-mobile"
+import { useSafeMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -65,8 +65,8 @@ const SidebarProvider = React.forwardRef<
     },
     ref
   ) => {
-    // Always call hooks unconditionally - remove the conditional logic
-    const isMobile = useIsMobile();
+    // Use the safe mobile hook to prevent React initialization issues
+    const isMobile = useSafeMobile();
     const [openMobile, setOpenMobile] = React.useState(false)
 
     // This is the internal state of the sidebar.
