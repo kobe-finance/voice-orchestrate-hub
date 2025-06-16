@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Mic, ArrowRight, CheckCircle, Sparkles, Zap, Shield } from "lucide-react";
@@ -16,6 +15,12 @@ import {
 import { cn } from "@/lib/utils";
 
 const Index = () => {
+  // Add debug logging for React hooks
+  console.log('Index component - React hooks available:', {
+    useState: typeof useState,
+    React: typeof React
+  });
+
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
 
   const handleOpenVoiceModal = () => {
