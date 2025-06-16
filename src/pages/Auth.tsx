@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,10 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
-import { toast } from "@/utils/simpleToast";
+import { simpleToast } from "@/utils/simpleToast";
 import { GoogleIcon, MicrosoftIcon } from "@/components/icons/AuthIcons";
-import { useAuth } from "@/hooks/useAuth";
-import { useNavigate } from "react-router-dom";
 
 // Enhanced form schemas with better validation
 const loginSchema = z.object({
@@ -82,8 +81,8 @@ const Auth = () => {
     mode: "onChange",
   });
 
-  // Mock authentication functions
-  const login = async (email: string, password: string, rememberMe?: boolean) => {
+  // Mock authentication functions - completely self-contained
+  const mockLogin = async (email: string, password: string, rememberMe?: boolean) => {
     // Simulate API call with enhanced error handling
     await new Promise((resolve, reject) => {
       setTimeout(() => {
@@ -116,7 +115,7 @@ const Auth = () => {
     }));
   };
 
-  const registerUser = async (data: {
+  const mockRegister = async (data: {
     firstName: string;
     lastName: string;
     email: string;
@@ -139,11 +138,11 @@ const Auth = () => {
   const onLoginSubmit = async (values: LoginFormData) => {
     setIsLoading(true);
     try {
-      await login(values.email, values.password, values.rememberMe);
-      toast.success("Welcome back! Login successful.");
+      await mockLogin(values.email, values.password, values.rememberMe);
+      simpleToast("Welcome back! Login successful.", { type: 'success' });
       window.location.href = "/dashboard";
     } catch (error) {
-      toast.error("Login failed. Please check your credentials and try again.");
+      simpleToast("Login failed. Please check your credentials and try again.", { type: 'error' });
     } finally {
       setIsLoading(false);
     }
@@ -152,16 +151,16 @@ const Auth = () => {
   const onRegisterSubmit = async (values: RegisterFormData) => {
     setIsLoading(true);
     try {
-      await registerUser({
+      await mockRegister({
         firstName: values.firstName,
         lastName: values.lastName,
         email: values.email,
         password: values.password,
       });
-      toast.success("Account created successfully! Please check your email for verification.");
+      simpleToast("Account created successfully! Please check your email for verification.", { type: 'success' });
       window.location.href = "/onboarding";
     } catch (error) {
-      toast.error("Registration failed. Please try again.");
+      simpleToast("Registration failed. Please try again.", { type: 'error' });
     } finally {
       setIsLoading(false);
     }
@@ -174,7 +173,7 @@ const Auth = () => {
   const handleSSOLogin = (provider: string) => {
     setIsLoading(true);
     console.log(`SSO login with ${provider}`);
-    toast.info(`Redirecting to ${provider} for authentication...`);
+    simpleToast(`Redirecting to ${provider} for authentication...`, { type: 'info' });
     setTimeout(() => setIsLoading(false), 2000);
   };
 
