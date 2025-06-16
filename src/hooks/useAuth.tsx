@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { toast } from '@/components/ui/sonner';
 import { useAppStore } from '@/stores/useAppStore';
@@ -34,41 +35,75 @@ const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
 const TOKEN_STORAGE_KEY = 'voiceorchestrate_token';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, isAuthenticated, isLoading, setUser, setLoading, logout: storeLogout } = useAppStore();
+  // Initialize local state first before using any external stores
   const [token, setToken] = React.useState<AuthToken | null>(null);
+  const [isInitialized, setIsInitialized] = React.useState(false);
+  
+  // Use the store only after component is mounted
+  const store = React.useMemo(() => {
+    try {
+      return useAppStore.getState ? useAppStore : null;
+    } catch (error) {
+      console.error('Error accessing store:', error);
+      return null;
+    }
+  }, []);
+
+  // Fallback state if store is not available
+  const [fallbackUser, setFallbackUser] = React.useState<any | null>(null);
+  const [fallbackIsAuthenticated, setFallbackIsAuthenticated] = React.useState(false);
+  const [fallbackIsLoading, setFallbackIsLoading] = React.useState(false);
+
+  // Use store or fallback values
+  const user = store?.getState?.()?.user ?? fallbackUser;
+  const isAuthenticated = store?.getState?.()?.isAuthenticated ?? fallbackIsAuthenticated;
+  const isLoading = store?.getState?.()?.isLoading ?? fallbackIsLoading;
+  const setUser = store?.getState?.()?.setUser ?? setFallbackUser;
+  const setLoading = store?.getState?.()?.setLoading ?? setFallbackIsLoading;
+  const storeLogout = store?.getState?.()?.logout ?? (() => {
+    setFallbackUser(null);
+    setFallbackIsAuthenticated(false);
+  });
 
   // Initialize auth state from localStorage
   React.useEffect(() => {
-    setLoading(true);
-    
-    const storedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
-    const storedUser = localStorage.getItem('voiceorchestrate_user');
+    const initializeAuth = () => {
+      setLoading(true);
+      
+      const storedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
+      const storedUser = localStorage.getItem('voiceorchestrate_user');
 
-    if (storedToken && storedUser) {
-      try {
-        const parsedToken = JSON.parse(storedToken);
-        const parsedUser = JSON.parse(storedUser);
-        
-        // Check if token is still valid
-        if (parsedToken.expiresAt > Date.now()) {
-          setUser(parsedUser);
-          setToken(parsedToken);
-        } else {
-          // Token expired, try to refresh
-          refreshTokenSilently(parsedToken.refreshToken);
+      if (storedToken && storedUser) {
+        try {
+          const parsedToken = JSON.parse(storedToken);
+          const parsedUser = JSON.parse(storedUser);
+          
+          // Check if token is still valid
+          if (parsedToken.expiresAt > Date.now()) {
+            setUser(parsedUser);
+            setToken(parsedToken);
+          } else {
+            // Token expired, try to refresh
+            refreshTokenSilently(parsedToken.refreshToken);
+          }
+        } catch (error) {
+          console.error('Error parsing stored auth data:', error);
+          clearAuthData();
         }
-      } catch (error) {
-        console.error('Error parsing stored auth data:', error);
-        clearAuthData();
       }
-    }
-    
-    setLoading(false);
+      
+      setLoading(false);
+      setIsInitialized(true);
+    };
+
+    // Small delay to ensure React is fully initialized
+    const timeoutId = setTimeout(initializeAuth, 0);
+    return () => clearTimeout(timeoutId);
   }, [setUser, setLoading]);
 
   // Auto-refresh token before expiration
   React.useEffect(() => {
-    if (!user || !token) return;
+    if (!isInitialized || !user || !token) return;
 
     const timeUntilExpiry = token.expiresAt - Date.now();
     const refreshTime = Math.max(timeUntilExpiry - 5 * 60 * 1000, 60 * 1000);
@@ -78,7 +113,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, refreshTime);
 
     return () => clearTimeout(refreshTimer);
-  }, [user, token]);
+  }, [user, token, isInitialized]);
 
   const clearAuthData = () => {
     localStorage.removeItem(TOKEN_STORAGE_KEY);
