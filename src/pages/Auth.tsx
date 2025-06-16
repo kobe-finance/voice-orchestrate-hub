@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,8 +9,37 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
-import { simpleToast } from "@/utils/simpleToast";
 import { GoogleIcon, MicrosoftIcon } from "@/components/icons/AuthIcons";
+
+// Simple toast function that doesn't use hooks
+const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+  const toast = document.createElement('div');
+  toast.className = `fixed top-4 right-4 z-50 max-w-sm p-4 rounded-lg shadow-lg transition-all duration-300 transform translate-x-full`;
+  
+  const colors = {
+    success: 'bg-green-500 text-white',
+    error: 'bg-red-500 text-white', 
+    info: 'bg-blue-500 text-white'
+  };
+  
+  toast.className += ` ${colors[type]}`;
+  toast.textContent = message;
+  
+  document.body.appendChild(toast);
+  
+  setTimeout(() => {
+    toast.style.transform = 'translateX(0)';
+  }, 10);
+  
+  setTimeout(() => {
+    toast.style.transform = 'translateX(100%)';
+    setTimeout(() => {
+      if (document.body.contains(toast)) {
+        document.body.removeChild(toast);
+      }
+    }, 300);
+  }, 4000);
+};
 
 // Enhanced form schemas with better validation
 const loginSchema = z.object({
@@ -139,10 +167,10 @@ const Auth = () => {
     setIsLoading(true);
     try {
       await mockLogin(values.email, values.password, values.rememberMe);
-      simpleToast("Welcome back! Login successful.", { type: 'success' });
+      showToast("Welcome back! Login successful.", 'success');
       window.location.href = "/dashboard";
     } catch (error) {
-      simpleToast("Login failed. Please check your credentials and try again.", { type: 'error' });
+      showToast("Login failed. Please check your credentials and try again.", 'error');
     } finally {
       setIsLoading(false);
     }
@@ -157,10 +185,10 @@ const Auth = () => {
         email: values.email,
         password: values.password,
       });
-      simpleToast("Account created successfully! Please check your email for verification.", { type: 'success' });
+      showToast("Account created successfully! Please check your email for verification.", 'success');
       window.location.href = "/onboarding";
     } catch (error) {
-      simpleToast("Registration failed. Please try again.", { type: 'error' });
+      showToast("Registration failed. Please try again.", 'error');
     } finally {
       setIsLoading(false);
     }
@@ -173,7 +201,7 @@ const Auth = () => {
   const handleSSOLogin = (provider: string) => {
     setIsLoading(true);
     console.log(`SSO login with ${provider}`);
-    simpleToast(`Redirecting to ${provider} for authentication...`, { type: 'info' });
+    showToast(`Redirecting to ${provider} for authentication...`, 'info');
     setTimeout(() => setIsLoading(false), 2000);
   };
 
