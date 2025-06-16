@@ -2,9 +2,20 @@
 import { useState, useEffect } from "react";
 
 export function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => {
+    // Safe initial check that won't break SSR
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth < 768;
+  });
 
   useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+
+    function checkIfMobile() {
+      setIsMobile(window.innerWidth < 768);
+    }
+
     // Initial check
     checkIfMobile();
 
@@ -16,10 +27,6 @@ export function useIsMobile() {
       window.removeEventListener("resize", checkIfMobile);
     };
   }, []);
-
-  function checkIfMobile() {
-    setIsMobile(window.innerWidth < 768);
-  }
 
   return isMobile;
 }
