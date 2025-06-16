@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+
+import React from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/components/ui/sonner';
 
@@ -46,19 +47,19 @@ interface TenantContextType {
   };
 }
 
-const TenantContext = createContext<TenantContextType | undefined>(undefined);
+const TenantContext = React.createContext<TenantContextType | undefined>(undefined);
 
 const TENANT_STORAGE_KEY = 'voiceorchestrate_current_tenant';
 
 export const TenantProvider = ({ children }: { children: React.ReactNode }) => {
-  const [currentTenant, setCurrentTenant] = useState<Tenant | null>(null);
-  const [availableTenants, setAvailableTenants] = useState<Tenant[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [currentTenant, setCurrentTenant] = React.useState<Tenant | null>(null);
+  const [availableTenants, setAvailableTenants] = React.useState<Tenant[]>([]);
+  const [isLoading, setIsLoading] = React.useState(false);
   
   const { user, isAuthenticated } = useAuth();
 
   // Load tenant data when user authenticates
-  useEffect(() => {
+  React.useEffect(() => {
     if (isAuthenticated && user) {
       loadTenantData();
     } else {
@@ -213,7 +214,7 @@ export const TenantProvider = ({ children }: { children: React.ReactNode }) => {
       return {
         agents: { used: 0, max: 0, percentage: 0 },
         calls: { used: 0, max: 0, percentage: 0 },
-      storage: { used: 0, max: 0, percentage: 0 },
+        storage: { used: 0, max: 0, percentage: 0 },
       };
     }
 
@@ -250,7 +251,7 @@ export const TenantProvider = ({ children }: { children: React.ReactNode }) => {
 };
 
 export const useTenant = (): TenantContextType => {
-  const context = useContext(TenantContext);
+  const context = React.useContext(TenantContext);
   if (context === undefined) {
     throw new Error('useTenant must be used within a TenantProvider');
   }
