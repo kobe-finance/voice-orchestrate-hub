@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
@@ -59,14 +58,12 @@ const Onboarding = () => {
       // Save progress
       toast({
         title: "Progress saved!",
-        description: "Your onboarding progress has been saved.",
       });
       setCurrentStep(currentStep + 1);
     } else {
       // Complete onboarding
       toast({
         title: "Onboarding completed!",
-        description: "Redirecting to dashboard...",
       });
       setTimeout(() => navigate("/dashboard"), 1500);
     }
@@ -81,7 +78,6 @@ const Onboarding = () => {
   const handleSkip = () => {
     toast({
       title: "Step skipped",
-      description: "You can always complete this step later from the dashboard.",
     });
     handleNext();
   };
@@ -90,7 +86,6 @@ const Onboarding = () => {
     // Save progress before exiting
     toast({
       title: "Progress saved",
-      description: "You can continue onboarding later.",
     });
     navigate("/dashboard");
   };
