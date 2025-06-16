@@ -1,303 +1,221 @@
-import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { SearchInput } from "@/components/ui/search-input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Search, Copy, Trash, Edit, Filter, GitBranch, Sparkles } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useNavigate } from "react-router-dom";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
-// Sample data - in a real app, this would come from an API
-const SAMPLE_AGENTS = [
-  { 
-    id: "1", 
-    name: "Customer Service Agent", 
-    description: "Handles general customer inquiries and support requests",
-    voiceType: "female_professional", 
-    status: "active", 
-    lastModified: "2025-05-19T15:30:00Z",
-    calls: 245
-  },
-  { 
-    id: "2", 
-    name: "Appointment Scheduler", 
-    description: "Specializes in booking and managing appointments",
-    voiceType: "male_friendly", 
-    status: "active", 
-    lastModified: "2025-05-17T10:15:00Z",
-    calls: 187
-  },
-  { 
-    id: "3", 
-    name: "Lead Qualification Bot", 
-    description: "Qualifies leads before transferring to sales team",
-    voiceType: "female_friendly", 
-    status: "inactive", 
-    lastModified: "2025-05-12T09:45:00Z",
-    calls: 63
-  },
-  { 
-    id: "4", 
-    name: "Technical Support Specialist", 
-    description: "Handles technical troubleshooting and support",
-    voiceType: "neutral", 
-    status: "draft", 
-    lastModified: "2025-05-20T08:30:00Z",
-    calls: 0
-  },
-];
+import React, { useState } from 'react';
+import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card-modern';
+import { Button } from '@/components/ui/button-modern';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+import { Mic, Plus, Settings, Play, Pause, Edit, Trash2, Copy, BarChart3, Users } from 'lucide-react';
 
 const VoiceAgents = () => {
-  const navigate = useNavigate();
-  const [agents, setAgents] = useState(SAMPLE_AGENTS);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedFilter, setSelectedFilter] = useState("all");
-  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
-  
-  // Filter agents based on search query and selected filter
-  const filteredAgents = agents
-    .filter(agent => agent.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                     agent.description.toLowerCase().includes(searchQuery.toLowerCase()))
-    .filter(agent => selectedFilter === "all" || agent.status === selectedFilter);
+  const [agents] = useState([
+    { 
+      id: '1', 
+      name: 'Sales Assistant', 
+      status: 'active', 
+      calls: 127, 
+      successRate: '94%',
+      description: 'Handles lead qualification and initial sales conversations',
+      lastActive: '2 minutes ago'
+    },
+    { 
+      id: '2', 
+      name: 'Customer Support', 
+      status: 'active', 
+      calls: 89, 
+      successRate: '96%',
+      description: 'Provides customer service and technical support',
+      lastActive: '5 minutes ago'
+    },
+    { 
+      id: '3', 
+      name: 'Appointment Scheduler', 
+      status: 'paused', 
+      calls: 156, 
+      successRate: '91%',
+      description: 'Manages appointment booking and scheduling',
+      lastActive: '1 hour ago'
+    },
+    { 
+      id: '4', 
+      name: 'Order Processing', 
+      status: 'draft', 
+      calls: 0, 
+      successRate: '--',
+      description: 'Handles order processing and payment collection',
+      lastActive: 'Never'
+    }
+  ]);
 
-  const handleStatusToggle = (agentId: string) => {
-    setAgents(agents.map(agent => 
-      agent.id === agentId 
-        ? { ...agent, status: agent.status === "active" ? "inactive" : "active" } 
-        : agent
-    ));
-  };
-  
-  const handleDuplicateAgent = (agentId: string) => {
-    const agentToDuplicate = agents.find(agent => agent.id === agentId);
-    if (agentToDuplicate) {
-      const newAgent = {
-        ...agentToDuplicate,
-        id: Date.now().toString(),
-        name: `${agentToDuplicate.name} (Copy)`,
-        status: "draft",
-        lastModified: new Date().toISOString(),
-        calls: 0
-      };
-      setAgents([...agents, newAgent]);
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active': return 'default';
+      case 'paused': return 'secondary';
+      case 'draft': return 'outline';
+      default: return 'secondary';
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(date);
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'active': return <Play className="h-3 w-3" />;
+      case 'paused': return <Pause className="h-3 w-3" />;
+      default: return <Edit className="h-3 w-3" />;
+    }
   };
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold">Voice Agent Configuration</h1>
-          <p className="text-muted-foreground">Create and manage your AI voice agents</p>
-        </div>
-        <div className="flex gap-3">
-          <Button 
-            variant="outline"
-            className="flex items-center gap-2"
-            onClick={() => navigate("/conversation-flow")}
-          >
-            <GitBranch className="h-4 w-4" /> Conversation Flows
-          </Button>
-          <Button 
-            variant="outline"
-            onClick={() => navigate("/agent-template-gallery")}
-          >
-            <Sparkles className="mr-2 h-4 w-4" /> Templates
-          </Button>
-          <Button 
-            className="bg-primary hover:bg-primary/90"
-            onClick={() => navigate("/create-voice-agent")}
-          >
-            <Plus className="mr-2 h-4 w-4" /> Create New Agent
-          </Button>
-        </div>
-      </div>
-
-      <Tabs defaultValue="all-agents" className="w-full">
-        <TabsList>
-          <TabsTrigger value="all-agents">All Agents</TabsTrigger>
-          <TabsTrigger value="active">Active</TabsTrigger>
-          <TabsTrigger value="drafts">Drafts</TabsTrigger>
-          <TabsTrigger value="archived">Archived</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="all-agents" className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="w-96">
-              <SearchInput 
-                placeholder="Search agents..."
-                icon={<Search className="h-4 w-4" />}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+    <DashboardLayout>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+        <div className="p-4 md:p-6 space-y-6">
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+            <div>
+              <Breadcrumb>
+                <BreadcrumbList>
+                  <BreadcrumbItem>
+                    <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbPage>Voice Agents</BreadcrumbPage>
+                  </BreadcrumbItem>
+                </BreadcrumbList>
+              </Breadcrumb>
+              <div className="mt-2">
+                <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary via-primary-600 to-accent-orange bg-clip-text text-transparent">
+                  Voice Agents
+                </h1>
+                <p className="text-gray-600 dark:text-gray-400 mt-1">Manage and configure your AI voice agents for different use cases.</p>
+              </div>
             </div>
-            <Button 
-              variant="outline" 
-              onClick={() => setIsFilterSheetOpen(true)}
-            >
-              <Filter className="mr-2 h-4 w-4" /> Filter
+            <Button variant="gradient" leftIcon={<Plus className="h-4 w-4" />}>
+              Create New Agent
             </Button>
           </div>
 
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Voice Type</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Last Modified</TableHead>
-                  <TableHead>Calls</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredAgents.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="h-24 text-center">
-                      No agents found
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredAgents.map((agent) => (
-                    <TableRow key={agent.id}>
-                      <TableCell className="font-medium">{agent.name}</TableCell>
-                      <TableCell className="max-w-[200px] truncate">{agent.description}</TableCell>
-                      <TableCell>
-                        {agent.voiceType === "female_professional" && "Female Professional"}
-                        {agent.voiceType === "male_professional" && "Male Professional"}
-                        {agent.voiceType === "female_friendly" && "Female Friendly"}
-                        {agent.voiceType === "male_friendly" && "Male Friendly"}
-                        {agent.voiceType === "neutral" && "Gender Neutral"}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
-                          <div className={`mr-2 h-2 w-2 rounded-full ${
-                            agent.status === "active" ? "bg-success-green" : 
-                            agent.status === "draft" ? "bg-warning-yellow" : 
-                            "bg-muted-foreground"
-                          }`} />
-                          <span className="capitalize">{agent.status}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>{formatDate(agent.lastModified)}</TableCell>
-                      <TableCell>{agent.calls}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          {agent.status !== "draft" && (
-                            <Switch 
-                              checked={agent.status === "active"}
-                              onCheckedChange={() => handleStatusToggle(agent.id)}
-                            />
-                          )}
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            onClick={() => navigate(`/voice-agents/edit/${agent.id}`)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="icon"
-                            onClick={() => handleDuplicateAgent(agent.id)}
-                          >
-                            <Copy className="h-4 w-4" />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <Trash className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </TabsContent>
+          <Tabs defaultValue="all" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-4 max-w-2xl">
+              <TabsTrigger value="all" className="flex items-center gap-2">
+                <Mic className="h-4 w-4" />
+                All Agents
+              </TabsTrigger>
+              <TabsTrigger value="active" className="flex items-center gap-2">
+                <Play className="h-4 w-4" />
+                Active
+              </TabsTrigger>
+              <TabsTrigger value="templates" className="flex items-center gap-2">
+                <Copy className="h-4 w-4" />
+                Templates
+              </TabsTrigger>
+              <TabsTrigger value="analytics" className="flex items-center gap-2">
+                <BarChart3 className="h-4 w-4" />
+                Analytics
+              </TabsTrigger>
+            </TabsList>
 
-        {/* Other tab contents would follow the same pattern */}
-        <TabsContent value="active">
-          {/* Similar content, filtered for active agents */}
-        </TabsContent>
-        <TabsContent value="drafts">
-          {/* Similar content, filtered for draft agents */}
-        </TabsContent>
-        <TabsContent value="archived">
-          {/* Similar content, filtered for archived agents */}
-        </TabsContent>
-      </Tabs>
-
-      {/* Filter Sheet */}
-      <Sheet open={isFilterSheetOpen} onOpenChange={setIsFilterSheetOpen}>
-        <SheetContent>
-          <SheetHeader>
-            <SheetTitle>Filter Agents</SheetTitle>
-            <SheetDescription>
-              Apply filters to narrow down your agent list
-            </SheetDescription>
-          </SheetHeader>
-          <div className="py-6 space-y-6">
-            {/* Filter options would go here */}
-            <div className="space-y-2">
-              <h3 className="text-sm font-medium">Status</h3>
-              <div className="space-y-1">
-                {["all", "active", "inactive", "draft"].map((status) => (
-                  <div key={status} className="flex items-center">
-                    <input
-                      type="radio"
-                      id={`status-${status}`}
-                      name="status"
-                      checked={selectedFilter === status}
-                      onChange={() => setSelectedFilter(status)}
-                      className="mr-2"
-                    />
-                    <label htmlFor={`status-${status}`} className="text-sm capitalize">
-                      {status === "all" ? "All Statuses" : status}
-                    </label>
-                  </div>
+            <TabsContent value="all" className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {agents.map((agent) => (
+                  <Card key={agent.id} variant="interactive" className="group">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                            <Mic className="h-5 w-5 text-primary" />
+                          </div>
+                          <div>
+                            <CardTitle className="text-lg">{agent.name}</CardTitle>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Badge variant={getStatusColor(agent.status)} className="gap-1">
+                                {getStatusIcon(agent.status)}
+                                {agent.status}
+                              </Badge>
+                            </div>
+                          </div>
+                        </div>
+                        <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Settings className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <CardDescription className="mt-2">{agent.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <div className="grid grid-cols-2 gap-4 mb-4">
+                        <div className="text-center p-3 rounded-lg bg-muted/50">
+                          <div className="text-lg font-semibold">{agent.calls}</div>
+                          <div className="text-xs text-muted-foreground">Total Calls</div>
+                        </div>
+                        <div className="text-center p-3 rounded-lg bg-muted/50">
+                          <div className="text-lg font-semibold text-green-600">{agent.successRate}</div>
+                          <div className="text-xs text-muted-foreground">Success Rate</div>
+                        </div>
+                      </div>
+                      <div className="text-xs text-muted-foreground mb-4">
+                        Last active: {agent.lastActive}
+                      </div>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline" className="flex-1" leftIcon={<Edit className="h-4 w-4" />}>
+                          Edit
+                        </Button>
+                        <Button size="sm" variant="outline" leftIcon={<Copy className="h-4 w-4" />}>
+                          Clone
+                        </Button>
+                        <Button size="sm" variant="outline" leftIcon={<Trash2 className="h-4 w-4" />}>
+                          Delete
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
-            </div>
-            <div className="flex justify-end gap-4">
-              <Button 
-                variant="outline"
-                onClick={() => {
-                  setSelectedFilter("all");
-                  setIsFilterSheetOpen(false);
-                }}
-              >
-                Reset
-              </Button>
-              <Button 
-                onClick={() => setIsFilterSheetOpen(false)}
-              >
-                Apply Filters
-              </Button>
-            </div>
-          </div>
-        </SheetContent>
-      </Sheet>
-    </div>
+            </TabsContent>
+
+            <TabsContent value="active" className="space-y-6">
+              <Card variant="elevated">
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">Active Voice Agents</h3>
+                  <div className="h-64 flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg">
+                    <div className="text-center">
+                      <Play className="h-12 w-12 text-green-600 mx-auto mb-2" />
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Active agents monitoring dashboard</p>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="templates" className="space-y-6">
+              <Card variant="elevated">
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">Agent Templates</h3>
+                  <div className="h-64 flex items-center justify-center bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-lg">
+                    <div className="text-center">
+                      <Copy className="h-12 w-12 text-blue-600 mx-auto mb-2" />
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Pre-built agent templates gallery</p>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="analytics" className="space-y-6">
+              <Card variant="elevated">
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">Agent Analytics</h3>
+                  <div className="h-64 flex items-center justify-center bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg">
+                    <div className="text-center">
+                      <BarChart3 className="h-12 w-12 text-purple-600 mx-auto mb-2" />
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Agent performance analytics and insights</p>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
+    </DashboardLayout>
   );
 };
 

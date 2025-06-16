@@ -1,371 +1,201 @@
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import React from 'react';
+import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
+import { Card } from '@/components/ui/card-modern';
+import { Button } from '@/components/ui/button-modern';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BarChart3, TrendingUp, PieChart, LineChart, Download, RefreshCw, Filter, Phone, Clock, Users, DollarSign } from 'lucide-react';
-import { LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell, AreaChart, Area } from 'recharts';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+import { BarChart3, TrendingUp, Download, Filter, Calendar, Phone, Clock, Users, Target } from 'lucide-react';
+import { KpiCard } from '@/components/dashboard/KpiCard';
 
 const Analytics = () => {
-  const [timeRange, setTimeRange] = useState('7d');
-
-  // Mock data for charts
-  const callVolumeData = [
-    { date: '2025-05-19', calls: 145, conversions: 35, duration: 4.2 },
-    { date: '2025-05-20', calls: 162, conversions: 42, duration: 4.5 },
-    { date: '2025-05-21', calls: 178, conversions: 48, duration: 3.8 },
-    { date: '2025-05-22', calls: 155, conversions: 38, duration: 4.1 },
-    { date: '2025-05-23', calls: 189, conversions: 52, duration: 4.6 },
-    { date: '2025-05-24', calls: 201, conversions: 58, duration: 4.3 },
-    { date: '2025-05-25', calls: 167, conversions: 45, duration: 4.0 }
-  ];
-
-  const agentPerformanceData = [
-    { agent: 'Sales Agent', calls: 324, avgDuration: 4.2, satisfaction: 4.8 },
-    { agent: 'Support Agent', calls: 267, avgDuration: 6.1, satisfaction: 4.6 },
-    { agent: 'Booking Agent', calls: 189, avgDuration: 3.5, satisfaction: 4.9 }
-  ];
-
-  const intentDistributionData = [
-    { name: 'Product Inquiry', value: 35, color: '#2563EB' },
-    { name: 'Support Request', value: 28, color: '#F97316' },
-    { name: 'Booking', value: 22, color: '#10B981' },
-    { name: 'Complaint', value: 10, color: '#EF4444' },
-    { name: 'Other', value: 5, color: '#6B7280' }
-  ];
-
-  const realtimeData = [
-    { time: '09:00', activeCalls: 12, queueLength: 3 },
-    { time: '09:30', activeCalls: 18, queueLength: 5 },
-    { time: '10:00', activeCalls: 25, queueLength: 8 },
-    { time: '10:30', activeCalls: 22, queueLength: 4 },
-    { time: '11:00', activeCalls: 31, queueLength: 12 },
-  ];
-
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold">Analytics & Business Intelligence</h1>
-          <p className="text-muted-foreground">Comprehensive insights, advanced analytics, and real-time monitoring for your voice operations</p>
-        </div>
-        <div className="flex gap-2">
-          <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger className="w-32">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="1d">Last Day</SelectItem>
-              <SelectItem value="7d">Last 7 Days</SelectItem>
-              <SelectItem value="30d">Last 30 Days</SelectItem>
-              <SelectItem value="90d">Last 90 Days</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button variant="outline">
-            <RefreshCw className="mr-2 h-4 w-4" />
-            Refresh
-          </Button>
-          <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
-        </div>
-      </div>
-
-      {/* KPI Dashboard */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Calls</CardTitle>
-            <Phone className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">1,287</div>
-            <p className="text-xs text-muted-foreground">+12.5% from last period</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Conversion Rate</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">28.4%</div>
-            <p className="text-xs text-muted-foreground">+3.2% improvement</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Call Duration</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">4m 52s</div>
-            <p className="text-xs text-muted-foreground">-8% more efficient</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Customer Satisfaction</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">4.7/5</div>
-            <p className="text-xs text-muted-foreground">+0.2 increase</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="realtime">Real-time</TabsTrigger>
-          <TabsTrigger value="performance">Performance</TabsTrigger>
-          <TabsTrigger value="insights">AI Insights</TabsTrigger>
-          <TabsTrigger value="reports">Custom Reports</TabsTrigger>
-          <TabsTrigger value="advanced">Advanced BI</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Call Volume & Conversions</CardTitle>
-                <CardDescription>Track call volume and conversion trends over time</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <RechartsLineChart data={callVolumeData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line type="monotone" dataKey="calls" stroke="#2563EB" strokeWidth={2} />
-                    <Line type="monotone" dataKey="conversions" stroke="#F97316" strokeWidth={2} />
-                  </RechartsLineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Intent Distribution</CardTitle>
-                <CardDescription>Breakdown of customer call intents</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <RechartsPieChart>
-                    <Pie dataKey="value" data={intentDistributionData} cx="50%" cy="50%" outerRadius={80} fill="#8884d8">
-                      {intentDistributionData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                    <Legend />
-                  </RechartsPieChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
+    <DashboardLayout>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+        <div className="p-4 md:p-6 space-y-6">
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+            <div>
+              <Breadcrumb>
+                <BreadcrumbList>
+                  <BreadcrumbItem>
+                    <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbPage>Analytics</BreadcrumbPage>
+                  </BreadcrumbItem>
+                </BreadcrumbList>
+              </Breadcrumb>
+              <div className="mt-2">
+                <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary via-primary-600 to-accent-orange bg-clip-text text-transparent">
+                  Analytics & Insights
+                </h1>
+                <p className="text-gray-600 dark:text-gray-400 mt-1">Track performance, analyze trends, and optimize your voice AI operations.</p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" leftIcon={<Filter className="h-4 w-4" />}>
+                Filter
+              </Button>
+              <Button variant="outline" leftIcon={<Calendar className="h-4 w-4" />}>
+                Date Range
+              </Button>
+              <Button variant="gradient" leftIcon={<Download className="h-4 w-4" />}>
+                Export Report
+              </Button>
+            </div>
           </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Agent Performance Comparison</CardTitle>
-              <CardDescription>Compare performance metrics across different agents</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={agentPerformanceData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="agent" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="calls" fill="#2563EB" />
-                  <Bar dataKey="avgDuration" fill="#F97316" />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </TabsContent>
+          <Tabs defaultValue="overview" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-4 max-w-2xl">
+              <TabsTrigger value="overview" className="flex items-center gap-2">
+                <BarChart3 className="h-4 w-4" />
+                Overview
+              </TabsTrigger>
+              <TabsTrigger value="performance" className="flex items-center gap-2">
+                <TrendingUp className="h-4 w-4" />
+                Performance
+              </TabsTrigger>
+              <TabsTrigger value="calls" className="flex items-center gap-2">
+                <Phone className="h-4 w-4" />
+                Call Analytics
+              </TabsTrigger>
+              <TabsTrigger value="agents" className="flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                Agent Metrics
+              </TabsTrigger>
+            </TabsList>
 
-        <TabsContent value="realtime" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Live Call Activity</CardTitle>
-                <CardDescription>Real-time call volume and queue status</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <AreaChart data={realtimeData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="time" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Area type="monotone" dataKey="activeCalls" stackId="1" stroke="#2563EB" fill="#2563EB" />
-                    <Area type="monotone" dataKey="queueLength" stackId="2" stroke="#F97316" fill="#F97316" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Current Metrics</CardTitle>
-                <CardDescription>Live performance indicators</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-4 border rounded">
-                    <div className="text-2xl font-bold text-green-600">23</div>
-                    <div className="text-sm text-muted-foreground">Active Calls</div>
-                  </div>
-                  <div className="text-center p-4 border rounded">
-                    <div className="text-2xl font-bold text-orange-600">7</div>
-                    <div className="text-sm text-muted-foreground">In Queue</div>
-                  </div>
-                  <div className="text-center p-4 border rounded">
-                    <div className="text-2xl font-bold text-blue-600">3.2s</div>
-                    <div className="text-sm text-muted-foreground">Avg Wait Time</div>
-                  </div>
-                  <div className="text-center p-4 border rounded">
-                    <div className="text-2xl font-bold text-green-600">98.5%</div>
-                    <div className="text-sm text-muted-foreground">System Uptime</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="performance" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Performance Metrics & Benchmarks</CardTitle>
-              <CardDescription>Detailed performance analysis and system benchmarks</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="text-center p-4 border rounded">
-                  <div className="text-2xl font-bold text-green-600">98.5%</div>
-                  <div className="text-sm text-muted-foreground">System Uptime</div>
-                </div>
-                <div className="text-center p-4 border rounded">
-                  <div className="text-2xl font-bold text-blue-600">1.2s</div>
-                  <div className="text-sm text-muted-foreground">Avg Response Time</div>
-                </div>
-                <div className="text-center p-4 border rounded">
-                  <div className="text-2xl font-bold text-orange-600">92%</div>
-                  <div className="text-sm text-muted-foreground">First Call Resolution</div>
-                </div>
+            <TabsContent value="overview" className="space-y-6">
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <KpiCard 
+                  title="Total Calls Today" 
+                  value="1,247" 
+                  change="+8.2%" 
+                  trend="increase" 
+                  description="vs yesterday" 
+                />
+                <KpiCard 
+                  title="Success Rate" 
+                  value="94.3%" 
+                  change="+2.1%" 
+                  trend="increase" 
+                  description="Call completion" 
+                />
+                <KpiCard 
+                  title="Avg Response Time" 
+                  value="1.2s" 
+                  change="-0.3s" 
+                  trend="decrease" 
+                  description="First response" 
+                />
+                <KpiCard 
+                  title="Revenue Generated" 
+                  value="$12,450" 
+                  change="+15.7%" 
+                  trend="increase" 
+                  description="This week" 
+                />
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
 
-        <TabsContent value="insights" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>AI-Powered Insights & Recommendations</CardTitle>
-              <CardDescription>Machine learning insights and automated recommendations</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="p-4 border-l-4 border-blue-500 bg-blue-50">
-                  <h4 className="font-medium">Peak Hour Optimization</h4>
-                  <p className="text-sm text-muted-foreground">Consider adding 2 more agents during 2-4 PM to reduce wait times by 23%</p>
-                </div>
-                <div className="p-4 border-l-4 border-green-500 bg-green-50">
-                  <h4 className="font-medium">Script Performance</h4>
-                  <p className="text-sm text-muted-foreground">The updated greeting script increased conversion rates by 15%</p>
-                </div>
-                <div className="p-4 border-l-4 border-orange-500 bg-orange-50">
-                  <h4 className="font-medium">Customer Sentiment Trend</h4>
-                  <p className="text-sm text-muted-foreground">Sentiment has improved by 12% after implementing new follow-up procedures</p>
-                </div>
-                <div className="p-4 border-l-4 border-purple-500 bg-purple-50">
-                  <h4 className="font-medium">Predictive Analytics</h4>
-                  <p className="text-sm text-muted-foreground">Model predicts 18% increase in call volume next Tuesday based on historical patterns</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="reports" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Custom Report Builder & Scheduler</CardTitle>
-              <CardDescription>Create, schedule, and manage custom analytics reports</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {[
-                  { name: 'Weekly Performance Report', schedule: 'Every Monday', lastRun: '2025-05-20' },
-                  { name: 'Monthly KPI Dashboard', schedule: 'First of month', lastRun: '2025-05-01' },
-                  { name: 'Agent Efficiency Report', schedule: 'Bi-weekly', lastRun: '2025-05-15' },
-                  { name: 'Customer Journey Analysis', schedule: 'Weekly', lastRun: '2025-05-22' },
-                  { name: 'Revenue Attribution Report', schedule: 'Monthly', lastRun: '2025-05-01' },
-                  { name: 'Quality Metrics Report', schedule: 'Daily', lastRun: '2025-05-25' }
-                ].map((report, index) => (
-                  <Card key={index}>
-                    <CardHeader>
-                      <CardTitle className="text-lg">{report.name}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2 text-sm">
-                        <div>Schedule: {report.schedule}</div>
-                        <div>Last Run: {report.lastRun}</div>
-                        <Button size="sm" className="w-full">View Report</Button>
+              <div className="grid gap-6 lg:grid-cols-2">
+                <Card variant="elevated">
+                  <div className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold">Call Volume Trends</h3>
+                      <Button variant="ghost" size="sm">View Details</Button>
+                    </div>
+                    <div className="h-64 flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg">
+                      <div className="text-center">
+                        <BarChart3 className="h-12 w-12 text-primary mx-auto mb-2" />
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Chart visualization would go here</p>
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                    </div>
+                  </div>
+                </Card>
 
-        <TabsContent value="advanced" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Advanced Business Intelligence</CardTitle>
-              <CardDescription>Deep analytics, cohort analysis, and enterprise-grade BI tools</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <h4 className="font-medium">Cohort Analysis</h4>
-                  <div className="p-4 border rounded">
-                    <div className="text-2xl font-bold text-blue-600">87%</div>
-                    <div className="text-sm text-muted-foreground">Customer Retention (30 days)</div>
+                <Card variant="elevated">
+                  <div className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold">Performance Metrics</h3>
+                      <Button variant="ghost" size="sm">View Details</Button>
+                    </div>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 dark:bg-green-900/20">
+                        <div className="flex items-center gap-3">
+                          <Target className="h-5 w-5 text-green-600" />
+                          <span className="font-medium">Conversion Rate</span>
+                        </div>
+                        <span className="text-green-600 font-semibold">68.9%</span>
+                      </div>
+                      <div className="flex items-center justify-between p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20">
+                        <div className="flex items-center gap-3">
+                          <Clock className="h-5 w-5 text-blue-600" />
+                          <span className="font-medium">Avg Call Duration</span>
+                        </div>
+                        <span className="text-blue-600 font-semibold">4m 32s</span>
+                      </div>
+                      <div className="flex items-center justify-between p-3 rounded-lg bg-orange-50 dark:bg-orange-900/20">
+                        <div className="flex items-center gap-3">
+                          <Users className="h-5 w-5 text-orange-600" />
+                          <span className="font-medium">Customer Satisfaction</span>
+                        </div>
+                        <span className="text-orange-600 font-semibold">4.8/5</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="p-4 border rounded">
-                    <div className="text-2xl font-bold text-green-600">$248</div>
-                    <div className="text-sm text-muted-foreground">Average Customer LTV</div>
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  <h4 className="font-medium">Predictive Models</h4>
-                  <div className="p-4 border rounded">
-                    <div className="text-2xl font-bold text-purple-600">94%</div>
-                    <div className="text-sm text-muted-foreground">Churn Prediction Accuracy</div>
-                  </div>
-                  <div className="p-4 border rounded">
-                    <div className="text-2xl font-bold text-orange-600">+23%</div>
-                    <div className="text-sm text-muted-foreground">Forecasted Revenue Growth</div>
-                  </div>
-                </div>
+                </Card>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
+            </TabsContent>
+
+            <TabsContent value="performance" className="space-y-6">
+              <Card variant="elevated">
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">Performance Analytics</h3>
+                  <div className="h-96 flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg">
+                    <div className="text-center">
+                      <TrendingUp className="h-16 w-16 text-primary mx-auto mb-4" />
+                      <p className="text-lg font-medium mb-2">Performance charts coming soon</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Detailed performance analytics will be displayed here</p>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="calls" className="space-y-6">
+              <Card variant="elevated">
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">Call Analytics</h3>
+                  <div className="h-96 flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg">
+                    <div className="text-center">
+                      <Phone className="h-16 w-16 text-primary mx-auto mb-4" />
+                      <p className="text-lg font-medium mb-2">Call analytics dashboard</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Detailed call metrics and analysis will be shown here</p>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="agents" className="space-y-6">
+              <Card variant="elevated">
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">Agent Performance Metrics</h3>
+                  <div className="h-96 flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg">
+                    <div className="text-center">
+                      <Users className="h-16 w-16 text-primary mx-auto mb-4" />
+                      <p className="text-lg font-medium mb-2">Agent performance tracking</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Individual agent metrics and comparisons will be displayed here</p>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
+    </DashboardLayout>
   );
 };
 
