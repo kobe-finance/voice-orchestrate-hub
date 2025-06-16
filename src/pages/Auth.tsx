@@ -10,9 +10,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/utils/simpleToast";
-import { useNavigate } from "react-router-dom";
 import { GoogleIcon, MicrosoftIcon } from "@/components/icons/AuthIcons";
 import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 // Enhanced form schemas with better validation
 const loginSchema = z.object({
@@ -56,7 +56,6 @@ type LoginFormData = z.infer<typeof loginSchema>;
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 const Auth = () => {
-  const navigate = useNavigate();
   const { login, register: registerUser } = useAuth();
   const [isLoading, setIsLoading] = React.useState(false);
   
@@ -89,7 +88,7 @@ const Auth = () => {
     try {
       await login(values.email, values.password, values.rememberMe);
       toast.success("Welcome back! Login successful.");
-      navigate("/dashboard");
+      window.location.href = "/dashboard";
     } catch (error) {
       toast.error("Login failed. Please check your credentials and try again.");
     } finally {
@@ -107,7 +106,7 @@ const Auth = () => {
         password: values.password,
       });
       toast.success("Account created successfully! Please check your email for verification.");
-      navigate("/onboarding");
+      window.location.href = "/onboarding";
     } catch (error) {
       toast.error("Registration failed. Please try again.");
     } finally {
@@ -116,7 +115,7 @@ const Auth = () => {
   };
 
   const handleForgotPassword = () => {
-    navigate("/forgot-password");
+    window.location.href = "/forgot-password";
   };
 
   const handleSSOLogin = (provider: string) => {
@@ -171,7 +170,6 @@ const Auth = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/20">
       <div className="grid lg:grid-cols-2 min-h-screen">
-        {/* Left side - Branding/Information */}
         <div className="hidden lg:flex flex-col justify-center items-center px-12 bg-gradient-to-br from-primary/5 to-accent-orange/5">
           <motion.div
             initial={{ opacity: 0, x: -50 }}
@@ -205,7 +203,6 @@ const Auth = () => {
           </motion.div>
         </div>
 
-        {/* Right side - Auth Form */}
         <div className="flex items-center justify-center px-6 py-12">
           <motion.div
             variants={containerVariants}
