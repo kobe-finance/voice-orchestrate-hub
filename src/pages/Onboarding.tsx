@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { toast } from "@/components/ui/sonner";
+import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import BusinessProfileStep from "@/components/onboarding/BusinessProfileStep";
 import VoiceAgentConfigStep from "@/components/onboarding/VoiceAgentConfigStep";
@@ -40,23 +40,11 @@ const OnboardingSteps = [
 ];
 
 const Onboarding = () => {
-  // Ensure React is properly loaded before using hooks
-  if (!React || typeof React.useState !== 'function') {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Loading...</h1>
-          <p>Initializing onboarding...</p>
-        </div>
-      </div>
-    );
-  }
-
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(0);
   const [helpDialogOpen, setHelpDialogOpen] = useState(false);
   const [welcomeVideoOpen, setWelcomeVideoOpen] = useState(true);
-  const [isReactReady, setIsReactReady] = useState(false);
   const [formData, setFormData] = useState({
     businessProfile: {},
     voiceAgentConfig: {},
@@ -64,47 +52,22 @@ const Onboarding = () => {
     demoCall: {},
   });
 
-  // Ensure React is fully ready before rendering complex components
-  React.useEffect(() => {
-    const checkReactReady = () => {
-      if (React && 
-          typeof React.useState === 'function' && 
-          typeof React.useEffect === 'function' &&
-          typeof React.useMemo === 'function' &&
-          typeof React.useRef === 'function') {
-        setIsReactReady(true);
-        console.log('Onboarding: React is fully ready');
-      } else {
-        console.log('Onboarding: React not ready yet, retrying...');
-        setTimeout(checkReactReady, 100);
-      }
-    };
-    
-    checkReactReady();
-  }, []);
-
-  // Show loading state until React is fully ready
-  if (!isReactReady) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Loading...</h1>
-          <p>Initializing onboarding interface...</p>
-        </div>
-      </div>
-    );
-  }
-
   const progress = (currentStep / (OnboardingSteps.length - 1)) * 100;
 
   const handleNext = () => {
     if (currentStep < OnboardingSteps.length - 1) {
       // Save progress
-      toast.success("Progress saved!");
+      toast({
+        title: "Progress saved!",
+        description: "Your onboarding progress has been saved.",
+      });
       setCurrentStep(currentStep + 1);
     } else {
       // Complete onboarding
-      toast.success("Onboarding completed! Redirecting to dashboard...");
+      toast({
+        title: "Onboarding completed!",
+        description: "Redirecting to dashboard...",
+      });
       setTimeout(() => navigate("/dashboard"), 1500);
     }
   };
@@ -116,13 +79,19 @@ const Onboarding = () => {
   };
 
   const handleSkip = () => {
-    toast.info("You can always complete this step later from the dashboard.");
+    toast({
+      title: "Step skipped",
+      description: "You can always complete this step later from the dashboard.",
+    });
     handleNext();
   };
 
   const handleExit = () => {
     // Save progress before exiting
-    toast.info("Progress saved. You can continue onboarding later.");
+    toast({
+      title: "Progress saved",
+      description: "You can continue onboarding later.",
+    });
     navigate("/dashboard");
   };
 

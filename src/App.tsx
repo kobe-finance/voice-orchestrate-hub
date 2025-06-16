@@ -44,7 +44,6 @@ import AppointmentScheduling from './pages/AppointmentScheduling';
 import CustomerDatabase from './pages/CustomerDatabase';
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import KnowledgeBase from './pages/KnowledgeBase';
-import { ModernToaster } from "@/components/ui/toast-modern";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -158,8 +157,9 @@ function App() {
                     <Route path="/appointments" element={<AppLayout><AppointmentScheduling /></AppLayout>} />
                     <Route path="/customers" element={<AppLayout><CustomerDatabase /></AppLayout>} />
                   </Routes>
-                  {/* Only render ModernToaster when app is fully ready */}
-                  {isAppReady && <ModernToaster />}
+                  {/* Use the standard shadcn/ui toaster instead of ModernToaster to avoid react-hot-toast issues */}
+                  <Toaster />
+                  <SonnerToaster />
                 </div>
               </WebSocketProvider>
             </TenantProvider>
