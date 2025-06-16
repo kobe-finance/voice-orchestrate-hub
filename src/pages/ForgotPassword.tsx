@@ -4,16 +4,15 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { motion } from "framer-motion";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { toast } from "@/components/ui/sonner";
+import { Card } from "@/components/ui/card-modern";
+import { Button } from "@/components/ui/button-modern";
+import { Input } from "@/components/ui/input-modern";
+import { ModernForm, FormField, FormActions } from "@/components/ui/form-modern";
+import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Mail } from "lucide-react";
 import { useAppStore } from "@/stores/useAppStore";
 
-// Enhanced form schema
 const forgotPasswordSchema = z.object({
   email: z.string()
     .min(1, "Email is required")
@@ -37,7 +36,6 @@ const ForgotPassword = () => {
   const onSubmit = async (values: ForgotPasswordFormData) => {
     setLoading(true);
     try {
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
       console.log("Password reset requested for:", values.email);
       toast.success("Password reset instructions have been sent to your email");
@@ -49,124 +47,69 @@ const ForgotPassword = () => {
     }
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { 
-        duration: 0.4,
-        ease: "easeOut"
-      }
-    }
-  };
-
-  const formVariants = {
-    hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1,
-      transition: { 
-        duration: 0.3,
-        staggerChildren: 0.1
-      }
-    }
-  };
-
-  const fieldVariants = {
-    hidden: { opacity: 0, y: 10 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { duration: 0.2 }
-    }
-  };
-
   return (
-    <div className="flex items-center justify-center min-h-screen bg-secondary/30 px-4">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 px-4">
       <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
       >
-        <Card className="w-full max-w-md shadow-lg">
-          <CardHeader className="space-y-1">
+        <Card variant="elevated" className="w-full max-w-md">
+          <div className="p-6">
             <motion.div
               initial={{ scale: 0.9 }}
               animate={{ scale: 1 }}
               transition={{ duration: 0.3, delay: 0.1 }}
+              className="text-center mb-6"
             >
-              <CardTitle className="text-2xl font-bold text-center">Reset Password</CardTitle>
-              <CardDescription className="text-center">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                <Mail className="h-8 w-8 text-primary" />
+              </div>
+              <h1 className="text-2xl font-bold tracking-tight">Reset Password</h1>
+              <p className="text-gray-600 dark:text-gray-400 mt-2">
                 Enter your email address and we'll send you instructions to reset your password
-              </CardDescription>
+              </p>
             </motion.div>
-          </CardHeader>
-          <CardContent>
-            <motion.div
-              variants={formVariants}
-              initial="hidden"
-              animate="visible"
-            >
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <motion.div variants={fieldVariants}>
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email</FormLabel>
-                          <FormControl>
-                            <Input 
-                              placeholder="your@email.com" 
-                              type="email"
-                              autoComplete="email"
-                              {...field} 
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </motion.div>
-                  <motion.div variants={fieldVariants}>
-                    <Button 
-                      type="submit" 
-                      className="w-full"
-                      disabled={isLoading || !form.formState.isValid}
-                    >
-                      <motion.span
-                        animate={isLoading ? { opacity: [1, 0.5, 1] } : { opacity: 1 }}
-                        transition={{ repeat: isLoading ? Infinity : 0, duration: 1 }}
-                      >
-                        {isLoading ? "Sending..." : "Send Reset Instructions"}
-                      </motion.span>
-                    </Button>
-                  </motion.div>
-                </form>
-              </Form>
-            </motion.div>
-          </CardContent>
-          <CardFooter>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-              className="w-full"
-            >
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Button 
-                  variant="link" 
-                  onClick={() => navigate("/auth")}
-                  className="w-full flex items-center justify-center gap-2"
-                  disabled={isLoading}
+
+            <ModernForm onSubmit={form.handleSubmit(onSubmit)}>
+              <FormField
+                label="Email Address"
+                error={form.formState.errors.email?.message}
+                required
+              >
+                <Input
+                  {...form.register("email")}
+                  placeholder="your@email.com"
+                  type="email"
+                  autoComplete="email"
+                  leftIcon={<Mail className="h-4 w-4" />}
+                />
+              </FormField>
+
+              <FormActions align="center">
+                <Button
+                  type="submit"
+                  variant="gradient"
+                  className="w-full"
+                  loading={isLoading}
+                  disabled={!form.formState.isValid}
                 >
-                  <ArrowLeft className="h-4 w-4" />
-                  Back to Login
+                  Send Reset Instructions
                 </Button>
-              </motion.div>
-            </motion.div>
-          </CardFooter>
+              </FormActions>
+            </ModernForm>
+
+            <div className="mt-6 text-center">
+              <Button
+                variant="ghost"
+                onClick={() => navigate("/auth")}
+                leftIcon={<ArrowLeft className="h-4 w-4" />}
+                disabled={isLoading}
+              >
+                Back to Login
+              </Button>
+            </div>
+          </div>
         </Card>
       </motion.div>
     </div>
