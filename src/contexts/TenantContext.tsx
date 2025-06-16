@@ -2,12 +2,6 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/components/ui/sonner';
 
-// Add React validation
-if (!React || !React.useState) {
-  console.error('CRITICAL: React hooks not available in TenantContext');
-  throw new Error('React hooks not available');
-}
-
 interface Tenant {
   id: string;
   name: string;
@@ -57,12 +51,6 @@ const TenantContext = createContext<TenantContextType | undefined>(undefined);
 const TENANT_STORAGE_KEY = 'voiceorchestrate_current_tenant';
 
 export const TenantProvider = ({ children }: { children: React.ReactNode }) => {
-  console.log('TenantProvider - React hooks check:', {
-    useState: typeof useState,
-    useEffect: typeof useEffect,
-    React: !!React
-  });
-
   const [currentTenant, setCurrentTenant] = useState<Tenant | null>(null);
   const [availableTenants, setAvailableTenants] = useState<Tenant[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -225,7 +213,7 @@ export const TenantProvider = ({ children }: { children: React.ReactNode }) => {
       return {
         agents: { used: 0, max: 0, percentage: 0 },
         calls: { used: 0, max: 0, percentage: 0 },
-        storage: { used: 0, max: 0, percentage: 0 },
+      storage: { used: 0, max: 0, percentage: 0 },
       };
     }
 
