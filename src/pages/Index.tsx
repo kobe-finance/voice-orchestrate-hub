@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Mic, ArrowRight, CheckCircle, Sparkles, Zap, Shield } from "lucide-react";
@@ -15,7 +16,19 @@ import {
 import { cn } from "@/lib/utils";
 
 const Index = () => {
-  // Add debug logging for React hooks
+  // Defensive check for React hooks availability
+  if (!React || typeof React.useState !== 'function') {
+    console.error('React hooks not available in Index component');
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Loading...</h1>
+          <p>Initializing application...</p>
+        </div>
+      </div>
+    );
+  }
+
   console.log('Index component - React hooks available:', {
     useState: typeof useState,
     React: typeof React
