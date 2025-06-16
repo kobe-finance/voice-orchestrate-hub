@@ -1,5 +1,4 @@
 
-
 import React from 'react';
 import { toast } from '@/components/ui/sonner';
 
@@ -225,7 +224,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error) {
       console.error('Silent token refresh failed:', error);
       clearAuthData();
-      // Use window.location instead of navigate for cleanup scenarios
       window.location.href = '/auth';
     }
   };
@@ -245,7 +243,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = () => {
     clearAuthData();
-    // Use window.location instead of navigate to avoid context issues
     window.location.href = '/auth';
     toast.success('Logged out successfully');
   };
