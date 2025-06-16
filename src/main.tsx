@@ -4,35 +4,12 @@ import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 
-// Validate React is properly loaded
-if (!React || typeof React.useState !== 'function') {
-  console.error('CRITICAL: React is not properly loaded!');
-  throw new Error('React is not properly loaded - hooks not available');
-}
-
-// Ensure React is available globally for development
-if (typeof window !== 'undefined') {
-  (window as any).React = React;
-}
-
-console.log('Main.tsx - React validation passed:', {
-  React: !!React,
-  version: React.version,
-  hooks: {
-    useEffect: typeof React.useEffect,
-    useState: typeof React.useState,
-  }
-});
+console.log('Main.tsx - Starting application');
 
 const container = document.getElementById("root");
 if (!container) {
   throw new Error('Root element not found');
 }
-
-// Clear any existing content
-container.innerHTML = '';
-
-console.log('Main.tsx - Creating root and rendering App');
 
 try {
   const root = createRoot(container);

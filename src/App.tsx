@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -53,7 +54,7 @@ const queryClient = new QueryClient({
   },
 });
 
-// App layout component for pages that need sidebar - FIXED: Consistent styling and spacing
+// App layout component for pages that need sidebar
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <SidebarProvider defaultOpen={true}>
@@ -70,47 +71,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 function App() {
-  // Ensure React is properly loaded before rendering the app
-  if (!React || typeof React.useState !== 'function') {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Loading...</h1>
-          <p>Initializing application...</p>
-        </div>
-      </div>
-    );
-  }
-
-  const [isAppReady, setIsAppReady] = React.useState(false);
-
-  React.useEffect(() => {
-    // Ensure React is fully initialized before showing the app
-    const initializeApp = () => {
-      if (React && 
-          typeof React.useState === 'function' && 
-          typeof React.useEffect === 'function') {
-        console.log('App: React fully ready, initializing app');
-        setIsAppReady(true);
-      } else {
-        console.log('App: React not ready, retrying...');
-        setTimeout(initializeApp, 50);
-      }
-    };
-    
-    initializeApp();
-  }, []);
-
-  if (!isAppReady) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Loading...</h1>
-          <p>Initializing application...</p>
-        </div>
-      </div>
-    );
-  }
+  console.log('App: Rendering application');
 
   return (
     <ErrorBoundary>
