@@ -82,6 +82,60 @@ const Auth = () => {
     mode: "onChange",
   });
 
+  // Mock authentication functions
+  const login = async (email: string, password: string, rememberMe?: boolean) => {
+    // Simulate API call with enhanced error handling
+    await new Promise((resolve, reject) => {
+      setTimeout(() => {
+        // Simulate occasional failures for demo
+        if (Math.random() > 0.9) {
+          reject(new Error('Network error'));
+        } else {
+          resolve(true);
+        }
+      }, 1500);
+    });
+
+    // Store mock user data
+    const mockUser = {
+      id: '1',
+      email,
+      firstName: 'John',
+      lastName: 'Doe',
+      role: 'admin',
+      tenantId: 'tenant_1',
+      isEmailVerified: true,
+    };
+
+    const storage = rememberMe ? localStorage : sessionStorage;
+    storage.setItem('voiceorchestrate_user', JSON.stringify(mockUser));
+    storage.setItem('voiceorchestrate_token', JSON.stringify({
+      accessToken: 'mock_access_token_' + Date.now(),
+      refreshToken: 'mock_refresh_token_' + Date.now(),
+      expiresAt: Date.now() + 3600 * 1000,
+    }));
+  };
+
+  const registerUser = async (data: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+  }) => {
+    // Simulate API call
+    await new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (Math.random() > 0.9) {
+          reject(new Error('Registration failed'));
+        } else {
+          resolve(true);
+        }
+      }, 2000);
+    });
+
+    console.log('Registration successful (mock):', data);
+  };
+
   const onLoginSubmit = async (values: LoginFormData) => {
     setIsLoading(true);
     try {

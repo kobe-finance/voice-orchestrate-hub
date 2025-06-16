@@ -67,8 +67,8 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   );
 };
 
-// Simple wrapper to ensure React is ready before rendering auth pages
-const SimpleAuthWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+// Simple wrapper to ensure React is ready before rendering
+const SimpleWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isReady, setIsReady] = React.useState(false);
   
   React.useEffect(() => {
@@ -105,23 +105,19 @@ function App() {
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={
-                <SimpleAuthWrapper>
-                  <AuthProvider>
-                    <Auth />
-                  </AuthProvider>
-                </SimpleAuthWrapper>
+                <SimpleWrapper>
+                  <Auth />
+                </SimpleWrapper>
               } />
               <Route path="/login" element={
-                <SimpleAuthWrapper>
-                  <AuthProvider>
-                    <Auth />
-                  </AuthProvider>
-                </SimpleAuthWrapper>
+                <SimpleWrapper>
+                  <Auth />
+                </SimpleWrapper>
               } />
               <Route path="/forgot-password" element={
-                <SimpleAuthWrapper>
+                <SimpleWrapper>
                   <ForgotPassword />
-                </SimpleAuthWrapper>
+                </SimpleWrapper>
               } />
               <Route path="/onboarding" element={
                 <AuthProvider>
