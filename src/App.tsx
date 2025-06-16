@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -68,11 +67,6 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   );
 };
 
-// Simple wrapper that doesn't use any hooks or external state
-const SimpleWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return <>{children}</>;
-};
-
 function App() {
   console.log('App: Rendering application');
 
@@ -83,21 +77,9 @@ function App() {
           <div className="min-h-screen bg-background">
             <Routes>
               <Route path="/" element={<Index />} />
-              <Route path="/auth" element={
-                <SimpleWrapper>
-                  <Auth />
-                </SimpleWrapper>
-              } />
-              <Route path="/login" element={
-                <SimpleWrapper>
-                  <Auth />
-                </SimpleWrapper>
-              } />
-              <Route path="/forgot-password" element={
-                <SimpleWrapper>
-                  <ForgotPassword />
-                </SimpleWrapper>
-              } />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/login" element={<Auth />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/onboarding" element={
                 <AuthProvider>
                   <TenantProvider>
