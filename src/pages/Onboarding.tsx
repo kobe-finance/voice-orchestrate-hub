@@ -40,6 +40,18 @@ const OnboardingSteps = [
 ];
 
 const Onboarding = () => {
+  // Ensure React is properly loaded before using hooks
+  if (!React || typeof React.useState !== 'function') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Loading...</h1>
+          <p>Initializing onboarding...</p>
+        </div>
+      </div>
+    );
+  }
+
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [helpDialogOpen, setHelpDialogOpen] = useState(false);
