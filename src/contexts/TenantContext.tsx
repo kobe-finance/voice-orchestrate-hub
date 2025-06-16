@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, ReactNode } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/components/ui/sonner';
 
@@ -67,22 +67,17 @@ const TENANT_STORAGE_KEY = 'voiceorchestrate_current_tenant';
 export const TenantProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   console.log('TenantProvider - Initializing with React hooks');
   
-  // Add explicit React hook validation
-  if (!useState) {
-    console.error('useState is not available in TenantProvider');
-    throw new Error('useState hook is not available');
-  }
-  
-  const [currentTenant, setCurrentTenant] = useState<Tenant | null>(null);
-  const [availableTenants, setAvailableTenants] = useState<Tenant[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  // Use React.useState directly to ensure React is available
+  const [currentTenant, setCurrentTenant] = React.useState<Tenant | null>(null);
+  const [availableTenants, setAvailableTenants] = React.useState<Tenant[]>([]);
+  const [isLoading, setIsLoading] = React.useState(false);
   
   console.log('TenantProvider - State initialized successfully');
   
   const { user, isAuthenticated } = useAuth();
 
   // Load tenant data when user authenticates
-  useEffect(() => {
+  React.useEffect(() => {
     if (isAuthenticated && user) {
       loadTenantData();
     } else {
