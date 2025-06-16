@@ -3,10 +3,10 @@ import React, { createContext, useContext, useEffect, ReactNode } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/components/ui/sonner';
 
-// Ensure React is available before proceeding
-if (!React || !React.useState) {
-  console.error('CRITICAL: React is not properly loaded in TenantContext!');
-  throw new Error('React is not properly loaded');
+// Early validation to ensure React is available
+if (!React) {
+  console.error('CRITICAL: React module is null/undefined!');
+  throw new Error('React module is not loaded properly');
 }
 
 console.log('TenantContext - React validation:', {
@@ -65,9 +65,15 @@ const TenantContext = createContext<TenantContextType | undefined>(undefined);
 const TENANT_STORAGE_KEY = 'voiceorchestrate_current_tenant';
 
 export const TenantProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  // Additional safety check before using any hooks
+  if (!React || !React.useState || !React.useEffect) {
+    console.error('React hooks are not available in TenantProvider');
+    return <div>Loading...</div>;
+  }
+
   console.log('TenantProvider - Initializing with React hooks');
   
-  // Use React.useState directly to ensure React is available
+  // Use React hooks with additional safety
   const [currentTenant, setCurrentTenant] = React.useState<Tenant | null>(null);
   const [availableTenants, setAvailableTenants] = React.useState<Tenant[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
