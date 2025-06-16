@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -139,132 +140,133 @@ const CallManagement: React.FC = () => {
           </div>
         </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Calls Today</CardTitle>
+              <Phone className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.totalCalls}</div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Active Calls</CardTitle>
+              <PhoneCall className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.activeCalls}</div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Queued Calls</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.queuedCalls}</div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Avg Wait Time</CardTitle>
+              <Clock className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.avgWaitTime}s</div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Active Calls */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Calls Today</CardTitle>
-            <Phone className="h-4 w-4 text-muted-foreground" />
+          <CardHeader>
+            <CardTitle>Active Calls</CardTitle>
+            <CardDescription>Real-time call monitoring and controls</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalCalls}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Calls</CardTitle>
-            <PhoneCall className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.activeCalls}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Queued Calls</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.queuedCalls}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Wait Time</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.avgWaitTime}s</div>
+            <div className="space-y-4">
+              {activeCalls.map((call) => (
+                <div key={call.id} className="border rounded-lg p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Phone className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold">{call.customerName}</h3>
+                        <p className="text-sm text-muted-foreground">{call.customerPhone}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className={`capitalize ${call.status === 'active' ? 'border-green-200 text-green-700' : ''}`}>
+                        {call.status}
+                      </Badge>
+                      <Badge className={getSentimentColor(call.sentiment)}>
+                        {call.sentiment}
+                      </Badge>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      <span>Agent: {call.agentName}</span>
+                      <span>Duration: {formatDuration(call.duration)}</span>
+                      <span>Recording: {call.isRecording ? 'ON' : 'OFF'}</span>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        variant={call.isMuted ? "destructive" : "outline"}
+                        onClick={() => handleCallAction(call.id, 'toggle_mute')}
+                      >
+                        {call.isMuted ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                      </Button>
+                      
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleCallAction(call.id, 'toggle_recording')}
+                      >
+                        {call.isRecording ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+                      </Button>
+                      
+                      <Button
+                        size="sm"
+                        variant={call.status === 'hold' ? "default" : "outline"}
+                        onClick={() => handleCallAction(call.id, call.status === 'hold' ? 'resume' : 'hold')}
+                      >
+                        {call.status === 'hold' ? 'Resume' : 'Hold'}
+                      </Button>
+                      
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleCallAction(call.id, 'end_call')}
+                      >
+                        <PhoneOff className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              
+              {activeCalls.length === 0 && (
+                <div className="text-center py-8 text-muted-foreground">
+                  No active calls at the moment
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>
-
-      {/* Active Calls */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Active Calls</CardTitle>
-          <CardDescription>Real-time call monitoring and controls</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {activeCalls.map((call) => (
-              <div key={call.id} className="border rounded-lg p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                      <Phone className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold">{call.customerName}</h3>
-                      <p className="text-sm text-muted-foreground">{call.customerPhone}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className={`capitalize ${call.status === 'active' ? 'border-green-200 text-green-700' : ''}`}>
-                      {call.status}
-                    </Badge>
-                    <Badge className={getSentimentColor(call.sentiment)}>
-                      {call.sentiment}
-                    </Badge>
-                  </div>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <span>Agent: {call.agentName}</span>
-                    <span>Duration: {formatDuration(call.duration)}</span>
-                    <span>Recording: {call.isRecording ? 'ON' : 'OFF'}</span>
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <Button
-                      size="sm"
-                      variant={call.isMuted ? "destructive" : "outline"}
-                      onClick={() => handleCallAction(call.id, 'toggle_mute')}
-                    >
-                      {call.isMuted ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-                    </Button>
-                    
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleCallAction(call.id, 'toggle_recording')}
-                    >
-                      {call.isRecording ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-                    </Button>
-                    
-                    <Button
-                      size="sm"
-                      variant={call.status === 'hold' ? "default" : "outline"}
-                      onClick={() => handleCallAction(call.id, call.status === 'hold' ? 'resume' : 'hold')}
-                    >
-                      {call.status === 'hold' ? 'Resume' : 'Hold'}
-                    </Button>
-                    
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => handleCallAction(call.id, 'end_call')}
-                    >
-                      <PhoneOff className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ))}
-            
-            {activeCalls.length === 0 && (
-              <div className="text-center py-8 text-muted-foreground">
-                No active calls at the moment
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };
