@@ -1,7 +1,4 @@
-
-
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { toast } from '@/components/ui/sonner';
 import { useAppStore } from '@/stores/useAppStore';
 
@@ -226,4 +223,3 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
-
