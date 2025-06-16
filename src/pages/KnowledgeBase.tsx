@@ -47,7 +47,7 @@ import { DocumentsGrid } from "@/components/rag/DocumentsGrid";
 import { RelatedDocuments } from "@/components/rag/RelatedDocuments";
 import { DocumentType, CategoryType } from "@/types/document";
 
-const KnowledgeBase = () => {
+const KnowledgeBase: React.FC = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("documents");
   const [searchQuery, setSearchQuery] = useState("");
@@ -162,14 +162,6 @@ const KnowledgeBase = () => {
     }
   ]);
 
-  const [ragConfig, setRagConfig] = useState({});
-  const [testResults, setTestResults] = useState([]);
-  const [metrics] = useState({
-    accuracy: 0.92,
-    responseTime: 1.2,
-    relevanceScore: 0.85
-  });
-
   const handleUpload = (files: FileList) => {
     Array.from(files).forEach(file => {
       const newDocument: DocumentType = {
@@ -268,10 +260,6 @@ const KnowledgeBase = () => {
     toast.success(`Tags added to ${selectedDocuments.length} document(s)`);
   };
 
-  const handleRunTest = (query: string) => {
-    console.log("Running test query:", query);
-  };
-
   const filteredDocuments = documents.filter(doc => {
     if (searchQuery && !doc.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
         !doc.tags.join(" ").toLowerCase().includes(searchQuery.toLowerCase())) {
@@ -284,6 +272,15 @@ const KnowledgeBase = () => {
     return true;
   });
 
+  const handleBackNavigation = () => {
+    try {
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Navigation error:", error);
+      window.location.href = "/dashboard";
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b sticky top-0 z-10 bg-background">
@@ -292,7 +289,7 @@ const KnowledgeBase = () => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate("/conversation-flow")}
+              onClick={handleBackNavigation}
             >
               <ArrowLeft size={16} />
               <span className="ml-2">Back</span>
