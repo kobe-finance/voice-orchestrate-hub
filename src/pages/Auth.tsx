@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { GoogleIcon, MicrosoftIcon } from "@/components/icons/AuthIcons";
 
-// Simple toast function that doesn't use hooks
+// Simple toast function that doesn't use any React hooks or external dependencies
 const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
   const toast = document.createElement('div');
   toast.className = `fixed top-4 right-4 z-50 max-w-sm p-4 rounded-lg shadow-lg transition-all duration-300 transform translate-x-full`;
