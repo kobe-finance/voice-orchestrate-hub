@@ -65,15 +65,8 @@ const SidebarProvider = React.forwardRef<
     },
     ref
   ) => {
-    // Create a safe wrapper component to ensure React is initialized
-    const [isInitialized, setIsInitialized] = React.useState(false);
-    
-    React.useEffect(() => {
-      setIsInitialized(true);
-    }, []);
-    
-    // Only use mobile hook after React is initialized
-    const isMobile = isInitialized ? useIsMobile() : false;
+    // Always call hooks unconditionally - remove the conditional logic
+    const isMobile = useIsMobile();
     const [openMobile, setOpenMobile] = React.useState(false)
 
     // This is the internal state of the sidebar.

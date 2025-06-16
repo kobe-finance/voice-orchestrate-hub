@@ -2,19 +2,28 @@
 import { useState, useEffect } from "react";
 
 export function useIsMobile() {
-  // Add safety check for React context
+  // Always call useState, but with more defensive initialization
   const [isMobile, setIsMobile] = useState(() => {
-    // Safe initial check that won't break SSR
-    if (typeof window === 'undefined') return false;
-    return window.innerWidth < 768;
+    // More defensive check for browser environment
+    try {
+      if (typeof window === 'undefined' || !window.innerWidth) return false;
+      return window.innerWidth < 768;
+    } catch (error) {
+      console.warn('useIsMobile: Error accessing window, defaulting to false', error);
+      return false;
+    }
   });
 
   useEffect(() => {
-    // Only run on client side
-    if (typeof window === 'undefined') return;
+    // Only run on client side with additional safety checks
+    if (typeof window === 'undefined' || !window.addEventListener) return;
 
     function checkIfMobile() {
-      setIsMobile(window.innerWidth < 768);
+      try {
+        setIsMobile(window.innerWidth < 768);
+      } catch (error) {
+        console.warn('useIsMobile: Error in resize handler', error);
+      }
     }
 
     // Initial check
@@ -25,7 +34,11 @@ export function useIsMobile() {
 
     // Clean up
     return () => {
-      window.removeEventListener("resize", checkIfMobile);
+      try {
+        window.removeEventListener("resize", checkIfMobile);
+      } catch (error) {
+        console.warn('useIsMobile: Error removing event listener', error);
+      }
     };
   }, []);
 
