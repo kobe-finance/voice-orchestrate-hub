@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -33,6 +34,7 @@ import KnowledgeBaseOrganization from './pages/KnowledgeBaseOrganization';
 import ReportBuilder from './pages/ReportBuilder';
 import Index from './pages/Index';
 import Auth from './pages/Auth';
+import ForgotPassword from './pages/ForgotPassword';
 import FieldServiceIntegration from './pages/FieldServiceIntegration';
 import APIKeyManagement from './pages/APIKeyManagement';
 import VoiceProviderManagement from './pages/VoiceProviderManagement';
@@ -78,6 +80,8 @@ function App() {
                   <Routes>
                     <Route path="/" element={<Index />} />
                     <Route path="/auth" element={<Auth />} />
+                    <Route path="/login" element={<Auth />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
                     <Route path="/onboarding" element={<Onboarding />} />
                     <Route path="/dashboard" element={<AppLayout><Dashboard /></AppLayout>} />
                     <Route path="/voice-agents" element={<AppLayout><VoiceAgents /></AppLayout>} />
@@ -114,7 +118,7 @@ function App() {
                   <Toaster />
                   <SonnerToaster />
                 </div>
-              </WebSocketProvider>
+              </WebSocketContext>
             </TenantProvider>
           </AuthProvider>
         </Router>

@@ -42,6 +42,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Initialize auth state from localStorage
   useEffect(() => {
+    setLoading(true);
+    
     const storedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
     const storedUser = localStorage.getItem('voiceorchestrate_user');
 
@@ -63,7 +65,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         clearAuthData();
       }
     }
-  }, [setUser]);
+    
+    setLoading(false);
+  }, [setUser, setLoading]);
 
   // Auto-refresh token before expiration
   useEffect(() => {
@@ -127,6 +131,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       };
 
       storeAuthData(mockTokenData, mockUser, rememberMe);
+      toast.success('Login successful!');
+    } catch (error) {
+      toast.error('Login failed. Please check your credentials.');
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -146,7 +154,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }, 2000);
       });
 
+      toast.success('Registration successful! Please verify your email.');
       console.log('Registration successful (mock):', data);
+    } catch (error) {
+      toast.error('Registration failed. Please try again.');
+      throw error;
     } finally {
       setLoading(false);
     }
