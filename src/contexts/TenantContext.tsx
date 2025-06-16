@@ -1,20 +1,7 @@
 
-import React, { createContext, useContext, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/components/ui/sonner';
-
-// Early validation to ensure React is available
-if (!React) {
-  console.error('CRITICAL: React module is null/undefined!');
-  throw new Error('React module is not loaded properly');
-}
-
-console.log('TenantContext - React validation:', {
-  React: !!React,
-  useState: typeof React.useState,
-  useEffect: typeof React.useEffect,
-  createContext: typeof React.createContext,
-});
 
 interface Tenant {
   id: string;
@@ -65,25 +52,14 @@ const TenantContext = createContext<TenantContextType | undefined>(undefined);
 const TENANT_STORAGE_KEY = 'voiceorchestrate_current_tenant';
 
 export const TenantProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // Additional safety check before using any hooks
-  if (!React || !React.useState || !React.useEffect) {
-    console.error('React hooks are not available in TenantProvider');
-    return <div>Loading...</div>;
-  }
-
-  console.log('TenantProvider - Initializing with React hooks');
-  
-  // Use React hooks with additional safety
-  const [currentTenant, setCurrentTenant] = React.useState<Tenant | null>(null);
-  const [availableTenants, setAvailableTenants] = React.useState<Tenant[]>([]);
-  const [isLoading, setIsLoading] = React.useState(false);
-  
-  console.log('TenantProvider - State initialized successfully');
+  const [currentTenant, setCurrentTenant] = useState<Tenant | null>(null);
+  const [availableTenants, setAvailableTenants] = useState<Tenant[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   
   const { user, isAuthenticated } = useAuth();
 
   // Load tenant data when user authenticates
-  React.useEffect(() => {
+  useEffect(() => {
     if (isAuthenticated && user) {
       loadTenantData();
     } else {
@@ -270,8 +246,6 @@ export const TenantProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     updateTenantSettings,
     getTenantQuotaUsage,
   };
-
-  console.log('TenantProvider - Rendering with value:', { currentTenant: !!currentTenant, isLoading });
 
   return <TenantContext.Provider value={value}>{children}</TenantContext.Provider>;
 };
