@@ -56,12 +56,44 @@ const Onboarding = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [helpDialogOpen, setHelpDialogOpen] = useState(false);
   const [welcomeVideoOpen, setWelcomeVideoOpen] = useState(true);
+  const [isReactReady, setIsReactReady] = useState(false);
   const [formData, setFormData] = useState({
     businessProfile: {},
     voiceAgentConfig: {},
     integrations: {},
     demoCall: {},
   });
+
+  // Ensure React is fully ready before rendering complex components
+  React.useEffect(() => {
+    const checkReactReady = () => {
+      if (React && 
+          typeof React.useState === 'function' && 
+          typeof React.useEffect === 'function' &&
+          typeof React.useMemo === 'function' &&
+          typeof React.useRef === 'function') {
+        setIsReactReady(true);
+        console.log('Onboarding: React is fully ready');
+      } else {
+        console.log('Onboarding: React not ready yet, retrying...');
+        setTimeout(checkReactReady, 100);
+      }
+    };
+    
+    checkReactReady();
+  }, []);
+
+  // Show loading state until React is fully ready
+  if (!isReactReady) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Loading...</h1>
+          <p>Initializing onboarding interface...</p>
+        </div>
+      </div>
+    );
+  }
 
   const progress = (currentStep / (OnboardingSteps.length - 1)) * 100;
 
