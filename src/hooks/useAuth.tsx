@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useEffect, ReactNode } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/components/ui/sonner';
 import { useAppStore } from '@/stores/useAppStore';
@@ -31,17 +31,17 @@ interface AuthContextType {
   refreshToken: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
 
 const TOKEN_STORAGE_KEY = 'voiceorchestrate_token';
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const navigate = useNavigate();
   const { user, isAuthenticated, isLoading, setUser, setLoading, logout: storeLogout } = useAppStore();
   const [token, setToken] = React.useState<AuthToken | null>(null);
 
   // Initialize auth state from localStorage
-  useEffect(() => {
+  React.useEffect(() => {
     setLoading(true);
     
     const storedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
@@ -70,7 +70,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, [setUser, setLoading]);
 
   // Auto-refresh token before expiration
-  useEffect(() => {
+  React.useEffect(() => {
     if (!user || !token) return;
 
     const timeUntilExpiry = token.expiresAt - Date.now();
@@ -218,7 +218,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 };
 
 export const useAuth = (): AuthContextType => {
-  const context = useContext(AuthContext);
+  const context = React.useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
