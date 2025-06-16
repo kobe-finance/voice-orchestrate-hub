@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/components/ui/sonner';
@@ -36,7 +37,6 @@ const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
 const TOKEN_STORAGE_KEY = 'voiceorchestrate_token';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const navigate = useNavigate();
   const { user, isAuthenticated, isLoading, setUser, setLoading, logout: storeLogout } = useAppStore();
   const [token, setToken] = React.useState<AuthToken | null>(null);
 
@@ -180,7 +180,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error) {
       console.error('Silent token refresh failed:', error);
       clearAuthData();
-      navigate('/auth');
+      // Use window.location instead of navigate for cleanup scenarios
+      window.location.href = '/auth';
     }
   };
 
@@ -199,7 +200,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = () => {
     clearAuthData();
-    navigate('/auth');
+    // Use window.location instead of navigate to avoid context issues
+    window.location.href = '/auth';
     toast.success('Logged out successfully');
   };
 
@@ -224,3 +226,4 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
+
