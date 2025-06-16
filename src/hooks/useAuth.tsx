@@ -1,7 +1,7 @@
 
+
 import React from 'react';
 import { toast } from '@/components/ui/sonner';
-import { useAppStore } from '@/stores/useAppStore';
 
 interface AuthToken {
   accessToken: string;
@@ -35,40 +35,39 @@ const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
 const TOKEN_STORAGE_KEY = 'voiceorchestrate_token';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Initialize local state first before using any external stores
+  // Use only local state to avoid Zustand initialization issues
+  const [user, setUser] = React.useState<any | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
   const [token, setToken] = React.useState<AuthToken | null>(null);
   const [isInitialized, setIsInitialized] = React.useState(false);
-  
-  // Use the store only after component is mounted
-  const store = React.useMemo(() => {
-    try {
-      return useAppStore.getState ? useAppStore : null;
-    } catch (error) {
-      console.error('Error accessing store:', error);
-      return null;
+
+  // Sync with Zustand store after React is ready
+  React.useEffect(() => {
+    const syncWithStore = async () => {
+      try {
+        const { useAppStore } = await import('@/stores/useAppStore');
+        const store = useAppStore.getState();
+        
+        // Sync local state with store
+        if (store.user && !user) {
+          setUser(store.user);
+          setIsAuthenticated(store.isAuthenticated);
+        }
+      } catch (error) {
+        console.error('Failed to sync with store:', error);
+      }
+    };
+
+    if (isInitialized) {
+      syncWithStore();
     }
-  }, []);
-
-  // Fallback state if store is not available
-  const [fallbackUser, setFallbackUser] = React.useState<any | null>(null);
-  const [fallbackIsAuthenticated, setFallbackIsAuthenticated] = React.useState(false);
-  const [fallbackIsLoading, setFallbackIsLoading] = React.useState(false);
-
-  // Use store or fallback values
-  const user = store?.getState?.()?.user ?? fallbackUser;
-  const isAuthenticated = store?.getState?.()?.isAuthenticated ?? fallbackIsAuthenticated;
-  const isLoading = store?.getState?.()?.isLoading ?? fallbackIsLoading;
-  const setUser = store?.getState?.()?.setUser ?? setFallbackUser;
-  const setLoading = store?.getState?.()?.setLoading ?? setFallbackIsLoading;
-  const storeLogout = store?.getState?.()?.logout ?? (() => {
-    setFallbackUser(null);
-    setFallbackIsAuthenticated(false);
-  });
+  }, [isInitialized, user]);
 
   // Initialize auth state from localStorage
   React.useEffect(() => {
     const initializeAuth = () => {
-      setLoading(true);
+      setIsLoading(true);
       
       const storedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
       const storedUser = localStorage.getItem('voiceorchestrate_user');
@@ -81,6 +80,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Check if token is still valid
           if (parsedToken.expiresAt > Date.now()) {
             setUser(parsedUser);
+            setIsAuthenticated(true);
             setToken(parsedToken);
           } else {
             // Token expired, try to refresh
@@ -92,14 +92,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
       
-      setLoading(false);
+      setIsLoading(false);
       setIsInitialized(true);
     };
 
     // Small delay to ensure React is fully initialized
     const timeoutId = setTimeout(initializeAuth, 0);
     return () => clearTimeout(timeoutId);
-  }, [setUser, setLoading]);
+  }, []);
 
   // Auto-refresh token before expiration
   React.useEffect(() => {
@@ -119,7 +119,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem(TOKEN_STORAGE_KEY);
     localStorage.removeItem('voiceorchestrate_user');
     setToken(null);
-    storeLogout();
+    setUser(null);
+    setIsAuthenticated(false);
   };
 
   const storeAuthData = (tokenData: AuthToken, userData: any, remember: boolean = false) => {
@@ -128,10 +129,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     storage.setItem('voiceorchestrate_user', JSON.stringify(userData));
     setToken(tokenData);
     setUser(userData);
+    setIsAuthenticated(true);
+  };
+
+  const syncWithZustandStore = async (userData: any) => {
+    try {
+      const { useAppStore } = await import('@/stores/useAppStore');
+      const store = useAppStore.getState();
+      store.setUser(userData);
+    } catch (error) {
+      console.error('Failed to sync with Zustand store:', error);
+    }
   };
 
   const login = async (email: string, password: string, rememberMe: boolean = false) => {
-    setLoading(true);
+    setIsLoading(true);
     try {
       // Simulate API call with enhanced error handling
       await new Promise((resolve, reject) => {
@@ -163,17 +175,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
 
       storeAuthData(mockTokenData, mockUser, rememberMe);
+      await syncWithZustandStore(mockUser);
       toast.success('Login successful!');
     } catch (error) {
       toast.error('Login failed. Please check your credentials.');
       throw error;
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   const register = async (data: RegisterData) => {
-    setLoading(true);
+    setIsLoading(true);
     try {
       // Simulate API call
       await new Promise((resolve, reject) => {
@@ -192,7 +205,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       toast.error('Registration failed. Please try again.');
       throw error;
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -258,3 +271,4 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
+
