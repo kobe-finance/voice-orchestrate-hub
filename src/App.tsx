@@ -118,7 +118,7 @@ function App() {
                   <Toaster />
                   <SonnerToaster />
                 </div>
-              </WebSocketContext>
+              </WebSocketProvider>
             </TenantProvider>
           </AuthProvider>
         </Router>
