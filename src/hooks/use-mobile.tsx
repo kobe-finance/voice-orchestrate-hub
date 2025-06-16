@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 
 export function useIsMobile() {
+  // Add safety check for React context
   const [isMobile, setIsMobile] = useState(() => {
     // Safe initial check that won't break SSR
     if (typeof window === 'undefined') return false;
