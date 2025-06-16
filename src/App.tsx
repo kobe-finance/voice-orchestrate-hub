@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -67,30 +68,8 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   );
 };
 
-// Simple wrapper to ensure React is ready before rendering
+// Simple wrapper that doesn't use any hooks or external state
 const SimpleWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isReady, setIsReady] = React.useState(false);
-  
-  React.useEffect(() => {
-    // Ensure React is fully initialized
-    const timer = setTimeout(() => {
-      setIsReady(true);
-    }, 0);
-    
-    return () => clearTimeout(timer);
-  }, []);
-  
-  if (!isReady) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-  
   return <>{children}</>;
 };
 
