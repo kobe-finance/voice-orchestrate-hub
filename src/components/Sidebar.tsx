@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { 
@@ -144,27 +145,35 @@ export function AppSidebar() {
   };
   
   return (
-    <Sidebar>
-      <SidebarHeader>
-        <div className="p-2 space-y-4">
-          <Link to="/dashboard" className="flex items-center gap-2 px-2">
-            <div className="text-2xl font-bold">VoiceOrchestrate™</div>
+    <Sidebar className="border-r border-gray-200/50 dark:border-gray-800/50 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md">
+      <SidebarHeader className="border-b border-gray-200/50 dark:border-gray-800/50">
+        <div className="p-4 space-y-4">
+          <Link to="/dashboard" className="flex items-center gap-3 px-2">
+            <div className="rounded-lg bg-gradient-to-r from-primary to-primary-600 p-2 shadow-glow">
+              <Mic className="h-5 w-5 text-white" />
+            </div>
+            <div className="flex items-center">
+              <span className="text-xl font-bold tracking-tight">VoiceOrchestrate</span>
+              <span className="text-gradient-accent text-lg">™</span>
+            </div>
           </Link>
           <TenantSwitcher />
         </div>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="p-4">
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+            Navigation
+          </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="space-y-1">
               {navigationItems.map(renderMenuItem)}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter>
-        <div className="p-4 text-xs text-muted-foreground">
+      <SidebarFooter className="p-4 border-t border-gray-200/50 dark:border-gray-800/50">
+        <div className="text-xs text-muted-foreground text-center">
           VoiceOrchestrate™ v1.0.0
         </div>
       </SidebarFooter>

@@ -54,14 +54,16 @@ const queryClient = new QueryClient({
   },
 });
 
-// App layout component for pages that need sidebar
+// App layout component for pages that need sidebar - FIXED: Consistent styling and spacing
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="flex min-h-screen w-full">
+      <div className="flex min-h-screen w-full bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
         <AppSidebar />
-        <main className="flex-1">
-          {children}
+        <main className="flex-1 min-w-0 overflow-x-hidden">
+          <div className="h-full w-full">
+            {children}
+          </div>
         </main>
       </div>
     </SidebarProvider>
@@ -157,11 +159,10 @@ function App() {
                     <Route path="/appointments" element={<AppLayout><AppointmentScheduling /></AppLayout>} />
                     <Route path="/customers" element={<AppLayout><CustomerDatabase /></AppLayout>} />
                   </Routes>
-                  {/* Use the standard shadcn/ui toaster instead of ModernToaster to avoid react-hot-toast issues */}
                   <Toaster />
                   <SonnerToaster />
                 </div>
-              </WebSocketProvider>
+              </WebSocketContext>
             </TenantProvider>
           </AuthProvider>
         </Router>

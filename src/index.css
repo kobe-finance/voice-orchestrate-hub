@@ -85,6 +85,7 @@
 @layer base {
   * {
     @apply border-border;
+    box-sizing: border-box;
   }
   
   html {
@@ -101,6 +102,9 @@
     font-size: 14px;
     line-height: 1.6;
     letter-spacing: -0.01em;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden; /* Prevent horizontal scroll issues */
   }
   
   code, pre {
@@ -122,6 +126,24 @@
   ::selection {
     background-color: hsl(var(--primary) / 0.2);
     color: hsl(var(--primary-foreground));
+  }
+
+  /* Prevent layout shifts and overlapping */
+  main {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Ensure sidebars have proper z-index */
+  [data-sidebar] {
+    z-index: 10;
+  }
+
+  /* Fix for overlapping content */
+  .sidebar-main-content {
+    min-width: 0;
+    flex: 1;
+    overflow-x: hidden;
   }
 }
 
@@ -201,6 +223,29 @@
   .text-gradient-accent {
     @apply bg-gradient-to-r from-accent-orange to-primary-500 bg-clip-text text-transparent;
   }
+
+  /* Layout fixes for consistent spacing */
+  .page-container {
+    @apply min-h-screen p-4 md:p-6 space-y-6;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* Tab fixes */
+  .tabs-container {
+    @apply relative;
+    z-index: 1;
+  }
+
+  .tabs-list {
+    @apply relative;
+    z-index: 2;
+  }
+
+  .tabs-content {
+    @apply relative;
+    z-index: 1;
+  }
 }
 
 @layer utilities {
@@ -252,5 +297,17 @@
   
   .shadow-large {
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.12);
+  }
+
+  /* Layout safety utilities */
+  .prevent-overflow {
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .safe-flex {
+    display: flex;
+    min-width: 0;
   }
 }
