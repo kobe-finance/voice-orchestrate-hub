@@ -69,7 +69,37 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   );
 };
 
+// Conditional Toaster component that only renders when React is ready
+const ConditionalToaster: React.FC = () => {
+  const [isReady, setIsReady] = React.useState(false);
+
+  React.useEffect(() => {
+    // Ensure React hooks are available before rendering the toaster
+    if (React && typeof React.useState === 'function') {
+      setIsReady(true);
+    }
+  }, []);
+
+  if (!isReady || !React || typeof React.useState !== 'function') {
+    return null;
+  }
+
+  return <ModernToaster />;
+};
+
 function App() {
+  // Ensure React is properly loaded before rendering the app
+  if (!React || typeof React.useState !== 'function') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Loading...</h1>
+          <p>Initializing application...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
@@ -116,7 +146,7 @@ function App() {
                     <Route path="/appointments" element={<AppLayout><AppointmentScheduling /></AppLayout>} />
                     <Route path="/customers" element={<AppLayout><CustomerDatabase /></AppLayout>} />
                   </Routes>
-                  <ModernToaster />
+                  <ConditionalToaster />
                 </div>
               </WebSocketProvider>
             </TenantProvider>
