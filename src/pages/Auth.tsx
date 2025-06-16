@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,11 +9,10 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
-import { toast } from "@/components/ui/sonner";
+import { toast } from "@/utils/simpleToast";
 import { useNavigate } from "react-router-dom";
 import { GoogleIcon, MicrosoftIcon } from "@/components/icons/AuthIcons";
 import { useAuth } from "@/hooks/useAuth";
-import { useAppStore } from "@/stores/useAppStore";
 
 // Enhanced form schemas with better validation
 const loginSchema = z.object({
@@ -60,7 +58,7 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 const Auth = () => {
   const navigate = useNavigate();
   const { login, register: registerUser } = useAuth();
-  const { isLoading, setLoading } = useAppStore();
+  const [isLoading, setIsLoading] = React.useState(false);
   
   // Form configurations with improved default values
   const loginForm = useForm<LoginFormData>({
@@ -87,7 +85,7 @@ const Auth = () => {
   });
 
   const onLoginSubmit = async (values: LoginFormData) => {
-    setLoading(true);
+    setIsLoading(true);
     try {
       await login(values.email, values.password, values.rememberMe);
       toast.success("Welcome back! Login successful.");
@@ -95,12 +93,12 @@ const Auth = () => {
     } catch (error) {
       toast.error("Login failed. Please check your credentials and try again.");
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   const onRegisterSubmit = async (values: RegisterFormData) => {
-    setLoading(true);
+    setIsLoading(true);
     try {
       await registerUser({
         firstName: values.firstName,
@@ -113,7 +111,7 @@ const Auth = () => {
     } catch (error) {
       toast.error("Registration failed. Please try again.");
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -122,13 +120,12 @@ const Auth = () => {
   };
 
   const handleSSOLogin = (provider: string) => {
-    setLoading(true);
+    setIsLoading(true);
     console.log(`SSO login with ${provider}`);
     toast.info(`Redirecting to ${provider} for authentication...`);
-    setTimeout(() => setLoading(false), 2000);
+    setTimeout(() => setIsLoading(false), 2000);
   };
 
-  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { 

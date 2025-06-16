@@ -7,8 +7,6 @@ import { WebSocketProvider } from "@/contexts/WebSocketContext"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/Sidebar"
 import { AuthProvider } from "@/hooks/useAuth";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import Dashboard from './pages/Dashboard';
 import VoiceAgents from './pages/VoiceAgents';
 import CreateVoiceAgent from './pages/CreateVoiceAgent';
@@ -119,8 +117,6 @@ function App() {
                     <Route path="/appointments" element={<AppLayout><AppointmentScheduling /></AppLayout>} />
                     <Route path="/customers" element={<AppLayout><CustomerDatabase /></AppLayout>} />
                   </Routes>
-                  <Toaster />
-                  <SonnerToaster />
                 </div>
               </WebSocketProvider>
             </TenantProvider>

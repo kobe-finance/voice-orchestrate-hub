@@ -34,7 +34,7 @@ const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
 const TOKEN_STORAGE_KEY = 'voiceorchestrate_token';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Use only local state to avoid Zustand initialization issues
+  // Use only local state to avoid initialization issues
   const [user, setUser] = React.useState<any | null>(null);
   const [isAuthenticated, setIsAuthenticated] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
