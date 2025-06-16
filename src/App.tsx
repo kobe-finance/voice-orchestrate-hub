@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -44,6 +43,7 @@ import AppointmentScheduling from './pages/AppointmentScheduling';
 import CustomerDatabase from './pages/CustomerDatabase';
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import KnowledgeBase from './pages/KnowledgeBase';
+import { ModernToaster } from "@/components/ui/toast-modern";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -115,8 +115,7 @@ function App() {
                     <Route path="/appointments" element={<AppLayout><AppointmentScheduling /></AppLayout>} />
                     <Route path="/customers" element={<AppLayout><CustomerDatabase /></AppLayout>} />
                   </Routes>
-                  <Toaster />
-                  <SonnerToaster />
+                  <ModernToaster />
                 </div>
               </WebSocketProvider>
             </TenantProvider>
