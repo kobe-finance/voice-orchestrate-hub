@@ -82,6 +82,36 @@ function App() {
     );
   }
 
+  const [isAppReady, setIsAppReady] = React.useState(false);
+
+  React.useEffect(() => {
+    // Ensure React is fully initialized before showing the app
+    const initializeApp = () => {
+      if (React && 
+          typeof React.useState === 'function' && 
+          typeof React.useEffect === 'function') {
+        console.log('App: React fully ready, initializing app');
+        setIsAppReady(true);
+      } else {
+        console.log('App: React not ready, retrying...');
+        setTimeout(initializeApp, 50);
+      }
+    };
+    
+    initializeApp();
+  }, []);
+
+  if (!isAppReady) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Loading...</h1>
+          <p>Initializing application...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
@@ -128,8 +158,8 @@ function App() {
                     <Route path="/appointments" element={<AppLayout><AppointmentScheduling /></AppLayout>} />
                     <Route path="/customers" element={<AppLayout><CustomerDatabase /></AppLayout>} />
                   </Routes>
-                  {/* Only render ModernToaster when React is fully ready */}
-                  {React && typeof React.useState === 'function' && <ModernToaster />}
+                  {/* Only render ModernToaster when app is fully ready */}
+                  {isAppReady && <ModernToaster />}
                 </div>
               </WebSocketProvider>
             </TenantProvider>

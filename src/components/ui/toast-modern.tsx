@@ -50,6 +50,27 @@ export const showToast = {
 
 // Custom toast component with modern styling
 export const ModernToaster: React.FC = () => {
+  // Defensive check - don't render if React isn't fully ready
+  if (!React || typeof React.useState !== 'function' || typeof React.useEffect !== 'function') {
+    console.log('ModernToaster: React not ready, skipping render');
+    return null;
+  }
+
+  const [isReady, setIsReady] = React.useState(false);
+
+  React.useEffect(() => {
+    // Double check React is ready after mount
+    if (React && typeof React.useState === 'function') {
+      setIsReady(true);
+      console.log('ModernToaster: React confirmed ready');
+    }
+  }, []);
+
+  // Don't render Toaster until React is confirmed ready
+  if (!isReady) {
+    return null;
+  }
+
   return (
     <Toaster
       position="top-right"
