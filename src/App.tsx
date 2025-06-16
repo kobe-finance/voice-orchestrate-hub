@@ -74,9 +74,9 @@ function App() {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <Router>
-          <TenantProvider>
-            <WebSocketProvider>
-              <AuthProvider>
+          <AuthProvider>
+            <TenantProvider>
+              <WebSocketProvider>
                 <div className="min-h-screen bg-background">
                   <Routes>
                     <Route path="/" element={<Index />} />
@@ -118,9 +118,9 @@ function App() {
                   </Routes>
                   <ModernToaster />
                 </div>
-              </AuthProvider>
-            </WebSocketProvider>
-          </TenantProvider>
+              </WebSocketProvider>
+            </TenantProvider>
+          </AuthProvider>
         </Router>
       </QueryClientProvider>
     </ErrorBoundary>
