@@ -56,7 +56,6 @@ type LoginFormData = z.infer<typeof loginSchema>;
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 const Auth = () => {
-  const { login, register: registerUser } = useAuth();
   const [isLoading, setIsLoading] = React.useState(false);
   
   // Form configurations with improved default values
