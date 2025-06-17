@@ -100,7 +100,7 @@ const WorkflowAutomation = () => {
             <TabsTrigger value="templates">Templates</TabsTrigger>
             <TabsTrigger value="history">Execution History</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
-          </Tab sList>
+          </TabsList>
 
           <TabsContent value="workflows" className="space-y-4">
             <div className="space-y-4">
