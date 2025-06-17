@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button-modern';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Settings, History, FileTemplate, Zap } from 'lucide-react';
+import { Plus, Settings, History, FileText, Zap } from 'lucide-react';
 import { 
   Breadcrumb, 
   BreadcrumbList, 
@@ -99,7 +98,7 @@ const WorkflowAutomation = () => {
               Workflows
             </TabsTrigger>
             <TabsTrigger value="templates" className="flex items-center gap-2">
-              <FileTemplate className="h-4 w-4" />
+              <FileText className="h-4 w-4" />
               Templates
             </TabsTrigger>
             <TabsTrigger value="history" className="flex items-center gap-2">

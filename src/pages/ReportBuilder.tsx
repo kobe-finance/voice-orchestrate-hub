@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { PageHeader } from "@/components/ui/page-header";
 import ReportTemplateGallery from "@/components/reports/ReportTemplateGallery";
@@ -6,7 +5,7 @@ import ReportDesigner from "@/components/reports/ReportDesigner";
 import ReportPreview from "@/components/reports/ReportPreview";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button-modern";
-import { Download, Mail, Save, FileTemplate, Edit, Eye } from "lucide-react";
+import { Download, Mail, Save, FileText, Edit, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { Report, ReportTemplate, Visualization } from "@/types/report";
 import { 
@@ -131,7 +130,7 @@ const ReportBuilder = () => {
         >
           <TabsList className="grid grid-cols-3 w-full max-w-md mb-8">
             <TabsTrigger value="templates" className="flex items-center gap-2">
-              <FileTemplate className="h-4 w-4" />
+              <FileText className="h-4 w-4" />
               Templates
             </TabsTrigger>
             <TabsTrigger 
