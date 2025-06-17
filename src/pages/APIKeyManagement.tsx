@@ -1,6 +1,5 @@
 
 import React from "react";
-import { Layout } from "@/components/Layout";
 import { APICredentialsList } from "@/components/integrations/APICredentialsList";
 import { PageHeader } from "@/components/ui/page-header";
 import { 
@@ -14,8 +13,8 @@ import {
 
 const APIKeyManagement = () => {
   return (
-    <Layout>
-      <div className="container py-6 max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+      <div className="p-4 md:p-6 space-y-6">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -33,9 +32,10 @@ const APIKeyManagement = () => {
           description="Securely manage your integration API keys and credentials"
           className="mb-6"
         />
+        
         <APICredentialsList />
       </div>
-    </Layout>
+    </div>
   );
 };
 

@@ -67,64 +67,66 @@ const WorkflowAutomation = () => {
   };
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Workflow Automation</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+      <div className="p-4 md:p-6 space-y-6">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Workflow Automation</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
 
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold">Workflow Automation</h1>
-          <p className="text-muted-foreground">Automate your business processes and tasks</p>
-        </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Create Workflow
-        </Button>
-      </div>
-
-      <WorkflowStats />
-
-      <Tabs defaultValue="workflows" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="workflows">Workflows</TabsTrigger>
-          <TabsTrigger value="templates">Templates</TabsTrigger>
-          <TabsTrigger value="history">Execution History</TabsTrigger>
-          <TabsTrigger value="settings">Settings</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="workflows" className="space-y-4">
-          <div className="space-y-4">
-            {workflows.map((workflow) => (
-              <WorkflowCard 
-                key={workflow.id} 
-                workflow={workflow} 
-                onToggle={toggleWorkflow}
-              />
-            ))}
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold">Workflow Automation</h1>
+            <p className="text-muted-foreground">Automate your business processes and tasks</p>
           </div>
-        </TabsContent>
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            Create Workflow
+          </Button>
+        </div>
 
-        <TabsContent value="templates" className="space-y-4">
-          <WorkflowTemplates />
-        </TabsContent>
+        <WorkflowStats />
 
-        <TabsContent value="history" className="space-y-4">
-          <WorkflowHistory />
-        </TabsContent>
+        <Tabs defaultValue="workflows" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="workflows">Workflows</TabsTrigger>
+            <TabsTrigger value="templates">Templates</TabsTrigger>
+            <TabsTrigger value="history">Execution History</TabsTrigger>
+            <TabsTrigger value="settings">Settings</TabsTrigger>
+          </Tab sList>
 
-        <TabsContent value="settings" className="space-y-4">
-          <WorkflowSettings />
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="workflows" className="space-y-4">
+            <div className="space-y-4">
+              {workflows.map((workflow) => (
+                <WorkflowCard 
+                  key={workflow.id} 
+                  workflow={workflow} 
+                  onToggle={toggleWorkflow}
+                />
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="templates" className="space-y-4">
+            <WorkflowTemplates />
+          </TabsContent>
+
+          <TabsContent value="history" className="space-y-4">
+            <WorkflowHistory />
+          </TabsContent>
+
+          <TabsContent value="settings" className="space-y-4">
+            <WorkflowSettings />
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 };

@@ -1,11 +1,18 @@
 
 import React, { useState } from "react";
-import { Layout } from "@/components/Layout";
 import { IntegrationDirectory } from "@/components/integrations/IntegrationDirectory";
 import { IntegrationFilters } from "@/components/integrations/IntegrationFilters";
 import { SearchInput } from "@/components/ui/search-input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, Grid2x2, List } from "lucide-react";
+import { 
+  Breadcrumb, 
+  BreadcrumbList, 
+  BreadcrumbItem, 
+  BreadcrumbLink, 
+  BreadcrumbSeparator, 
+  BreadcrumbPage 
+} from '@/components/ui/breadcrumb';
 
 const IntegrationMarketplace = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -21,8 +28,20 @@ const IntegrationMarketplace = () => {
   };
 
   return (
-    <Layout>
-      <div className="container px-4 py-6 mx-auto max-w-7xl">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+      <div className="p-4 md:p-6 space-y-6">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Integration Marketplace</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+
         <div className="flex flex-col space-y-2">
           <h1 className="text-3xl font-bold tracking-tight">Integration Marketplace</h1>
           <p className="text-muted-foreground">
@@ -67,7 +86,7 @@ const IntegrationMarketplace = () => {
           </div>
         </div>
       </div>
-    </Layout>
+    </div>
   );
 };
 

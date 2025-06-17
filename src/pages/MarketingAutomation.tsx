@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -98,104 +99,106 @@ const MarketingAutomation = () => {
   const [showCampaignWizard, setShowCampaignWizard] = useState(false);
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Marketing Automation</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+      <div className="p-4 md:p-6 space-y-6">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Marketing Automation</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
 
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold">Marketing Automation</h1>
-          <p className="text-muted-foreground">Create and manage automated marketing campaigns</p>
-        </div>
-        <Button onClick={() => setShowCampaignWizard(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Create Campaign
-        </Button>
-      </div>
-
-      <Tabs defaultValue="campaigns" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
-          <TabsTrigger value="contacts">Contact Lists</TabsTrigger>
-          <TabsTrigger value="scheduler">Scheduler</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="campaigns" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {campaigns.map((campaign) => (
-              <Card key={campaign.id}>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">{campaign.name}</CardTitle>
-                    <Badge variant={campaign.status === 'active' ? 'default' : campaign.status === 'paused' ? 'secondary' : 'outline'}>
-                      {campaign.status}
-                    </Badge>
-                  </div>
-                  <CardDescription>{campaign.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span>Type:</span>
-                      <span className="capitalize">{campaign.type}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Contacts:</span>
-                      <span>{campaign.contactCount}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Sent:</span>
-                      <span>{campaign.sentCount}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Opens:</span>
-                      <span>{campaign.openRate}%</span>
-                    </div>
-                  </div>
-                  <div className="mt-4 flex gap-2">
-                    <Button size="sm" variant="outline">Edit</Button>
-                    <Button size="sm" variant="outline">View Reports</Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold">Marketing Automation</h1>
+            <p className="text-muted-foreground">Create and manage automated marketing campaigns</p>
           </div>
-        </TabsContent>
+          <Button onClick={() => setShowCampaignWizard(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Create Campaign
+          </Button>
+        </div>
 
-        <TabsContent value="contacts" className="space-y-4">
-          <ContactListManager />
-        </TabsContent>
+        <Tabs defaultValue="campaigns" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
+            <TabsTrigger value="contacts">Contact Lists</TabsTrigger>
+            <TabsTrigger value="scheduler">Scheduler</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="scheduler" className="space-y-4">
-          <CampaignScheduler />
-        </TabsContent>
+          <TabsContent value="campaigns" className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {campaigns.map((campaign) => (
+                <Card key={campaign.id}>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-lg">{campaign.name}</CardTitle>
+                      <Badge variant={campaign.status === 'active' ? 'default' : campaign.status === 'paused' ? 'secondary' : 'outline'}>
+                        {campaign.status}
+                      </Badge>
+                    </div>
+                    <CardDescription>{campaign.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span>Type:</span>
+                        <span className="capitalize">{campaign.type}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Contacts:</span>
+                        <span>{campaign.contactCount}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Sent:</span>
+                        <span>{campaign.sentCount}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Opens:</span>
+                        <span>{campaign.openRate}%</span>
+                      </div>
+                    </div>
+                    <div className="mt-4 flex gap-2">
+                      <Button size="sm" variant="outline">Edit</Button>
+                      <Button size="sm" variant="outline">View Reports</Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
 
-        <TabsContent value="analytics" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Marketing Analytics</CardTitle>
-              <CardDescription>Overview of your marketing performance</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">Marketing analytics dashboard will be displayed here.</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="contacts" className="space-y-4">
+            <ContactListManager />
+          </TabsContent>
 
-      {showCampaignWizard && (
-        <CampaignWizard onClose={() => setShowCampaignWizard(false)} />
-      )}
+          <TabsContent value="scheduler" className="space-y-4">
+            <CampaignScheduler />
+          </TabsContent>
+
+          <TabsContent value="analytics" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Marketing Analytics</CardTitle>
+                <CardDescription>Overview of your marketing performance</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">Marketing analytics dashboard will be displayed here.</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+
+        {showCampaignWizard && (
+          <CampaignWizard onClose={() => setShowCampaignWizard(false)} />
+        )}
+      </div>
     </div>
   );
 };

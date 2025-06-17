@@ -1,6 +1,4 @@
-
 import React, { useState } from "react";
-import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/ui/page-header";
 import ReportTemplateGallery from "@/components/reports/ReportTemplateGallery";
 import ReportDesigner from "@/components/reports/ReportDesigner";
@@ -65,9 +63,9 @@ const ReportBuilder = () => {
   };
 
   return (
-    <Layout>
-      <div className="container px-4 py-6 mx-auto max-w-7xl">
-        <Breadcrumb className="mb-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+      <div className="p-4 md:p-6 space-y-6">
+        <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
@@ -79,7 +77,7 @@ const ReportBuilder = () => {
           </BreadcrumbList>
         </Breadcrumb>
 
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center">
           <PageHeader 
             title="Report Builder" 
             description="Create and schedule custom reports"
@@ -167,7 +165,7 @@ const ReportBuilder = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </Layout>
+    </div>
   );
 };
 
