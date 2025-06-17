@@ -7,6 +7,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Play, Pause, Settings, Plus, Zap, Clock, Users } from 'lucide-react';
+import { 
+  Breadcrumb, 
+  BreadcrumbList, 
+  BreadcrumbItem, 
+  BreadcrumbLink, 
+  BreadcrumbSeparator, 
+  BreadcrumbPage 
+} from '@/components/ui/breadcrumb';
 
 const WorkflowAutomation = () => {
   const [workflows, setWorkflows] = useState([
@@ -55,6 +63,18 @@ const WorkflowAutomation = () => {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Workflow Automation</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold">Workflow Automation</h1>

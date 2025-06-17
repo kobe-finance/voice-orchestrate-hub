@@ -10,6 +10,14 @@ import { Button } from "@/components/ui/button";
 import { Download, Mail, Save } from "lucide-react";
 import { toast } from "sonner";
 import { Report, ReportTemplate, Visualization } from "@/types/report";
+import { 
+  Breadcrumb, 
+  BreadcrumbList, 
+  BreadcrumbItem, 
+  BreadcrumbLink, 
+  BreadcrumbSeparator, 
+  BreadcrumbPage 
+} from '@/components/ui/breadcrumb';
 
 const ReportBuilder = () => {
   const [activeTab, setActiveTab] = useState("templates");
@@ -59,6 +67,18 @@ const ReportBuilder = () => {
   return (
     <Layout>
       <div className="container px-4 py-6 mx-auto max-w-7xl">
+        <Breadcrumb className="mb-6">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Report Builder</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+
         <div className="flex justify-between items-center mb-6">
           <PageHeader 
             title="Report Builder" 

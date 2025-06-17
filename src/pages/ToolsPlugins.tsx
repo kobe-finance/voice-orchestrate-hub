@@ -23,6 +23,14 @@ import {
   Globe,
   Webhook
 } from 'lucide-react';
+import { 
+  Breadcrumb, 
+  BreadcrumbList, 
+  BreadcrumbItem, 
+  BreadcrumbLink, 
+  BreadcrumbSeparator, 
+  BreadcrumbPage 
+} from '@/components/ui/breadcrumb';
 
 const ToolsPlugins = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -159,6 +167,18 @@ const ToolsPlugins = () => {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Tools & Plugins</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold">Tools & Plugins</h1>
