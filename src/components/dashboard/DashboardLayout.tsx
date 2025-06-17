@@ -1,4 +1,3 @@
-
 import React from "react";
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
@@ -143,22 +142,14 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
                 <TooltipContent>Notifications</TooltipContent>
               </Tooltip>
 
-              <NavigationMenu>
-                <NavigationMenuList>
-                  <NavigationMenuItem>
-                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                      <div className="flex items-center space-x-2">
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src="/placeholder.svg" alt="User" />
-                          <AvatarFallback className="bg-primary text-primary-foreground">JD</AvatarFallback>
-                        </Avatar>
-                        <span className="hidden md:inline-block font-medium">John Doe</span>
-                        <ChevronDown className="h-4 w-4" />
-                      </div>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
-                </NavigationMenuList>
-              </NavigationMenu>
+              <div className="flex items-center space-x-2">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src="/placeholder.svg" alt="User" />
+                  <AvatarFallback className="bg-primary text-primary-foreground">JD</AvatarFallback>
+                </Avatar>
+                <span className="hidden md:inline-block font-medium">John Doe</span>
+                <ChevronDown className="h-4 w-4" />
+              </div>
             </div>
           </header>
           <main className="flex-1">{children}</main>
