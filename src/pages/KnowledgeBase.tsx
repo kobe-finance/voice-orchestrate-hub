@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card-modern';
-import { Button } from '@/components/ui/button-modern';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -20,7 +20,6 @@ import {
   Clock,
   Database
 } from 'lucide-react';
-import { DocumentProcessor } from '@/components/knowledge/DocumentProcessor';
 import { toast } from 'sonner';
 import { 
   Breadcrumb, 
@@ -55,6 +54,80 @@ interface Document {
   status: string;
   chunks: number;
 }
+
+// Simple DocumentProcessor component since the import was failing
+const DocumentProcessor: React.FC<{
+  jobs: ProcessingJob[];
+  onRetry: (jobId: string) => void;
+  onCancel: (jobId: string) => void;
+}> = ({ jobs, onRetry, onCancel }) => {
+  const getStatusIcon = (status: ProcessingJob['status']) => {
+    switch (status) {
+      case 'completed':
+        return <CheckCircle className="h-4 w-4 text-green-500" />;
+      case 'failed':
+        return <AlertCircle className="h-4 w-4 text-red-500" />;
+      case 'processing':
+        return <Clock className="h-4 w-4 text-blue-500" />;
+      default:
+        return <Clock className="h-4 w-4 text-gray-500" />;
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Processing Queue</CardTitle>
+        <CardDescription>Monitor document processing status</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          {jobs.length === 0 ? (
+            <p className="text-center text-muted-foreground py-8">No processing jobs</p>
+          ) : (
+            jobs.map((job) => (
+              <div key={job.id} className="border rounded-lg p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center space-x-2">
+                    {getStatusIcon(job.status)}
+                    <span className="font-medium">{job.fileName}</span>
+                  </div>
+                  <div className="flex space-x-2">
+                    {job.status === 'failed' && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => onRetry(job.id)}
+                      >
+                        Retry
+                      </Button>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onCancel(job.id)}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+                {job.status === 'processing' && (
+                  <Progress value={job.progress} className="mb-2" />
+                )}
+                {job.error && (
+                  <p className="text-sm text-red-500">{job.error}</p>
+                )}
+                <div className="text-sm text-muted-foreground">
+                  Status: {job.status} • Chunks: {job.chunks}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
 const KnowledgeBase = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -191,7 +264,7 @@ const KnowledgeBase = () => {
             </h1>
             <p className="text-muted-foreground">Manage documents and data for AI processing</p>
           </div>
-          <Button variant="gradient" asChild>
+          <Button asChild>
             <label htmlFor="upload-file">
               <Upload className="mr-2 h-4 w-4" />
               Upload Document
@@ -206,7 +279,7 @@ const KnowledgeBase = () => {
         </div>
 
         {isUploading && (
-          <Card variant="elevated">
+          <Card>
             <CardHeader>
               <CardTitle>Uploading Document</CardTitle>
               <CardDescription>Please wait while your document is being uploaded.</CardDescription>
@@ -256,7 +329,7 @@ const KnowledgeBase = () => {
               </div>
             </div>
 
-            <Card variant="elevated">
+            <Card>
               <CardHeader>
                 <CardTitle>Document List</CardTitle>
                 <CardDescription>Manage your uploaded documents</CardDescription>
