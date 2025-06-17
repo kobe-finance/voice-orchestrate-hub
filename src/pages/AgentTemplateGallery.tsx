@@ -249,193 +249,197 @@ const AgentTemplateGallery = () => {
 
   if (showConfigForm && selectedTemplate) {
     return (
-      <div className="container mx-auto py-6 max-w-4xl">
-        <div className="flex items-center mb-6">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="mr-2"
-            onClick={() => setShowConfigForm(false)}
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold">Configure Agent: {selectedTemplate.name}</h1>
-            <p className="text-muted-foreground">Customize the template to match your needs</p>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+        <div className="p-4 md:p-6 space-y-6">
+          <div className="flex items-center mb-6">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="mr-2"
+              onClick={() => setShowConfigForm(false)}
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <div>
+              <h1 className="text-2xl font-bold">Configure Agent: {selectedTemplate.name}</h1>
+              <p className="text-muted-foreground">Customize the template to match your needs</p>
+            </div>
           </div>
-        </div>
 
-        <AgentConfigForm
-          initialConfig={{
-            name: selectedTemplate.name,
-            description: selectedTemplate.description,
-            persona: selectedTemplate.persona,
-            greeting: selectedTemplate.greeting,
-            primaryPurpose: selectedTemplate.primaryPurpose
-          }}
-          onSave={handleSaveAgent}
-          onCancel={() => setShowConfigForm(false)}
-          isLoading={isCreating}
-        />
+          <AgentConfigForm
+            initialConfig={{
+              name: selectedTemplate.name,
+              description: selectedTemplate.description,
+              persona: selectedTemplate.persona,
+              greeting: selectedTemplate.greeting,
+              primaryPurpose: selectedTemplate.primaryPurpose
+            }}
+            onSave={handleSaveAgent}
+            onCancel={() => setShowConfigForm(false)}
+            isLoading={isCreating}
+          />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto py-6 max-w-6xl">
-      <div className="flex items-center mb-6">
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="mr-2"
-          onClick={() => navigate("/voice-agents")}
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold">Agent Template Gallery</h1>
-          <p className="text-muted-foreground">Choose a template to get started quickly</p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <Tabs defaultValue="industry" className="w-full">
-            <TabsList className="mb-6">
-              <TabsTrigger value="industry">Industry Specific</TabsTrigger>
-              <TabsTrigger value="vertical">Business Verticals</TabsTrigger>
-              <TabsTrigger value="persona">Personality Types</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="industry" className="space-y-4">
-              <div>
-                <h3 className="text-lg font-semibold mb-3">Industry-Specific Templates</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Ready-to-use agents for specific industries and business types
-                </p>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {industryTemplates.map((template) => (
-                  <TemplateCard key={template.id} template={template} />
-                ))}
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="vertical" className="space-y-4">
-              <div>
-                <h3 className="text-lg font-semibold mb-3">Business Vertical Templates</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Specialized agents with deep domain knowledge and workflows
-                </p>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {verticalTemplates.map((template) => (
-                  <TemplateCard key={template.id} template={template} />
-                ))}
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="persona" className="space-y-4">
-              <div>
-                <h3 className="text-lg font-semibold mb-3">Personality-Based Templates</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Different communication styles and approaches for various interactions
-                </p>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {personaTemplates.map((template) => (
-                  <TemplateCard key={template.id} template={template} />
-                ))}
-              </div>
-            </TabsContent>
-          </Tabs>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+      <div className="p-4 md:p-6 space-y-6">
+        <div className="flex items-center mb-6">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="mr-2"
+            onClick={() => navigate("/voice-agents")}
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold">Agent Template Gallery</h1>
+            <p className="text-muted-foreground">Choose a template to get started quickly</p>
+          </div>
         </div>
 
-        {/* Template Preview Panel */}
-        <div className="lg:col-span-1">
-          <Card className="sticky top-6">
-            <CardHeader>
-              <CardTitle className="text-lg">Template Preview</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {selectedTemplate ? (
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                      <selectedTemplate.icon className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold">{selectedTemplate.name}</h4>
-                      <p className="text-sm text-muted-foreground capitalize">
-                        {selectedTemplate.category} • {selectedTemplate.complexity}
-                      </p>
-                    </div>
-                  </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <Tabs defaultValue="industry" className="w-full">
+              <TabsList className="mb-6">
+                <TabsTrigger value="industry">Industry Specific</TabsTrigger>
+                <TabsTrigger value="vertical">Business Verticals</TabsTrigger>
+                <TabsTrigger value="persona">Personality Types</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="industry" className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Industry-Specific Templates</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Ready-to-use agents for specific industries and business types
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {industryTemplates.map((template) => (
+                    <TemplateCard key={template.id} template={template} />
+                  ))}
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="vertical" className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Business Vertical Templates</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Specialized agents with deep domain knowledge and workflows
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {verticalTemplates.map((template) => (
+                    <TemplateCard key={template.id} template={template} />
+                  ))}
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="persona" className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Personality-Based Templates</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Different communication styles and approaches for various interactions
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {personaTemplates.map((template) => (
+                    <TemplateCard key={template.id} template={template} />
+                  ))}
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
 
-                  <div className="space-y-3">
-                    <div>
-                      <p className="text-sm font-medium mb-1">Sample Greeting:</p>
-                      <p className="text-sm bg-muted p-3 rounded-md italic">
-                        "{selectedTemplate.greeting}"
-                      </p>
-                    </div>
-
-                    <div>
-                      <p className="text-sm font-medium mb-1">Primary Function:</p>
-                      <Badge variant="outline">
-                        {selectedTemplate.primaryPurpose.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                      </Badge>
-                    </div>
-
-                    <div>
-                      <p className="text-sm font-medium mb-1">Key Features:</p>
-                      <div className="flex flex-wrap gap-1">
-                        {selectedTemplate.features.map((feature, index) => (
-                          <Badge key={index} variant="secondary" className="text-xs">
-                            {feature}
-                          </Badge>
-                        ))}
+          {/* Template Preview Panel */}
+          <div className="lg:col-span-1">
+            <Card className="sticky top-6">
+              <CardHeader>
+                <CardTitle className="text-lg">Template Preview</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {selectedTemplate ? (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-primary/10 rounded-lg">
+                        <selectedTemplate.icon className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold">{selectedTemplate.name}</h4>
+                        <p className="text-sm text-muted-foreground capitalize">
+                          {selectedTemplate.category} • {selectedTemplate.complexity}
+                        </p>
                       </div>
                     </div>
 
-                    <div>
-                      <p className="text-sm font-medium mb-1">Best For:</p>
-                      <ul className="text-xs text-muted-foreground">
-                        {selectedTemplate.useCases.map((useCase, index) => (
-                          <li key={index}>• {useCase}</li>
-                        ))}
-                      </ul>
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-sm font-medium mb-1">Sample Greeting:</p>
+                        <p className="text-sm bg-muted p-3 rounded-md italic">
+                          "{selectedTemplate.greeting}"
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="text-sm font-medium mb-1">Primary Function:</p>
+                        <Badge variant="outline">
+                          {selectedTemplate.primaryPurpose.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                        </Badge>
+                      </div>
+
+                      <div>
+                        <p className="text-sm font-medium mb-1">Key Features:</p>
+                        <div className="flex flex-wrap gap-1">
+                          {selectedTemplate.features.map((feature, index) => (
+                            <Badge key={index} variant="secondary" className="text-xs">
+                              {feature}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className="text-sm font-medium mb-1">Best For:</p>
+                        <ul className="text-xs text-muted-foreground">
+                          {selectedTemplate.useCases.map((useCase, index) => (
+                            <li key={index}>• {useCase}</li>
+                          ))}
+                        </ul>
+                      </div>
                     </div>
+
+                    <Button 
+                      onClick={handleUseTemplate}
+                      className="w-full mt-4"
+                    >
+                      <Mic className="mr-2 h-4 w-4" />
+                      Use This Template
+                    </Button>
                   </div>
-
-                  <Button 
-                    onClick={handleUseTemplate}
-                    className="w-full mt-4"
-                  >
-                    <Mic className="mr-2 h-4 w-4" />
-                    Use This Template
-                  </Button>
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <Mic className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
-                  <p className="text-sm text-muted-foreground">
-                    Select a template to see the preview and configuration details
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                ) : (
+                  <div className="text-center py-8">
+                    <Mic className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
+                    <p className="text-sm text-muted-foreground">
+                      Select a template to see the preview and configuration details
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </div>
-      </div>
 
-      <div className="mt-8 text-center">
-        <Button 
-          variant="outline" 
-          onClick={() => navigate("/create-voice-agent")}
-        >
-          Start from Scratch Instead
-        </Button>
+        <div className="mt-8 text-center">
+          <Button 
+            variant="outline" 
+            onClick={() => navigate("/create-voice-agent")}
+          >
+            Start from Scratch Instead
+          </Button>
+        </div>
       </div>
     </div>
   );
