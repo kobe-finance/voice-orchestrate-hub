@@ -15,14 +15,25 @@ import {
   BreadcrumbPage 
 } from '@/components/ui/breadcrumb';
 
+interface CRMSystem {
+  id: string;
+  name: string;
+  connected: boolean;
+  logo: string;
+  status: 'connected' | 'disconnected' | 'error' | 'syncing';
+  lastSync?: string;
+  apiKey?: string;
+  webhookUrl?: string;
+}
+
 const CRMIntegration = () => {
-  const [integrations, setIntegrations] = useState([
+  const [integrations, setIntegrations] = useState<CRMSystem[]>([
     { 
       id: '1', 
       name: 'Salesforce', 
       connected: false, 
       logo: '☁️',
-      status: 'disconnected' as const,
+      status: 'disconnected',
       lastSync: undefined
     },
     { 
@@ -30,7 +41,7 @@ const CRMIntegration = () => {
       name: 'HubSpot', 
       connected: false, 
       logo: '🧡',
-      status: 'disconnected' as const,
+      status: 'disconnected',
       lastSync: undefined
     },
     { 
@@ -38,7 +49,7 @@ const CRMIntegration = () => {
       name: 'Pipedrive', 
       connected: true, 
       logo: '📊',
-      status: 'connected' as const,
+      status: 'connected',
       lastSync: '2 hours ago'
     },
     { 
@@ -46,7 +57,7 @@ const CRMIntegration = () => {
       name: 'Zoho CRM', 
       connected: false, 
       logo: '🔧',
-      status: 'disconnected' as const,
+      status: 'disconnected',
       lastSync: undefined
     },
   ]);

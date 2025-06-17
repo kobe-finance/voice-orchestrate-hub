@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Mic, ArrowRight, CheckCircle, Sparkles, Zap, Shield } from "lucide-react";
