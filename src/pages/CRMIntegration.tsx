@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card-modern';
+import { Button } from '@/components/ui/button-modern';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Building2, Database, Settings, Activity } from 'lucide-react';
 import { CRMConnector } from '@/components/crm/CRMConnector';
@@ -20,7 +20,7 @@ interface CRMSystem {
   name: string;
   connected: boolean;
   logo: string;
-  status: 'connected' | 'disconnected' | 'error' | 'syncing';
+  status: string;
   lastSync?: string;
   apiKey?: string;
   webhookUrl?: string;
@@ -76,7 +76,7 @@ const CRMIntegration = () => {
     setIntegrations(prev => 
       prev.map(system => 
         system.id === systemId 
-          ? { ...system, connected: true, status: 'connected' as const, lastSync: 'Just now' }
+          ? { ...system, connected: true, status: 'connected', lastSync: 'Just now' }
           : system
       )
     );
@@ -86,7 +86,7 @@ const CRMIntegration = () => {
     setIntegrations(prev => 
       prev.map(system => 
         system.id === systemId 
-          ? { ...system, connected: false, status: 'disconnected' as const, lastSync: undefined }
+          ? { ...system, connected: false, status: 'disconnected', lastSync: undefined }
           : system
       )
     );
@@ -97,7 +97,7 @@ const CRMIntegration = () => {
     setIntegrations(prev => 
       prev.map(system => 
         system.id === systemId 
-          ? { ...system, status: 'syncing' as const }
+          ? { ...system, status: 'syncing' }
           : system
       )
     );
@@ -107,7 +107,7 @@ const CRMIntegration = () => {
       setIntegrations(prev => 
         prev.map(system => 
           system.id === systemId 
-            ? { ...system, status: 'connected' as const, lastSync: 'Just now' }
+            ? { ...system, status: 'connected', lastSync: 'Just now' }
             : system
         )
       );
@@ -115,149 +115,152 @@ const CRMIntegration = () => {
   };
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>CRM Integration</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+      <div className="p-4 md:p-6 space-y-6">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>CRM Integration</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
 
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold">CRM Integration</h1>
-          <p className="text-muted-foreground">Connect your customer relationship management systems</p>
-        </div>
-        <Button>
-          <Building2 className="mr-2 h-4 w-4" />
-          Add Integration
-        </Button>
-      </div>
-
-      <Tabs defaultValue="integrations" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="integrations">CRM Systems</TabsTrigger>
-          <TabsTrigger value="sync">Data Sync</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          <TabsTrigger value="settings">Settings</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="integrations" className="space-y-4">
-          <CRMConnector 
-            systems={integrations}
-            onConnect={handleConnect}
-            onDisconnect={handleDisconnect}
-            onSync={handleSync}
-          />
-        </TabsContent>
-
-        <TabsContent value="sync" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Contacts</CardTitle>
-                <Database className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{syncStats.totalContacts}</div>
-                <p className="text-xs text-muted-foreground">
-                  +12% from last month
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Active Deals</CardTitle>
-                <Activity className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{syncStats.totalDeals}</div>
-                <p className="text-xs text-muted-foreground">
-                  +5 new this week
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Recent Activity</CardTitle>
-                <Activity className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{syncStats.recentActivity}</div>
-                <p className="text-xs text-muted-foreground">
-                  In the last 24 hours
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Last Sync</CardTitle>
-                <Settings className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-sm font-bold">2 hours ago</div>
-                <p className="text-xs text-muted-foreground">
-                  Auto-sync enabled
-                </p>
-              </CardContent>
-            </Card>
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 dark:from-gray-100 dark:via-gray-200 dark:to-gray-100 bg-clip-text text-transparent">
+              CRM Integration
+            </h1>
+            <p className="text-muted-foreground">Connect your customer relationship management systems</p>
           </div>
+          <Button variant="gradient" leftIcon={<Building2 className="h-4 w-4" />}>
+            Add Integration
+          </Button>
+        </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Sync History</CardTitle>
-              <CardDescription>Recent synchronization activities</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 border rounded">
-                  <div>
-                    <p className="font-medium">Pipedrive Sync</p>
-                    <p className="text-sm text-muted-foreground">15 contacts updated, 3 new deals</p>
+        <Tabs defaultValue="integrations" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="integrations">CRM Systems</TabsTrigger>
+            <TabsTrigger value="sync">Data Sync</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="settings">Settings</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="integrations" className="space-y-4">
+            <CRMConnector 
+              systems={integrations}
+              onConnect={handleConnect}
+              onDisconnect={handleDisconnect}
+              onSync={handleSync}
+            />
+          </TabsContent>
+
+          <TabsContent value="sync" className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Card variant="elevated">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Contacts</CardTitle>
+                  <Database className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{syncStats.totalContacts}</div>
+                  <p className="text-xs text-muted-foreground">
+                    +12% from last month
+                  </p>
+                </CardContent>
+              </Card>
+              <Card variant="elevated">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Active Deals</CardTitle>
+                  <Activity className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{syncStats.totalDeals}</div>
+                  <p className="text-xs text-muted-foreground">
+                    +5 new this week
+                  </p>
+                </CardContent>
+              </Card>
+              <Card variant="elevated">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Recent Activity</CardTitle>
+                  <Activity className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{syncStats.recentActivity}</div>
+                  <p className="text-xs text-muted-foreground">
+                    In the last 24 hours
+                  </p>
+                </CardContent>
+              </Card>
+              <Card variant="elevated">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Last Sync</CardTitle>
+                  <Settings className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-sm font-bold">2 hours ago</div>
+                  <p className="text-xs text-muted-foreground">
+                    Auto-sync enabled
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card variant="elevated">
+              <CardHeader>
+                <CardTitle>Sync History</CardTitle>
+                <CardDescription>Recent synchronization activities</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 border rounded">
+                    <div>
+                      <p className="font-medium">Pipedrive Sync</p>
+                      <p className="text-sm text-muted-foreground">15 contacts updated, 3 new deals</p>
+                    </div>
+                    <div className="text-sm text-muted-foreground">2 hours ago</div>
                   </div>
-                  <div className="text-sm text-muted-foreground">2 hours ago</div>
-                </div>
-                <div className="flex items-center justify-between p-3 border rounded">
-                  <div>
-                    <p className="font-medium">HubSpot Sync</p>
-                    <p className="text-sm text-muted-foreground">42 contacts updated, 1 new company</p>
+                  <div className="flex items-center justify-between p-3 border rounded">
+                    <div>
+                      <p className="font-medium">HubSpot Sync</p>
+                      <p className="text-sm text-muted-foreground">42 contacts updated, 1 new company</p>
+                    </div>
+                    <div className="text-sm text-muted-foreground">1 day ago</div>
                   </div>
-                  <div className="text-sm text-muted-foreground">1 day ago</div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        <TabsContent value="analytics" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>CRM Analytics</CardTitle>
-              <CardDescription>Insights from your connected CRM systems</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">CRM analytics dashboard coming soon...</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
+          <TabsContent value="analytics" className="space-y-4">
+            <Card variant="elevated">
+              <CardHeader>
+                <CardTitle>CRM Analytics</CardTitle>
+                <CardDescription>Insights from your connected CRM systems</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">CRM analytics dashboard coming soon...</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        <TabsContent value="settings" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Integration Settings</CardTitle>
-              <CardDescription>Configure sync frequency and data mapping</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">Integration settings will be available here.</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="settings" className="space-y-4">
+            <Card variant="elevated">
+              <CardHeader>
+                <CardTitle>Integration Settings</CardTitle>
+                <CardDescription>Configure sync frequency and data mapping</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">Integration settings will be available here.</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 };

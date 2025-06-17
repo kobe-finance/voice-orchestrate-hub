@@ -1,6 +1,7 @@
+
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card-modern';
+import { Button } from '@/components/ui/button-modern';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -39,7 +40,7 @@ import {
 interface ProcessingJob {
   id: string;
   fileName: string;
-  status: 'pending' | 'processing' | 'completed' | 'failed';
+  status: string;
   progress: number;
   chunks: number;
   error?: string;
@@ -51,7 +52,7 @@ interface Document {
   type: string;
   size: string;
   uploadedAt: string;
-  status: 'processing' | 'ready' | 'error';
+  status: string;
   chunks: number;
 }
 
@@ -169,145 +170,149 @@ const KnowledgeBase = () => {
   };
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Knowledge Base</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+      <div className="p-4 md:p-6 space-y-6">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Knowledge Base</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
 
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold">Knowledge Base</h1>
-          <p className="text-muted-foreground">Manage documents and data for AI processing</p>
-        </div>
-        <Button asChild>
-          <label htmlFor="upload-file">
-            <Upload className="mr-2 h-4 w-4" />
-            Upload Document
-            <input
-              type="file"
-              id="upload-file"
-              className="hidden"
-              onChange={handleFileUpload}
-            />
-          </label>
-        </Button>
-      </div>
-
-      {isUploading && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Uploading Document</CardTitle>
-            <CardDescription>Please wait while your document is being uploaded.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Progress value={uploadProgress} />
-            <p className="text-sm text-muted-foreground mt-2">{uploadProgress}%</p>
-          </CardContent>
-        </Card>
-      )}
-
-      <Tabs defaultValue="documents" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="documents">Documents</TabsTrigger>
-          <TabsTrigger value="processing">Processing Queue</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="documents" className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Input
-                type="search"
-                placeholder="Search documents..."
-                className="max-w-md"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="ml-2">
-                    <Filter className="mr-2 h-4 w-4" />
-                    Category
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => setSelectedCategory('all')}>
-                    All
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSelectedCategory('pdf')}>
-                    PDF
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSelectedCategory('docx')}>
-                    DOCX
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 dark:from-gray-100 dark:via-gray-200 dark:to-gray-100 bg-clip-text text-transparent">
+              Knowledge Base
+            </h1>
+            <p className="text-muted-foreground">Manage documents and data for AI processing</p>
           </div>
+          <Button variant="gradient" asChild>
+            <label htmlFor="upload-file">
+              <Upload className="mr-2 h-4 w-4" />
+              Upload Document
+              <input
+                type="file"
+                id="upload-file"
+                className="hidden"
+                onChange={handleFileUpload}
+              />
+            </label>
+          </Button>
+        </div>
 
-          <Card>
+        {isUploading && (
+          <Card variant="elevated">
             <CardHeader>
-              <CardTitle>Document List</CardTitle>
-              <CardDescription>Manage your uploaded documents</CardDescription>
+              <CardTitle>Uploading Document</CardTitle>
+              <CardDescription>Please wait while your document is being uploaded.</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-4">
-                {filteredDocuments.map((doc) => (
-                  <div key={doc.id} className="border rounded-lg p-4 flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <FileText className="h-5 w-5 text-gray-500" />
-                      <div>
-                        <h4 className="font-medium">{doc.name}</h4>
-                        <p className="text-sm text-gray-500">{doc.type} - {doc.size}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Badge variant="secondary">{doc.status}</Badge>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
-                            <Eye className="mr-2 h-4 w-4" />
-                            View
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Download className="mr-2 h-4 w-4" />
-                            Download
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <Progress value={uploadProgress} />
+              <p className="text-sm text-muted-foreground mt-2">{uploadProgress}%</p>
             </CardContent>
           </Card>
-        </TabsContent>
+        )}
 
-        <TabsContent value="processing" className="space-y-4">
-          <DocumentProcessor 
-            jobs={processingJobs}
-            onRetry={handleRetryJob}
-            onCancel={handleCancelJob}
-          />
-        </TabsContent>
-      </Tabs>
+        <Tabs defaultValue="documents" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="documents">Documents</TabsTrigger>
+            <TabsTrigger value="processing">Processing Queue</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="documents" className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <Input
+                  type="search"
+                  placeholder="Search documents..."
+                  className="max-w-md"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="ml-2">
+                      <Filter className="mr-2 h-4 w-4" />
+                      Category
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => setSelectedCategory('all')}>
+                      All
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSelectedCategory('pdf')}>
+                      PDF
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSelectedCategory('docx')}>
+                      DOCX
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+
+            <Card variant="elevated">
+              <CardHeader>
+                <CardTitle>Document List</CardTitle>
+                <CardDescription>Manage your uploaded documents</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-4">
+                  {filteredDocuments.map((doc) => (
+                    <div key={doc.id} className="border rounded-lg p-4 flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <FileText className="h-5 w-5 text-gray-500" />
+                        <div>
+                          <h4 className="font-medium">{doc.name}</h4>
+                          <p className="text-sm text-gray-500">{doc.type} - {doc.size}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Badge variant="secondary">{doc.status}</Badge>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <span className="sr-only">Open menu</span>
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem>
+                              <Eye className="mr-2 h-4 w-4" />
+                              View
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <Download className="mr-2 h-4 w-4" />
+                              Download
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="processing" className="space-y-4">
+            <DocumentProcessor 
+              jobs={processingJobs}
+              onRetry={handleRetryJob}
+              onCancel={handleCancelJob}
+            />
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 };
