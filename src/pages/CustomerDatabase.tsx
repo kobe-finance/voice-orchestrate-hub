@@ -1,9 +1,11 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Search, Filter, Download, Upload, Users, Phone, Mail } from 'lucide-react';
 import { 
@@ -104,7 +106,7 @@ const CustomerDatabase = () => {
             />
             <div className="flex items-center space-x-2">
               <Label htmlFor="status-filter">Filter by Status:</Label>
-              <Select value={filterStatus} onValueChange={value => setFilterStatus(value)}>
+              <Select value={filterStatus} onValueChange={setFilterStatus}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="All" />
                 </SelectTrigger>

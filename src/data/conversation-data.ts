@@ -1,4 +1,3 @@
-
 import { Conversation } from "@/types/conversation";
 
 // Mock data for the Conversation Explorer
@@ -160,6 +159,9 @@ export const mockConversations: Conversation[] = [
     audioUrl: "/sample-voice.mp3"
   },
 ];
+
+// Export for backward compatibility
+export const conversationData = mockConversations;
 
 // Available tags for filtering
 export const availableTags = [

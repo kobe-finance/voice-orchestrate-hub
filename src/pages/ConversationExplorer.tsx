@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,7 +9,7 @@ import { ConversationList } from '@/components/conversations/ConversationList';
 import { ConversationTranscript } from '@/components/conversations/ConversationTranscript';
 import { ConversationSearchFilters } from '@/components/conversations/ConversationSearchFilters';
 import { TagsPanel } from '@/components/conversations/TagsPanel';
-import { conversationData } from '@/data/conversation-data';
+import { mockConversations } from '@/data/conversation-data';
 import type { Conversation } from '@/types/conversation';
 import { 
   Breadcrumb, 
@@ -20,7 +21,7 @@ import {
 } from '@/components/ui/breadcrumb';
 
 const ConversationExplorer = () => {
-  const [conversations, setConversations] = useState<Conversation[]>(conversationData);
+  const [conversations, setConversations] = useState<Conversation[]>(mockConversations);
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -29,7 +30,7 @@ const ConversationExplorer = () => {
     // Simulate fetching conversations from an API
     // In a real application, you would fetch data from an API endpoint
     // and update the conversations state with the fetched data.
-    // For now, we're using the mock conversationData.
+    // For now, we're using the mock mockConversations.
   }, []);
 
   const handleSearch = (term: string) => {
@@ -44,6 +45,26 @@ const ConversationExplorer = () => {
 
   const toggleFilter = () => {
     setIsFilterOpen(!isFilterOpen);
+  };
+
+  const handleAddTag = (conversationId: string, tag: string) => {
+    setConversations(prev => 
+      prev.map(conv => 
+        conv.id === conversationId 
+          ? { ...conv, tags: [...conv.tags, tag] }
+          : conv
+      )
+    );
+  };
+
+  const handleRemoveTag = (conversationId: string, tag: string) => {
+    setConversations(prev => 
+      prev.map(conv => 
+        conv.id === conversationId 
+          ? { ...conv, tags: conv.tags.filter(t => t !== tag) }
+          : conv
+      )
+    );
   };
 
   return (
@@ -91,7 +112,8 @@ const ConversationExplorer = () => {
           </div>
           <ConversationList
             conversations={conversations}
-            onSelect={handleSelectConversation}
+            selectedConversationId={selectedConversation?.id}
+            onSelectConversation={handleSelectConversation}
           />
         </div>
 
@@ -106,7 +128,18 @@ const ConversationExplorer = () => {
         </div>
 
         <div className="w-64 border-l p-4">
-          <TagsPanel />
+          {selectedConversation ? (
+            <TagsPanel 
+              conversationId={selectedConversation.id}
+              currentTags={selectedConversation.tags}
+              onAddTag={handleAddTag}
+              onRemoveTag={handleRemoveTag}
+            />
+          ) : (
+            <div className="text-center text-gray-500 mt-10">
+              Select a conversation to manage tags.
+            </div>
+          )}
         </div>
       </div>
     </div>
