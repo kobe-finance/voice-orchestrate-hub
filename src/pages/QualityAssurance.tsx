@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -47,29 +46,30 @@ const QualityAssurance = () => {
   };
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Quality Assurance</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+      <div className="p-4 md:p-6 space-y-6">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Quality Assurance</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
 
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold">Quality Assurance</h1>
-          <p className="text-muted-foreground">Monitor and improve call quality and agent performance</p>
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold">Quality Assurance</h1>
+            <p className="text-muted-foreground">Monitor and improve call quality and agent performance</p>
+          </div>
+          <Button>
+            <Settings className="mr-2 h-4 w-4" />
+            Configure QA Rules
+          </Button>
         </div>
-        <Button>
-          <Settings className="mr-2 h-4 w-4" />
-          Configure QA Rules
-        </Button>
-      </div>
 
       {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -332,6 +332,7 @@ const QualityAssurance = () => {
         </TabsContent>
       </Tabs>
     </div>
+  </div>
   );
 };
 
