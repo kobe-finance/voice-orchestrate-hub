@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card-modern';
+import { Button } from '@/components/ui/button-modern';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search, Filter, Download, Play, Pause, MoreHorizontal } from 'lucide-react';
@@ -68,7 +68,7 @@ const ConversationExplorer = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
       <div className="p-4 border-b bg-white">
         <Breadcrumb>
           <BreadcrumbList>
@@ -84,16 +84,16 @@ const ConversationExplorer = () => {
 
         <div className="flex items-center justify-between mt-4">
           <div>
-            <h1 className="text-2xl font-bold">Conversation Explorer</h1>
-            <p className="text-gray-600">Search, filter, and analyze voice conversations</p>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 dark:from-gray-100 dark:via-gray-200 dark:to-gray-100 bg-clip-text text-transparent">
+              Conversation Explorer
+            </h1>
+            <p className="text-muted-foreground">Search, filter, and analyze voice conversations</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm">
-              <Download className="h-4 w-4 mr-2" />
+            <Button variant="outline" size="sm" leftIcon={<Download className="h-4 w-4" />}>
               Export
             </Button>
-            <Button variant="outline" size="sm">
-              <Filter className="h-4 w-4 mr-2" />
+            <Button variant="outline" size="sm" leftIcon={<Filter className="h-4 w-4" />}>
               Advanced Filters
             </Button>
           </div>

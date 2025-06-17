@@ -1,6 +1,7 @@
+
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card-modern';
+import { Button } from '@/components/ui/button-modern';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Clock, User, Phone } from 'lucide-react';
 import { 
@@ -48,113 +49,116 @@ const AppointmentScheduling = () => {
   };
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Appointment Scheduling</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+      <div className="p-4 md:p-6 space-y-6">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Appointment Scheduling</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
 
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold">Appointment Scheduling</h1>
-          <p className="text-muted-foreground">Manage customer appointments and bookings</p>
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 dark:from-gray-100 dark:via-gray-200 dark:to-gray-100 bg-clip-text text-transparent">
+              Appointment Scheduling
+            </h1>
+            <p className="text-muted-foreground">Manage customer appointments and bookings</p>
+          </div>
+          <Button variant="gradient" leftIcon={<Calendar className="h-4 w-4" />}>
+            Schedule Appointment
+          </Button>
         </div>
-        <Button>
-          <Calendar className="mr-2 h-4 w-4" />
-          Schedule Appointment
-        </Button>
-      </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Today's Appointments</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">8</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Confirmed</CardTitle>
-            <User className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">6</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">2</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">This Week</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">24</div>
-          </CardContent>
-        </Card>
-      </div>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card variant="elevated">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Today's Appointments</CardTitle>
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">8</div>
+            </CardContent>
+          </Card>
+          <Card variant="elevated">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Confirmed</CardTitle>
+              <User className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">6</div>
+            </CardContent>
+          </Card>
+          <Card variant="elevated">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Pending</CardTitle>
+              <Clock className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">2</div>
+            </CardContent>
+          </Card>
+          <Card variant="elevated">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">This Week</CardTitle>
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">24</div>
+            </CardContent>
+          </Card>
+        </div>
 
-      {/* Appointments List */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Upcoming Appointments</CardTitle>
-          <CardDescription>Manage scheduled appointments</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {appointments.map((appointment) => (
-              <div key={appointment.id} className="border rounded-lg p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                      <User className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold">{appointment.customerName}</h3>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Phone className="h-3 w-3" />
-                        {appointment.phone}
+        {/* Appointments List */}
+        <Card variant="elevated">
+          <CardHeader>
+            <CardTitle>Upcoming Appointments</CardTitle>
+            <CardDescription>Manage scheduled appointments</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {appointments.map((appointment) => (
+                <div key={appointment.id} className="border rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                        <User className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold">{appointment.customerName}</h3>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Phone className="h-3 w-3" />
+                          {appointment.phone}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Calendar className="h-4 w-4" />
-                      <span className="text-sm">{appointment.date}</span>
+                    <div className="text-right">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Calendar className="h-4 w-4" />
+                        <span className="text-sm">{appointment.date}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4" />
+                        <span className="text-sm">{appointment.time}</span>
+                      </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4" />
-                      <span className="text-sm">{appointment.time}</span>
+                      {getStatusBadge(appointment.status)}
+                      <Badge variant="outline">{appointment.type}</Badge>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {getStatusBadge(appointment.status)}
-                    <Badge variant="outline">{appointment.type}</Badge>
-                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
