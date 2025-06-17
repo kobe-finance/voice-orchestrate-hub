@@ -5,18 +5,57 @@ import { Mic, ArrowRight, CheckCircle, Sparkles, Zap, Shield } from "lucide-reac
 import { Button } from "@/components/ui/button-modern";
 import { Card } from "@/components/ui/card-modern";
 import { VoiceModal } from "@/components/voice/VoiceModal";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
+
+// Lazy load NavigationMenu to avoid React initialization issues
+const NavigationMenu = React.lazy(() => 
+  import("@/components/ui/navigation-menu").then(module => ({
+    default: module.NavigationMenu
+  }))
+);
+
+const NavigationMenuContent = React.lazy(() => 
+  import("@/components/ui/navigation-menu").then(module => ({
+    default: module.NavigationMenuContent
+  }))
+);
+
+const NavigationMenuItem = React.lazy(() => 
+  import("@/components/ui/navigation-menu").then(module => ({
+    default: module.NavigationMenuItem
+  }))
+);
+
+const NavigationMenuLink = React.lazy(() => 
+  import("@/components/ui/navigation-menu").then(module => ({
+    default: module.NavigationMenuLink
+  }))
+);
+
+const NavigationMenuList = React.lazy(() => 
+  import("@/components/ui/navigation-menu").then(module => ({
+    default: module.NavigationMenuList
+  }))
+);
+
+const NavigationMenuTrigger = React.lazy(() => 
+  import("@/components/ui/navigation-menu").then(module => ({
+    default: module.NavigationMenuTrigger
+  }))
+);
 
 const Index = () => {
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
+  const [isReactReady, setIsReactReady] = useState(false);
+
+  useEffect(() => {
+    // Ensure React is fully initialized before rendering complex components
+    const timer = setTimeout(() => {
+      setIsReactReady(true);
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleOpenVoiceModal = () => {
     setIsVoiceModalOpen(true);
@@ -32,57 +71,61 @@ const Index = () => {
               VoiceOrchestrate<span className="text-gradient-accent">™</span>
             </Link>
             
-            <NavigationMenu className="hidden md:flex">
-              <NavigationMenuList>
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger className="text-sm font-medium">Features</NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <div className="grid w-[500px] gap-3 p-6">
-                      <div className="grid grid-cols-2 gap-4">
-                        <ListItem href="/voice-agents" title="Voice Agents" icon={<Mic className="h-4 w-4" />}>
-                          Create and manage AI agents with natural voices
-                        </ListItem>
-                        <ListItem href="/conversation-flow" title="Flow Builder" icon={<Sparkles className="h-4 w-4" />}>
-                          Design complex conversation flows visually
-                        </ListItem>
-                        <ListItem href="/knowledge-base" title="Knowledge Base" icon={<Shield className="h-4 w-4" />}>
-                          Manage knowledge base for your AI agents
-                        </ListItem>
-                        <ListItem href="/analytics" title="Analytics" icon={<Zap className="h-4 w-4" />}>
-                          Track and measure conversation metrics
-                        </ListItem>
-                      </div>
-                    </div>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger className="text-sm font-medium">Solutions</NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <div className="grid w-[500px] gap-3 p-6">
-                      <div className="grid grid-cols-2 gap-4">
-                        <ListItem title="Customer Support">
-                          Voice AI for 24/7 customer service
-                        </ListItem>
-                        <ListItem title="Sales & Marketing">
-                          Engage customers with intelligent conversations
-                        </ListItem>
-                        <ListItem title="Healthcare">
-                          Patient intake and follow-up automation
-                        </ListItem>
-                        <ListItem title="Education">
-                          Interactive learning assistants
-                        </ListItem>
-                      </div>
-                    </div>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <Link to="/pricing" className={navigationMenuTriggerStyle()}>
-                    Pricing
-                  </Link>
-                </NavigationMenuItem>
-              </NavigationMenuList>
-            </NavigationMenu>
+            {isReactReady && (
+              <React.Suspense fallback={<div className="w-32 h-8 bg-gray-200 animate-pulse rounded"></div>}>
+                <NavigationMenu className="hidden md:flex">
+                  <NavigationMenuList>
+                    <NavigationMenuItem>
+                      <NavigationMenuTrigger className="text-sm font-medium">Features</NavigationMenuTrigger>
+                      <NavigationMenuContent>
+                        <div className="grid w-[500px] gap-3 p-6">
+                          <div className="grid grid-cols-2 gap-4">
+                            <ListItem href="/voice-agents" title="Voice Agents" icon={<Mic className="h-4 w-4" />}>
+                              Create and manage AI agents with natural voices
+                            </ListItem>
+                            <ListItem href="/conversation-flow" title="Flow Builder" icon={<Sparkles className="h-4 w-4" />}>
+                              Design complex conversation flows visually
+                            </ListItem>
+                            <ListItem href="/knowledge-base" title="Knowledge Base" icon={<Shield className="h-4 w-4" />}>
+                              Manage knowledge base for your AI agents
+                            </ListItem>
+                            <ListItem href="/analytics" title="Analytics" icon={<Zap className="h-4 w-4" />}>
+                              Track and measure conversation metrics
+                            </ListItem>
+                          </div>
+                        </div>
+                      </NavigationMenuContent>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                      <NavigationMenuTrigger className="text-sm font-medium">Solutions</NavigationMenuTrigger>
+                      <NavigationMenuContent>
+                        <div className="grid w-[500px] gap-3 p-6">
+                          <div className="grid grid-cols-2 gap-4">
+                            <ListItem title="Customer Support">
+                              Voice AI for 24/7 customer service
+                            </ListItem>
+                            <ListItem title="Sales & Marketing">
+                              Engage customers with intelligent conversations
+                            </ListItem>
+                            <ListItem title="Healthcare">
+                              Patient intake and follow-up automation
+                            </ListItem>
+                            <ListItem title="Education">
+                              Interactive learning assistants
+                            </ListItem>
+                          </div>
+                        </div>
+                      </NavigationMenuContent>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                      <Link to="/pricing" className={navigationMenuTriggerStyle()}>
+                        Pricing
+                      </Link>
+                    </NavigationMenuItem>
+                  </NavigationMenuList>
+                </NavigationMenu>
+              </React.Suspense>
+            )}
           </div>
 
           <div className="flex items-center gap-3">
