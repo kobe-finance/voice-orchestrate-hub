@@ -40,7 +40,7 @@ import {
 interface ProcessingJob {
   id: string;
   fileName: string;
-  status: string;
+  status: 'pending' | 'processing' | 'completed' | 'failed';
   progress: number;
   chunks: number;
   error?: string;
@@ -145,7 +145,7 @@ const KnowledgeBase = () => {
     setProcessingJobs(prev => 
       prev.map(job => 
         job.id === jobId 
-          ? { ...job, status: 'pending', progress: 0, error: undefined }
+          ? { ...job, status: 'pending' as const, progress: 0, error: undefined }
           : job
       )
     );
@@ -155,7 +155,7 @@ const KnowledgeBase = () => {
       setProcessingJobs(prev => 
         prev.map(job => 
           job.id === jobId 
-            ? { ...job, status: 'processing', progress: 10 }
+            ? { ...job, status: 'processing' as const, progress: 10 }
             : job
         )
       );

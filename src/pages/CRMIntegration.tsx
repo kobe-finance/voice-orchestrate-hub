@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card-modern';
 import { Button } from '@/components/ui/button-modern';
@@ -20,7 +19,7 @@ interface CRMSystem {
   name: string;
   connected: boolean;
   logo: string;
-  status: string;
+  status: 'connected' | 'disconnected' | 'error' | 'syncing';
   lastSync?: string;
   apiKey?: string;
   webhookUrl?: string;
@@ -76,7 +75,7 @@ const CRMIntegration = () => {
     setIntegrations(prev => 
       prev.map(system => 
         system.id === systemId 
-          ? { ...system, connected: true, status: 'connected', lastSync: 'Just now' }
+          ? { ...system, connected: true, status: 'connected' as const, lastSync: 'Just now' }
           : system
       )
     );
@@ -86,7 +85,7 @@ const CRMIntegration = () => {
     setIntegrations(prev => 
       prev.map(system => 
         system.id === systemId 
-          ? { ...system, connected: false, status: 'disconnected', lastSync: undefined }
+          ? { ...system, connected: false, status: 'disconnected' as const, lastSync: undefined }
           : system
       )
     );
@@ -97,7 +96,7 @@ const CRMIntegration = () => {
     setIntegrations(prev => 
       prev.map(system => 
         system.id === systemId 
-          ? { ...system, status: 'syncing' }
+          ? { ...system, status: 'syncing' as const }
           : system
       )
     );
@@ -107,7 +106,7 @@ const CRMIntegration = () => {
       setIntegrations(prev => 
         prev.map(system => 
           system.id === systemId 
-            ? { ...system, status: 'connected', lastSync: 'Just now' }
+            ? { ...system, status: 'connected' as const, lastSync: 'Just now' }
             : system
         )
       );
