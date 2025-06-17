@@ -1,81 +1,174 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Truck, MapPin, Clock, Wrench, Calendar, User, CheckCircle, AlertCircle } from 'lucide-react';
+import { Wrench, MapPin, Calendar, Users, Settings, CheckCircle, Clock, AlertTriangle } from 'lucide-react';
+import { 
+  Breadcrumb, 
+  BreadcrumbList, 
+  BreadcrumbItem, 
+  BreadcrumbLink, 
+  BreadcrumbSeparator, 
+  BreadcrumbPage 
+} from '@/components/ui/breadcrumb';
+
+interface Technician {
+  id: string;
+  name: string;
+  status: 'available' | 'busy' | 'offline';
+  skills: string[];
+  location: string;
+}
+
+interface ServiceRequest {
+  id: string;
+  customer: string;
+  type: string;
+  status: 'pending' | 'assigned' | 'in-progress' | 'completed';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  scheduledDate: string;
+  address: string;
+  technician?: string;
+}
 
 const FieldServiceIntegration = () => {
-  const [serviceTickets, setServiceTickets] = useState([
-    { id: 'FST-001', customer: 'ABC Manufacturing', technician: 'John Smith', status: 'scheduled', priority: 'high', location: 'Downtown Factory', scheduledTime: '2025-05-25 10:00 AM' },
-    { id: 'FST-002', customer: 'Tech Solutions Inc', technician: 'Sarah Wilson', status: 'in-progress', priority: 'medium', location: 'Office Complex', scheduledTime: '2025-05-25 2:00 PM' },
-    { id: 'FST-003', customer: 'Global Industries', technician: 'Mike Johnson', status: 'completed', priority: 'low', location: 'Warehouse District', scheduledTime: '2025-05-24 9:00 AM' }
+  const [technicians, setTechnicians] = useState<Technician[]>([
+    { id: '1', name: 'John Smith', status: 'available', skills: ['HVAC', 'Electrical'], location: 'North Region' },
+    { id: '2', name: 'Maria Garcia', status: 'busy', skills: ['Plumbing', 'Installation'], location: 'Central Region' },
+    { id: '3', name: 'David Chen', status: 'available', skills: ['Electrical', 'Security Systems'], location: 'East Region' },
+    { id: '4', name: 'Sarah Johnson', status: 'offline', skills: ['Appliance Repair', 'HVAC'], location: 'West Region' },
   ]);
+
+  const [serviceRequests, setServiceRequests] = useState<ServiceRequest[]>([
+    { 
+      id: 'SR-1001', 
+      customer: 'Acme Corp', 
+      type: 'HVAC Repair', 
+      status: 'assigned', 
+      priority: 'high',
+      scheduledDate: '2023-06-15 10:00 AM',
+      address: '123 Business Ave, Suite 100',
+      technician: '1'
+    },
+    { 
+      id: 'SR-1002', 
+      customer: 'HomeGoods Store', 
+      type: 'Electrical Issue', 
+      status: 'pending', 
+      priority: 'medium',
+      scheduledDate: '2023-06-16 2:30 PM',
+      address: '456 Market St'
+    },
+    { 
+      id: 'SR-1003', 
+      customer: 'City Hospital', 
+      type: 'Security System', 
+      status: 'in-progress', 
+      priority: 'urgent',
+      scheduledDate: '2023-06-15 1:15 PM',
+      address: '789 Healthcare Blvd',
+      technician: '3'
+    },
+  ]);
+
+  const [integrationSettings, setIntegrationSettings] = useState({
+    autoAssign: true,
+    notifyCustomers: true,
+    requirePhotos: true,
+    gpsTracking: true
+  });
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'scheduled':
-        return <Badge className="bg-blue-100 text-blue-800">Scheduled</Badge>;
+      case 'available':
+        return <Badge className="bg-green-100 text-green-800">Available</Badge>;
+      case 'busy':
+        return <Badge className="bg-orange-100 text-orange-800">Busy</Badge>;
+      case 'offline':
+        return <Badge variant="outline">Offline</Badge>;
+      case 'pending':
+        return <Badge variant="secondary">Pending</Badge>;
+      case 'assigned':
+        return <Badge className="bg-blue-100 text-blue-800">Assigned</Badge>;
       case 'in-progress':
-        return <Badge className="bg-yellow-100 text-yellow-800">In Progress</Badge>;
+        return <Badge className="bg-purple-100 text-purple-800">In Progress</Badge>;
       case 'completed':
         return <Badge className="bg-green-100 text-green-800">Completed</Badge>;
       default:
-        return <Badge variant="secondary">{status}</Badge>;
+        return <Badge>{status}</Badge>;
     }
   };
 
   const getPriorityBadge = (priority: string) => {
     switch (priority) {
-      case 'high':
-        return <Badge variant="destructive">High</Badge>;
-      case 'medium':
-        return <Badge className="bg-yellow-100 text-yellow-800">Medium</Badge>;
       case 'low':
-        return <Badge className="bg-gray-100 text-gray-800">Low</Badge>;
+        return <Badge variant="outline">Low</Badge>;
+      case 'medium':
+        return <Badge className="bg-blue-100 text-blue-800">Medium</Badge>;
+      case 'high':
+        return <Badge className="bg-orange-100 text-orange-800">High</Badge>;
+      case 'urgent':
+        return <Badge variant="destructive">Urgent</Badge>;
       default:
-        return <Badge variant="secondary">{priority}</Badge>;
+        return <Badge>{priority}</Badge>;
     }
+  };
+
+  const getTechnicianName = (id?: string) => {
+    if (!id) return 'Unassigned';
+    const tech = technicians.find(t => t.id === id);
+    return tech ? tech.name : 'Unknown';
   };
 
   return (
     <div className="container mx-auto py-6 space-y-6">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Field Service Integration</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold">Field Service Integration</h1>
-          <p className="text-muted-foreground">Manage field service operations and technician dispatch</p>
+          <h1 className="text-2xl font-bold">Field Service Management</h1>
+          <p className="text-muted-foreground">Manage technicians, service requests, and field operations</p>
         </div>
         <Button>
-          <Calendar className="mr-2 h-4 w-4" />
-          Schedule Service
+          <Wrench className="mr-2 h-4 w-4" />
+          New Service Request
         </Button>
       </div>
 
-      {/* Overview Cards */}
+      {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Tickets</CardTitle>
-            <Truck className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Active Requests</CardTitle>
+            <Wrench className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">18</div>
-            <p className="text-xs text-muted-foreground">3 high priority</p>
+            <div className="text-2xl font-bold">24</div>
+            <p className="text-xs text-muted-foreground">+2 from yesterday</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Technicians Active</CardTitle>
-            <User className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Available Technicians</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">12</div>
-            <p className="text-xs text-muted-foreground">of 15 available</p>
+            <div className="text-2xl font-bold">8</div>
+            <p className="text-xs text-muted-foreground">Out of 12 total</p>
           </CardContent>
         </Card>
         <Card>
@@ -84,8 +177,8 @@ const FieldServiceIntegration = () => {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">24m</div>
-            <p className="text-xs text-muted-foreground">-12% from last week</p>
+            <div className="text-2xl font-bold">2.4h</div>
+            <p className="text-xs text-muted-foreground">-15min from last week</p>
           </CardContent>
         </Card>
         <Card>
@@ -95,57 +188,65 @@ const FieldServiceIntegration = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">94%</div>
-            <p className="text-xs text-muted-foreground">+2% improvement</p>
+            <p className="text-xs text-muted-foreground">+2% from last month</p>
           </CardContent>
         </Card>
       </div>
 
-      <Tabs defaultValue="tickets" className="space-y-4">
+      <Tabs defaultValue="requests" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="tickets">Service Tickets</TabsTrigger>
+          <TabsTrigger value="requests">Service Requests</TabsTrigger>
           <TabsTrigger value="technicians">Technicians</TabsTrigger>
-          <TabsTrigger value="integrations">Integrations</TabsTrigger>
-          <TabsTrigger value="settings">Settings</TabsTrigger>
+          <TabsTrigger value="map">Field Map</TabsTrigger>
+          <TabsTrigger value="settings">Integration Settings</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="tickets" className="space-y-4">
+        <TabsContent value="requests" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Service Tickets</CardTitle>
-              <CardDescription>Manage and track field service tickets</CardDescription>
+              <CardTitle>Service Requests</CardTitle>
+              <CardDescription>Manage and track field service requests</CardDescription>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Ticket ID</TableHead>
-                    <TableHead>Customer</TableHead>
-                    <TableHead>Technician</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Priority</TableHead>
-                    <TableHead>Location</TableHead>
-                    <TableHead>Scheduled Time</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {serviceTickets.map((ticket) => (
-                    <TableRow key={ticket.id}>
-                      <TableCell className="font-medium">{ticket.id}</TableCell>
-                      <TableCell>{ticket.customer}</TableCell>
-                      <TableCell>{ticket.technician}</TableCell>
-                      <TableCell>{getStatusBadge(ticket.status)}</TableCell>
-                      <TableCell>{getPriorityBadge(ticket.priority)}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
-                          <MapPin className="h-4 w-4 mr-1" />
-                          {ticket.location}
-                        </div>
-                      </TableCell>
-                      <TableCell>{ticket.scheduledTime}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <div className="space-y-4">
+                {serviceRequests.map((request) => (
+                  <div key={request.id} className="border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold">{request.id}</span>
+                        {getStatusBadge(request.status)}
+                        {getPriorityBadge(request.priority)}
+                      </div>
+                      <Button variant="outline" size="sm">View Details</Button>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Customer</p>
+                        <p className="font-medium">{request.customer}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Type</p>
+                        <p className="font-medium">{request.type}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Technician</p>
+                        <p className="font-medium">{getTechnicianName(request.technician)}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Scheduled</p>
+                        <p className="font-medium">{request.scheduledDate}</p>
+                      </div>
+                      <div className="md:col-span-2">
+                        <p className="text-sm text-muted-foreground">Address</p>
+                        <p className="font-medium flex items-center gap-1">
+                          <MapPin className="h-3 w-3" />
+                          {request.address}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -153,73 +254,56 @@ const FieldServiceIntegration = () => {
         <TabsContent value="technicians" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Technician Management</CardTitle>
-              <CardDescription>Monitor technician status and assignments</CardDescription>
+              <CardTitle>Field Technicians</CardTitle>
+              <CardDescription>Manage technician availability and assignments</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {[
-                  { name: 'John Smith', status: 'active', tickets: 3, location: 'Downtown' },
-                  { name: 'Sarah Wilson', status: 'active', tickets: 2, location: 'Midtown' },
-                  { name: 'Mike Johnson', status: 'break', tickets: 1, location: 'Warehouse District' }
-                ].map((technician, index) => (
-                  <Card key={index}>
-                    <CardHeader>
-                      <CardTitle className="text-lg">{technician.name}</CardTitle>
-                      <div className="flex gap-2">
-                        <Badge variant={technician.status === 'active' ? 'default' : 'secondary'}>
-                          {technician.status}
-                        </Badge>
+              <div className="space-y-4">
+                {technicians.map((tech) => (
+                  <div key={tech.id} className="border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center">
+                          <Users className="h-5 w-5 text-gray-600" />
+                        </div>
+                        <div>
+                          <p className="font-semibold">{tech.name}</p>
+                          <p className="text-sm text-muted-foreground">{tech.location}</p>
+                        </div>
                       </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2 text-sm">
-                        <div>Active Tickets: {technician.tickets}</div>
-                        <div>Current Location: {technician.location}</div>
+                      <div className="flex items-center gap-2">
+                        {getStatusBadge(tech.status)}
+                        <Button variant="outline" size="sm">Assign</Button>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">Skills</p>
+                      <div className="flex flex-wrap gap-1">
+                        {tech.skills.map((skill, i) => (
+                          <Badge key={i} variant="outline">{skill}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 ))}
               </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="integrations" className="space-y-4">
+        <TabsContent value="map" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Field Service Integrations</CardTitle>
-              <CardDescription>Connect with field service management platforms</CardDescription>
+              <CardTitle>Field Operations Map</CardTitle>
+              <CardDescription>Real-time location of technicians and service requests</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {[
-                  { name: 'ServiceTitan', connected: true, logo: '🔧' },
-                  { name: 'FieldEdge', connected: false, logo: '⚡' },
-                  { name: 'Jobber', connected: true, logo: '📋' },
-                  { name: 'ServiceMax', connected: false, logo: '🛠️' }
-                ].map((integration, index) => (
-                  <Card key={index}>
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <span className="text-2xl">{integration.logo}</span>
-                          <CardTitle className="text-lg">{integration.name}</CardTitle>
-                        </div>
-                        {integration.connected ? (
-                          <Badge className="bg-green-100 text-green-800">Connected</Badge>
-                        ) : (
-                          <Badge variant="secondary">Not Connected</Badge>
-                        )}
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <Button variant={integration.connected ? "outline" : "default"} className="w-full">
-                        {integration.connected ? "Manage" : "Connect"}
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
+              <div className="border rounded-lg h-96 bg-gray-100 flex items-center justify-center">
+                <div className="text-center">
+                  <MapPin className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                  <p className="text-muted-foreground">Map integration will be displayed here</p>
+                  <Button className="mt-4" variant="outline">Load Map</Button>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -228,27 +312,64 @@ const FieldServiceIntegration = () => {
         <TabsContent value="settings" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Field Service Settings</CardTitle>
-              <CardDescription>Configure field service automation preferences</CardDescription>
+              <CardTitle>Integration Settings</CardTitle>
+              <CardDescription>Configure field service management preferences</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>Auto-dispatch technicians</Label>
-                  <p className="text-sm text-muted-foreground">Automatically assign tickets to available technicians</p>
+                  <Label className="text-base">Automatic Assignment</Label>
+                  <p className="text-sm text-muted-foreground">Automatically assign technicians based on skills and location</p>
                 </div>
-                <Switch defaultChecked />
+                <Switch 
+                  checked={integrationSettings.autoAssign}
+                  onCheckedChange={(checked) => 
+                    setIntegrationSettings(prev => ({ ...prev, autoAssign: checked }))
+                  }
+                />
               </div>
+              
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>Send customer notifications</Label>
-                  <p className="text-sm text-muted-foreground">Notify customers of technician arrival</p>
+                  <Label className="text-base">Customer Notifications</Label>
+                  <p className="text-sm text-muted-foreground">Send automated updates to customers</p>
                 </div>
-                <Switch defaultChecked />
+                <Switch 
+                  checked={integrationSettings.notifyCustomers}
+                  onCheckedChange={(checked) => 
+                    setIntegrationSettings(prev => ({ ...prev, notifyCustomers: checked }))
+                  }
+                />
               </div>
-              <div className="space-y-2">
-                <Label>Default response time (minutes)</Label>
-                <Input defaultValue="30" type="number" />
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-base">Require Photos</Label>
+                  <p className="text-sm text-muted-foreground">Technicians must upload photos before marking jobs complete</p>
+                </div>
+                <Switch 
+                  checked={integrationSettings.requirePhotos}
+                  onCheckedChange={(checked) => 
+                    setIntegrationSettings(prev => ({ ...prev, requirePhotos: checked }))
+                  }
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-base">GPS Tracking</Label>
+                  <p className="text-sm text-muted-foreground">Track technician locations in real-time</p>
+                </div>
+                <Switch 
+                  checked={integrationSettings.gpsTracking}
+                  onCheckedChange={(checked) => 
+                    setIntegrationSettings(prev => ({ ...prev, gpsTracking: checked }))
+                  }
+                />
+              </div>
+
+              <div className="pt-4">
+                <Button>Save Settings</Button>
               </div>
             </CardContent>
           </Card>

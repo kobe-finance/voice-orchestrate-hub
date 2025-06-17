@@ -1,271 +1,115 @@
-
-import React, { useEffect, useState, useRef } from "react";
-import { Layout } from "@/components/Layout";
-import { PageHeader } from "@/components/ui/page-header";
-import { ConversationSearchFilters } from "@/components/conversations/ConversationSearchFilters";
-import { ConversationList } from "@/components/conversations/ConversationList";
-import { ConversationTranscript } from "@/components/conversations/ConversationTranscript";
-import { ConversationTimeline } from "@/components/conversations/ConversationTimeline";
-import { AudioPlayer } from "@/components/conversations/AudioPlayer";
-import { TagsPanel } from "@/components/conversations/TagsPanel";
-import { toast } from "sonner";
-import { mockConversations } from "@/data/conversation-data";
-import { Conversation, ConversationFilters } from "@/types/conversation";
+import React, { useState, useEffect } from 'react';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Search, Filter, Download, Play, Pause, MoreHorizontal } from 'lucide-react';
+import { ConversationList } from '@/components/conversations/ConversationList';
+import { ConversationTranscript } from '@/components/conversations/ConversationTranscript';
+import { ConversationSearchFilters } from '@/components/conversations/ConversationSearchFilters';
+import { TagsPanel } from '@/components/conversations/TagsPanel';
+import { conversationData } from '@/data/conversation-data';
+import type { Conversation } from '@/types/conversation';
+import { 
+  Breadcrumb, 
+  BreadcrumbList, 
+  BreadcrumbItem, 
+  BreadcrumbLink, 
+  BreadcrumbSeparator, 
+  BreadcrumbPage 
+} from '@/components/ui/breadcrumb';
 
 const ConversationExplorer = () => {
-  const [conversations, setConversations] = useState<Conversation[]>(mockConversations);
-  const [filteredConversations, setFilteredConversations] = useState<Conversation[]>(mockConversations);
+  const [conversations, setConversations] = useState<Conversation[]>(conversationData);
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
-  const [filters, setFilters] = useState<ConversationFilters>({});
-  const [highlightTerms, setHighlightTerms] = useState<string[]>([]);
-  const transcriptRef = useRef<HTMLDivElement>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  // Initialize with the first conversation
   useEffect(() => {
-    if (conversations.length > 0 && !selectedConversation) {
-      setSelectedConversation(conversations[0]);
-    }
-  }, [conversations, selectedConversation]);
+    // Simulate fetching conversations from an API
+    // In a real application, you would fetch data from an API endpoint
+    // and update the conversations state with the fetched data.
+    // For now, we're using the mock conversationData.
+  }, []);
 
-  // Apply filters
-  useEffect(() => {
-    let filtered = [...conversations];
-    
-    // Search term
-    if (filters.searchTerm) {
-      const searchTerms = filters.searchTerm.toLowerCase().split(" ").filter(Boolean);
-      setHighlightTerms(searchTerms);
-      
-      filtered = filtered.filter((conversation) => {
-        // Search in messages
-        const messagesMatch = conversation.messages.some((message) =>
-          searchTerms.some(term => message.text.toLowerCase().includes(term))
-        );
-        
-        // Search in intents
-        const intentsMatch = conversation.intentRecognized.some((intent) =>
-          searchTerms.some(term => intent.toLowerCase().includes(term))
-        );
-        
-        // Search in tags
-        const tagsMatch = conversation.tags.some((tag) =>
-          searchTerms.some(term => tag.toLowerCase().includes(term))
-        );
-        
-        return messagesMatch || intentsMatch || tagsMatch;
-      });
-    } else {
-      setHighlightTerms([]);
-    }
-    
-    // Date range
-    if (filters.dateRange?.start || filters.dateRange?.end) {
-      filtered = filtered.filter((conversation) => {
-        const startTime = new Date(conversation.startTime);
-        
-        if (filters.dateRange?.start && filters.dateRange?.end) {
-          return startTime >= filters.dateRange.start && startTime <= filters.dateRange.end;
-        }
-        
-        if (filters.dateRange?.start) {
-          return startTime >= filters.dateRange.start;
-        }
-        
-        if (filters.dateRange?.end) {
-          return startTime <= filters.dateRange.end;
-        }
-        
-        return true;
-      });
-    }
-    
-    // Sentiment
-    if (filters.sentiment) {
-      filtered = filtered.filter((conversation) => {
-        switch (filters.sentiment) {
-          case "positive":
-            return conversation.sentimentScore > 0.3;
-          case "negative":
-            return conversation.sentimentScore < -0.3;
-          case "neutral":
-            return conversation.sentimentScore >= -0.3 && conversation.sentimentScore <= 0.3;
-          default:
-            return true;
-        }
-      });
-    }
-    
-    // Outcome
-    if (filters.outcome) {
-      filtered = filtered.filter((conversation) =>
-        conversation.outcome === filters.outcome
-      );
-    }
-    
-    // Intents
-    if (filters.intents && filters.intents.length > 0) {
-      filtered = filtered.filter((conversation) =>
-        filters.intents!.some(intent => conversation.intentRecognized.includes(intent))
-      );
-    }
-    
-    // Tags
-    if (filters.tags && filters.tags.length > 0) {
-      filtered = filtered.filter((conversation) =>
-        filters.tags!.some(tag => conversation.tags.includes(tag))
-      );
-    }
-    
-    setFilteredConversations(filtered);
-    
-    // Update selected conversation if it's no longer in filtered results
-    if (selectedConversation && !filtered.find(c => c.id === selectedConversation.id)) {
-      setSelectedConversation(filtered.length > 0 ? filtered[0] : null);
-    }
-  }, [filters, conversations, selectedConversation]);
-
-  const handleFilterChange = (newFilters: ConversationFilters) => {
-    setFilters(newFilters);
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    // Implement search logic here
+    console.log('Searching for:', term);
   };
 
   const handleSelectConversation = (conversation: Conversation) => {
     setSelectedConversation(conversation);
   };
 
-  const handleJumpToMessage = (messageId: string) => {
-    if (!transcriptRef.current) return;
-    
-    // Find the message element in the transcript
-    const messageElement = transcriptRef.current.querySelector(`[data-message-id="${messageId}"]`);
-    if (messageElement) {
-      messageElement.scrollIntoView({ behavior: "smooth", block: "center" });
-      
-      // Add a temporary highlight effect
-      messageElement.classList.add("bg-accent");
-      setTimeout(() => {
-        messageElement.classList.remove("bg-accent");
-      }, 2000);
-    }
-  };
-
-  const handleAddTag = (conversationId: string, tag: string) => {
-    setConversations(conversations.map(conv => {
-      if (conv.id === conversationId) {
-        return {
-          ...conv,
-          tags: [...conv.tags, tag]
-        };
-      }
-      return conv;
-    }));
-    
-    // Update selected conversation if it's the one being modified
-    if (selectedConversation?.id === conversationId) {
-      setSelectedConversation({
-        ...selectedConversation,
-        tags: [...selectedConversation.tags, tag]
-      });
-    }
-    
-    toast.success(`Tag "${tag}" added`);
-  };
-
-  const handleRemoveTag = (conversationId: string, tag: string) => {
-    setConversations(conversations.map(conv => {
-      if (conv.id === conversationId) {
-        return {
-          ...conv,
-          tags: conv.tags.filter(t => t !== tag)
-        };
-      }
-      return conv;
-    }));
-    
-    // Update selected conversation if it's the one being modified
-    if (selectedConversation?.id === conversationId) {
-      setSelectedConversation({
-        ...selectedConversation,
-        tags: selectedConversation.tags.filter(t => t !== tag)
-      });
-    }
-    
-    toast.success(`Tag "${tag}" removed`);
+  const toggleFilter = () => {
+    setIsFilterOpen(!isFilterOpen);
   };
 
   return (
-    <Layout>
-      <div className="container px-4 py-6 mx-auto max-w-7xl">
-        <PageHeader 
-          title="Conversation Explorer" 
-          description="Search, analyze and discover insights from your voice agent conversations"
-        />
-        
-        <div className="grid grid-cols-12 gap-6 mt-6 h-[calc(100vh-13rem)]">
-          {/* Filters and Conversation List */}
-          <div className="col-span-12 md:col-span-4 lg:col-span-3 flex flex-col h-full gap-4">
-            <ConversationSearchFilters 
-              filters={filters} 
-              onFilterChange={handleFilterChange} 
-            />
-            
-            <div className="flex-grow overflow-hidden">
-              <ConversationList 
-                conversations={filteredConversations}
-                selectedConversationId={selectedConversation?.id}
-                onSelectConversation={handleSelectConversation}
-              />
-            </div>
+    <div className="h-screen flex flex-col bg-gray-50">
+      <div className="p-4 border-b bg-white">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Conversation Explorer</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+
+        <div className="flex items-center justify-between mt-4">
+          <div>
+            <h1 className="text-2xl font-bold">Conversation Explorer</h1>
+            <p className="text-gray-600">Search, filter, and analyze voice conversations</p>
           </div>
-          
-          {/* Conversation Transcript and Details */}
-          <div className="col-span-12 md:col-span-8 lg:col-span-9 grid grid-cols-1 lg:grid-cols-3 gap-4 h-full">
-            {selectedConversation ? (
-              <>
-                {/* Transcript */}
-                <div className="lg:col-span-2 h-full" ref={transcriptRef}>
-                  <ConversationTranscript 
-                    conversation={selectedConversation}
-                    highlightTerms={highlightTerms}
-                  />
-                </div>
-                
-                {/* Timeline, Audio Player, and Tags */}
-                <div className="lg:col-span-1 flex flex-col gap-4 h-full">
-                  <div className="flex-grow-0">
-                    <ConversationTimeline 
-                      conversation={selectedConversation}
-                      onJumpToMessage={handleJumpToMessage}
-                    />
-                  </div>
-                  
-                  <div className="flex-grow-0">
-                    <AudioPlayer src={selectedConversation.audioUrl || "/sample-voice.mp3"} />
-                  </div>
-                  
-                  <div className="flex-grow">
-                    <TagsPanel 
-                      conversationId={selectedConversation.id}
-                      currentTags={selectedConversation.tags}
-                      onAddTag={handleAddTag}
-                      onRemoveTag={handleRemoveTag}
-                    />
-                  </div>
-                </div>
-              </>
-            ) : (
-              <div className="col-span-3 flex items-center justify-center h-full border rounded-lg">
-                <div className="text-center p-6">
-                  <h3 className="text-lg font-medium">No Conversations Found</h3>
-                  <p className="text-muted-foreground mt-2">
-                    Try adjusting your search filters or select a conversation from the list.
-                  </p>
-                </div>
-              </div>
-            )}
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm">
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </Button>
+            <Button variant="outline" size="sm">
+              <Filter className="h-4 w-4 mr-2" />
+              Advanced Filters
+            </Button>
           </div>
         </div>
       </div>
-    </Layout>
+
+      <div className="flex flex-grow">
+        <div className="w-80 border-r p-4">
+          <div className="mb-4">
+            <Input
+              type="search"
+              placeholder="Search conversations..."
+              value={searchTerm}
+              onChange={(e) => handleSearch(e.target.value)}
+            />
+          </div>
+          <ConversationList
+            conversations={conversations}
+            onSelect={handleSelectConversation}
+          />
+        </div>
+
+        <div className="flex-1 p-4">
+          {selectedConversation ? (
+            <ConversationTranscript conversation={selectedConversation} />
+          ) : (
+            <div className="text-center text-gray-500 mt-10">
+              Select a conversation to view the transcript.
+            </div>
+          )}
+        </div>
+
+        <div className="w-64 border-l p-4">
+          <TagsPanel />
+        </div>
+      </div>
+    </div>
   );
 };
 

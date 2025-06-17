@@ -1,40 +1,74 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { DollarSign, FileText, TrendingUp, Download, Plus, Eye } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Plus, DollarSign, FileText, Calendar, Download, Eye } from 'lucide-react';
+import { 
+  Breadcrumb, 
+  BreadcrumbList, 
+  BreadcrumbItem, 
+  BreadcrumbLink, 
+  BreadcrumbSeparator, 
+  BreadcrumbPage 
+} from '@/components/ui/breadcrumb';
+
+interface Invoice {
+  id: string;
+  number: string;
+  customer: string;
+  date: string;
+  amount: number;
+  status: 'paid' | 'unpaid' | 'draft';
+}
 
 const FinancialInvoicing = () => {
-  const [invoices, setInvoices] = useState([
-    { id: 'INV-001', client: 'Acme Corp', amount: 1250.00, status: 'paid', date: '2025-05-20', dueDate: '2025-06-20' },
-    { id: 'INV-002', client: 'Tech Solutions', amount: 890.50, status: 'pending', date: '2025-05-22', dueDate: '2025-06-22' },
-    { id: 'INV-003', client: 'Global Industries', amount: 2100.00, status: 'overdue', date: '2025-04-15', dueDate: '2025-05-15' }
+  const [invoices, setInvoices] = useState<Invoice[]>([
+    { id: '1', number: 'INV-2024-001', customer: 'Acme Corp', date: '2024-01-15', amount: 1200, status: 'paid' },
+    { id: '2', number: 'INV-2024-002', customer: 'Beta Inc', date: '2024-02-01', amount: 850, status: 'unpaid' },
+    { id: '3', number: 'INV-2024-003', customer: 'Gamma Ltd', date: '2024-02-15', amount: 2100, status: 'draft' },
   ]);
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'paid':
-        return <Badge className="bg-green-100 text-green-800">Paid</Badge>;
-      case 'pending':
-        return <Badge className="bg-yellow-100 text-yellow-800">Pending</Badge>;
-      case 'overdue':
-        return <Badge className="bg-red-100 text-red-800">Overdue</Badge>;
-      default:
-        return <Badge variant="secondary">{status}</Badge>;
-    }
+  const [newInvoice, setNewInvoice] = useState<Omit<Invoice, 'id'>>({
+    number: '',
+    customer: '',
+    date: '',
+    amount: 0,
+    status: 'draft',
+  });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setNewInvoice(prev => ({ ...prev, [name]: value }));
+  };
+
+  const addInvoice = () => {
+    const newId = Date.now().toString();
+    setInvoices(prev => [...prev, { id: newId, ...newInvoice }]);
+    setNewInvoice({ number: '', customer: '', date: '', amount: 0, status: 'draft' });
   };
 
   return (
     <div className="container mx-auto py-6 space-y-6">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Financial & Invoicing</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold">Financial & Invoicing</h1>
-          <p className="text-muted-foreground">Manage billing, invoices, and financial reporting</p>
+          <p className="text-muted-foreground">Manage invoices and financial transactions</p>
         </div>
         <Button>
           <Plus className="mr-2 h-4 w-4" />
@@ -42,44 +76,9 @@ const FinancialInvoicing = () => {
         </Button>
       </div>
 
-      {/* Financial Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">$24,580</div>
-            <p className="text-xs text-muted-foreground">+12% from last month</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Outstanding</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">$2,990</div>
-            <p className="text-xs text-muted-foreground">3 pending invoices</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Growth</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">+15.2%</div>
-            <p className="text-xs text-muted-foreground">Monthly growth rate</p>
-          </CardContent>
-        </Card>
-      </div>
-
       <Tabs defaultValue="invoices" className="space-y-4">
         <TabsList>
           <TabsTrigger value="invoices">Invoices</TabsTrigger>
-          <TabsTrigger value="payments">Payments</TabsTrigger>
           <TabsTrigger value="reports">Reports</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
@@ -87,74 +86,126 @@ const FinancialInvoicing = () => {
         <TabsContent value="invoices" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Recent Invoices</CardTitle>
-              <CardDescription>Manage your client invoices and billing</CardDescription>
+              <CardTitle>Invoice List</CardTitle>
+              <CardDescription>View and manage all invoices</CardDescription>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Invoice #</TableHead>
-                    <TableHead>Client</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Due Date</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {invoices.map((invoice) => (
-                    <TableRow key={invoice.id}>
-                      <TableCell className="font-medium">{invoice.id}</TableCell>
-                      <TableCell>{invoice.client}</TableCell>
-                      <TableCell>${invoice.amount.toFixed(2)}</TableCell>
-                      <TableCell>{getStatusBadge(invoice.status)}</TableCell>
-                      <TableCell>{invoice.dueDate}</TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button variant="ghost" size="icon">
-                            <Eye className="h-4 w-4" />
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead>
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Number
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Customer
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Date
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Amount
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {invoices.map((invoice) => (
+                      <tr key={invoice.id}>
+                        <td className="px-6 py-4 whitespace-nowrap">{invoice.number}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">{invoice.customer}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">{invoice.date}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">${invoice.amount}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <Badge variant="secondary">{invoice.status}</Badge>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right">
+                          <Button size="sm" variant="ghost">
+                            <Eye className="h-4 w-4 mr-2" />
+                            View
                           </Button>
-                          <Button variant="ghost" size="icon">
-                            <Download className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </CardContent>
           </Card>
-        </TabsContent>
 
-        <TabsContent value="payments" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Payment Methods</CardTitle>
-              <CardDescription>Configure payment processing options</CardDescription>
+              <CardTitle>Add New Invoice</CardTitle>
+              <CardDescription>Create a new invoice</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Stripe</CardTitle>
-                    <CardDescription>Online payments & subscriptions</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Badge className="bg-green-100 text-green-800">Connected</Badge>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">PayPal</CardTitle>
-                    <CardDescription>Accept PayPal payments</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button variant="outline">Connect</Button>
-                  </CardContent>
-                </Card>
+                <div>
+                  <Label htmlFor="number">Invoice Number</Label>
+                  <Input
+                    type="text"
+                    id="number"
+                    name="number"
+                    value={newInvoice.number}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="customer">Customer</Label>
+                  <Input
+                    type="text"
+                    id="customer"
+                    name="customer"
+                    value={newInvoice.customer}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="date">Date</Label>
+                  <Input
+                    type="date"
+                    id="date"
+                    name="date"
+                    value={newInvoice.date}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="amount">Amount</Label>
+                  <Input
+                    type="number"
+                    id="amount"
+                    name="amount"
+                    value={newInvoice.amount}
+                    onChange={(e) => {
+                      const value = parseFloat(e.target.value);
+                      setNewInvoice(prev => ({ ...prev, amount: value }));
+                    }}
+                  />
+                </div>
               </div>
+              <div>
+                <Label htmlFor="status">Status</Label>
+                <Select name="status" value={newInvoice.status} onValueChange={(value) => handleInputChange({ target: { name: 'status', value } } as any)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="draft">Draft</SelectItem>
+                    <SelectItem value="unpaid">Unpaid</SelectItem>
+                    <SelectItem value="paid">Paid</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button onClick={addInvoice}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Invoice
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -163,19 +214,10 @@ const FinancialInvoicing = () => {
           <Card>
             <CardHeader>
               <CardTitle>Financial Reports</CardTitle>
-              <CardDescription>Generate and download financial reports</CardDescription>
+              <CardDescription>Generate financial reports and analytics</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Button variant="outline" className="h-20 flex-col">
-                  <FileText className="h-6 w-6 mb-2" />
-                  Revenue Report
-                </Button>
-                <Button variant="outline" className="h-20 flex-col">
-                  <TrendingUp className="h-6 w-6 mb-2" />
-                  Growth Analysis
-                </Button>
-              </div>
+            <CardContent>
+              <p className="text-muted-foreground">Report generation tools will be available here.</p>
             </CardContent>
           </Card>
         </TabsContent>
@@ -183,22 +225,11 @@ const FinancialInvoicing = () => {
         <TabsContent value="settings" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Billing Settings</CardTitle>
-              <CardDescription>Configure your billing preferences</CardDescription>
+              <CardTitle>Settings</CardTitle>
+              <CardDescription>Configure financial and invoicing settings</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label>Default Currency</Label>
-                <Input defaultValue="USD" />
-              </div>
-              <div className="space-y-2">
-                <Label>Tax Rate (%)</Label>
-                <Input defaultValue="8.5" type="number" />
-              </div>
-              <div className="space-y-2">
-                <Label>Payment Terms (days)</Label>
-                <Input defaultValue="30" type="number" />
-              </div>
+            <CardContent>
+              <p className="text-muted-foreground">Settings configuration options will be available here.</p>
             </CardContent>
           </Card>
         </TabsContent>
