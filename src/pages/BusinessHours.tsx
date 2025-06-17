@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock, AlertTriangle, Phone, MessageSquare } from 'lucide-react';
+import { Calendar, Clock, AlertTriangle, Phone, MessageSquare, Save } from 'lucide-react';
 import { 
   Breadcrumb, 
   BreadcrumbList, 
@@ -93,18 +94,25 @@ const BusinessHours: React.FC = () => {
           </BreadcrumbList>
         </Breadcrumb>
 
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Business Hours Management</h1>
-            <p className="text-muted-foreground">Configure operating hours and after-hours handling</p>
-          </div>
-        </div>
+        <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary via-primary-600 to-accent-orange bg-clip-text text-transparent">
+          Business Hours Management
+        </h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-1">Configure operating hours and after-hours handling</p>
 
       <Tabs defaultValue="hours" className="space-y-6">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="hours">Business Hours</TabsTrigger>
-          <TabsTrigger value="after-hours">After Hours</TabsTrigger>
-          <TabsTrigger value="holidays">Holidays</TabsTrigger>
+          <TabsTrigger value="hours" className="flex items-center gap-2">
+            <Clock className="h-4 w-4" />
+            Business Hours
+          </TabsTrigger>
+          <TabsTrigger value="after-hours" className="flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4" />
+            After Hours
+          </TabsTrigger>
+          <TabsTrigger value="holidays" className="flex items-center gap-2">
+            <Calendar className="h-4 w-4" />
+            Holidays
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="hours" className="space-y-6">
@@ -172,7 +180,10 @@ const BusinessHours: React.FC = () => {
               </div>
 
               <div className="flex justify-end">
-                <Button>Save Business Hours</Button>
+                <Button className="flex items-center gap-2">
+                  <Save className="h-4 w-4" />
+                  Save Business Hours
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -258,7 +269,10 @@ const BusinessHours: React.FC = () => {
               )}
 
               <div className="flex justify-end">
-                <Button>Save After Hours Settings</Button>
+                <Button className="flex items-center gap-2">
+                  <Save className="h-4 w-4" />
+                  Save After Hours Settings
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -275,7 +289,10 @@ const BusinessHours: React.FC = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex justify-end">
-                <Button onClick={addHoliday}>Add Holiday</Button>
+                <Button onClick={addHoliday} className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  Add Holiday
+                </Button>
               </div>
 
               <div className="space-y-3">
@@ -340,7 +357,10 @@ const BusinessHours: React.FC = () => {
               </div>
 
               <div className="flex justify-end">
-                <Button>Save Holiday Schedule</Button>
+                <Button className="flex items-center gap-2">
+                  <Save className="h-4 w-4" />
+                  Save Holiday Schedule
+                </Button>
               </div>
             </CardContent>
           </Card>

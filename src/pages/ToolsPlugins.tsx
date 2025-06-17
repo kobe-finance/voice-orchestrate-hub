@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -179,16 +180,15 @@ const ToolsPlugins = () => {
           </BreadcrumbList>
         </Breadcrumb>
 
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold">Tools & Plugins</h1>
-            <p className="text-muted-foreground">Manage and configure AI agent tools and integrations</p>
-          </div>
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            Create Tool
-          </Button>
-        </div>
+        <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary via-primary-600 to-accent-orange bg-clip-text text-transparent">
+          Tools & Plugins
+        </h1>  
+        <p className="text-gray-600 dark:text-gray-400 mt-1">Manage and configure AI agent tools and integrations</p>
+
+        <Button className="flex items-center gap-2">
+          <Plus className="h-4 w-4" />
+          Create Tool
+        </Button>
 
         {/* Search and Filter */}
         <div className="flex space-x-4">
@@ -220,10 +220,22 @@ const ToolsPlugins = () => {
 
         <Tabs defaultValue="tools" className="space-y-4">
           <TabsList>
-            <TabsTrigger value="tools">Available Tools</TabsTrigger>
-            <TabsTrigger value="test">Test Tool</TabsTrigger>
-            <TabsTrigger value="builder">Tool Builder</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
+            <TabsTrigger value="tools" className="flex items-center gap-2">
+              <Wrench className="h-4 w-4" />
+              Available Tools
+            </TabsTrigger>
+            <TabsTrigger value="test" className="flex items-center gap-2">
+              <Play className="h-4 w-4" />
+              Test Tool
+            </TabsTrigger>
+            <TabsTrigger value="builder" className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              Tool Builder
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              Settings
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="tools" className="space-y-4">
@@ -260,17 +272,17 @@ const ToolsPlugins = () => {
                         <Button 
                           size="sm" 
                           variant="outline" 
-                          className="flex-1"
+                          className="flex-1 flex items-center gap-1"
                           onClick={() => {
                             setSelectedTool(tool);
                             setIsTestOpen(true);
                           }}
                         >
-                          <Play className="mr-1 h-3 w-3" />
+                          <Play className="h-3 w-3" />
                           Test
                         </Button>
-                        <Button size="sm" variant="outline" className="flex-1">
-                          <Settings className="mr-1 h-3 w-3" />
+                        <Button size="sm" variant="outline" className="flex-1 flex items-center gap-1">
+                          <Settings className="h-3 w-3" />
                           Edit
                         </Button>
                       </div>

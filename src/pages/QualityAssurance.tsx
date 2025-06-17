@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';
-import { Shield, CheckCircle, AlertTriangle, XCircle, Star, Play, Pause, Settings } from 'lucide-react';
+import { Shield, CheckCircle, AlertTriangle, XCircle, Star, Play, Pause, Settings, Users } from 'lucide-react';
 import { 
   Breadcrumb, 
   BreadcrumbList, 
@@ -60,16 +61,15 @@ const QualityAssurance = () => {
           </BreadcrumbList>
         </Breadcrumb>
 
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold">Quality Assurance</h1>
-            <p className="text-muted-foreground">Monitor and improve call quality and agent performance</p>
-          </div>
-          <Button>
-            <Settings className="mr-2 h-4 w-4" />
-            Configure QA Rules
-          </Button>
-        </div>
+        <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary via-primary-600 to-accent-orange bg-clip-text text-transparent">
+          Quality Assurance
+        </h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-1">Monitor and improve call quality and agent performance</p>
+
+        <Button className="flex items-center gap-2">
+          <Settings className="h-4 w-4" />
+          Configure QA Rules
+        </Button>
 
       {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -118,11 +118,26 @@ const QualityAssurance = () => {
 
       <Tabs defaultValue="reviews" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="reviews">Quality Reviews</TabsTrigger>
-          <TabsTrigger value="monitoring">Live Monitoring</TabsTrigger>
-          <TabsTrigger value="coaching">Coaching</TabsTrigger>
-          <TabsTrigger value="compliance">Compliance</TabsTrigger>
-          <TabsTrigger value="settings">Settings</TabsTrigger>
+          <TabsTrigger value="reviews" className="flex items-center gap-2">
+            <CheckCircle className="h-4 w-4" />
+            Quality Reviews
+          </TabsTrigger>
+          <TabsTrigger value="monitoring" className="flex items-center gap-2">
+            <Play className="h-4 w-4" />
+            Live Monitoring
+          </TabsTrigger>
+          <TabsTrigger value="coaching" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            Coaching
+          </TabsTrigger>
+          <TabsTrigger value="compliance" className="flex items-center gap-2">
+            <Shield className="h-4 w-4" />
+            Compliance
+          </TabsTrigger>
+          <TabsTrigger value="settings" className="flex items-center gap-2">
+            <Settings className="h-4 w-4" />
+            Settings
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="reviews" className="space-y-4">
