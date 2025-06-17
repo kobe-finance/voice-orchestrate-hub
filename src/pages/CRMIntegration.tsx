@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card-modern';
 import { Button } from '@/components/ui/button-modern';
@@ -128,24 +129,33 @@ const CRMIntegration = () => {
           </BreadcrumbList>
         </Breadcrumb>
 
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 dark:from-gray-100 dark:via-gray-200 dark:to-gray-100 bg-clip-text text-transparent">
-              CRM Integration
-            </h1>
-            <p className="text-muted-foreground">Connect your customer relationship management systems</p>
-          </div>
-          <Button variant="gradient" leftIcon={<Building2 className="h-4 w-4" />}>
-            Add Integration
-          </Button>
-        </div>
+        <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary via-primary-600 to-accent-orange bg-clip-text text-transparent">
+          CRM Integration
+        </h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-1">Connect your customer relationship management systems</p>
+
+        <Button variant="gradient" leftIcon={<Building2 className="h-4 w-4" />}>
+          Add Integration
+        </Button>
 
         <Tabs defaultValue="integrations" className="space-y-4">
           <TabsList>
-            <TabsTrigger value="integrations">CRM Systems</TabsTrigger>
-            <TabsTrigger value="sync">Data Sync</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
+            <TabsTrigger value="integrations" className="flex items-center gap-2">
+              <Building2 className="h-4 w-4" />
+              CRM Systems
+            </TabsTrigger>
+            <TabsTrigger value="sync" className="flex items-center gap-2">
+              <Database className="h-4 w-4" />
+              Data Sync
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex items-center gap-2">
+              <Activity className="h-4 w-4" />
+              Analytics
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              Settings
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="integrations" className="space-y-4">

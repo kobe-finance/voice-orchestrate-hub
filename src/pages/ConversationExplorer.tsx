@@ -82,21 +82,18 @@ const ConversationExplorer = () => {
           </BreadcrumbList>
         </Breadcrumb>
 
-        <div className="flex items-center justify-between mt-4">
-          <div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 dark:from-gray-100 dark:via-gray-200 dark:to-gray-100 bg-clip-text text-transparent">
-              Conversation Explorer
-            </h1>
-            <p className="text-muted-foreground">Search, filter, and analyze voice conversations</p>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" leftIcon={<Download className="h-4 w-4" />}>
-              Export
-            </Button>
-            <Button variant="outline" size="sm" leftIcon={<Filter className="h-4 w-4" />}>
-              Advanced Filters
-            </Button>
-          </div>
+        <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary via-primary-600 to-accent-orange bg-clip-text text-transparent mt-4">
+          Conversation Explorer
+        </h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-1">Search, filter, and analyze voice conversations</p>
+
+        <div className="flex gap-2 mt-4">
+          <Button variant="outline" size="sm" leftIcon={<Download className="h-4 w-4" />}>
+            Export
+          </Button>
+          <Button variant="outline" size="sm" leftIcon={<Filter className="h-4 w-4" />}>
+            Advanced Filters
+          </Button>
         </div>
       </div>
 

@@ -63,17 +63,14 @@ const AppointmentScheduling = () => {
           </BreadcrumbList>
         </Breadcrumb>
 
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 dark:from-gray-100 dark:via-gray-200 dark:to-gray-100 bg-clip-text text-transparent">
-              Appointment Scheduling
-            </h1>
-            <p className="text-muted-foreground">Manage customer appointments and bookings</p>
-          </div>
-          <Button variant="gradient" leftIcon={<Calendar className="h-4 w-4" />}>
-            Schedule Appointment
-          </Button>
-        </div>
+        <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary via-primary-600 to-accent-orange bg-clip-text text-transparent">
+          Appointment Scheduling
+        </h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-1">Manage customer appointments and bookings</p>
+
+        <Button variant="gradient" leftIcon={<Calendar className="h-4 w-4" />}>
+          Schedule Appointment
+        </Button>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
