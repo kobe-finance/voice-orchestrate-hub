@@ -3,7 +3,6 @@ import { Slot } from "@radix-ui/react-slot"
 import { VariantProps, cva } from "class-variance-authority"
 import { PanelLeft } from "lucide-react"
 
-import { useSafeMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -45,6 +44,16 @@ function useSidebar() {
   return context
 }
 
+// Simple mobile detection without hooks to avoid React initialization issues
+function getIsMobile() {
+  try {
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth < 768;
+  } catch {
+    return false;
+  }
+}
+
 const SidebarProvider = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div"> & {
@@ -65,9 +74,21 @@ const SidebarProvider = React.forwardRef<
     },
     ref
   ) => {
-    // Use the safe mobile hook to prevent React initialization issues
-    const isMobile = useSafeMobile();
+    // Use simple detection instead of hook to prevent React initialization issues
+    const [isMobile, setIsMobile] = React.useState(() => getIsMobile());
     const [openMobile, setOpenMobile] = React.useState(false)
+
+    // Update mobile state on window resize
+    React.useEffect(() => {
+      const handleResize = () => {
+        setIsMobile(getIsMobile());
+      };
+
+      if (typeof window !== 'undefined') {
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+      }
+    }, []);
 
     // This is the internal state of the sidebar.
     // We use openProp and setOpenProp for control from outside the component.

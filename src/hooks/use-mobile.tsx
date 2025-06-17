@@ -2,30 +2,24 @@
 import { useState, useEffect } from "react";
 
 export function useIsMobile() {
-  // Use a more defensive approach - check if React hooks are available
   const [isMobile, setIsMobile] = useState(() => {
-    // Multiple layers of defensive checks
     try {
-      // Check if we're in a browser environment
       if (typeof window === 'undefined') {
         return false;
       }
       
-      // Check if window properties are accessible
       if (!window.innerWidth) {
         return false;
       }
       
       return window.innerWidth < 768;
     } catch (error) {
-      // Fallback for any initialization errors
       console.warn('useIsMobile: Initialization error, defaulting to false:', error);
       return false;
     }
   });
 
   useEffect(() => {
-    // Enhanced safety checks for effect
     try {
       if (typeof window === 'undefined' || !window.addEventListener) {
         return;
@@ -39,13 +33,9 @@ export function useIsMobile() {
         }
       };
 
-      // Initial check
       checkIfMobile();
-
-      // Add event listener
       window.addEventListener("resize", checkIfMobile);
 
-      // Cleanup
       return () => {
         try {
           window.removeEventListener("resize", checkIfMobile);
@@ -62,9 +52,14 @@ export function useIsMobile() {
   return isMobile;
 }
 
-// Export a safe version that can handle React not being ready
+// Safe version that checks React availability before calling hooks
 export function useSafeMobile() {
+  // Check if React and useState are available before calling any hooks
   try {
+    if (typeof useState === 'undefined' || useState === null) {
+      console.warn('useSafeMobile: React hooks not available, returning false');
+      return false;
+    }
     return useIsMobile();
   } catch (error) {
     console.warn('useSafeMobile: Hook call failed, returning false:', error);
