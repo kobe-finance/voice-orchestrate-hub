@@ -1,5 +1,5 @@
 
-import React from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from '@/components/ui/sonner';
 
 interface AuthToken {
@@ -29,20 +29,20 @@ interface AuthContextType {
   refreshToken: () => Promise<void>;
 }
 
-const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const TOKEN_STORAGE_KEY = 'voiceorchestrate_token';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Use only local state to avoid initialization issues
-  const [user, setUser] = React.useState<any | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = React.useState(false);
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [token, setToken] = React.useState<AuthToken | null>(null);
-  const [isInitialized, setIsInitialized] = React.useState(false);
+  const [user, setUser] = useState<any | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [token, setToken] = useState<AuthToken | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Sync with Zustand store after React is ready
-  React.useEffect(() => {
+  useEffect(() => {
     const syncWithStore = async () => {
       try {
         const { useAppStore } = await import('@/stores/useAppStore');
@@ -64,7 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [isInitialized, user]);
 
   // Initialize auth state from localStorage
-  React.useEffect(() => {
+  useEffect(() => {
     const initializeAuth = () => {
       setIsLoading(true);
       
@@ -101,7 +101,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   // Auto-refresh token before expiration
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isInitialized || !user || !token) return;
 
     const timeUntilExpiry = token.expiresAt - Date.now();
@@ -264,7 +264,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 };
 
 export const useAuth = (): AuthContextType => {
-  const context = React.useContext(AuthContext);
+  const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }

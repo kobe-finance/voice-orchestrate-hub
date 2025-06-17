@@ -3,11 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Switch } from '@/components/ui/switch';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Plus, Mail, MessageSquare, Users, BarChart, Clock, Target } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { 
   Breadcrumb, 
   BreadcrumbList, 
@@ -16,52 +12,90 @@ import {
   BreadcrumbSeparator, 
   BreadcrumbPage 
 } from '@/components/ui/breadcrumb';
-import { CampaignWizard } from '@/components/marketing/CampaignWizard';
-import { CampaignScheduler } from '@/components/marketing/CampaignScheduler';
-import { ContactListManager } from '@/components/marketing/ContactListManager';
+
+// Mock components for ContactListManager and CampaignScheduler
+const ContactListManager = () => (
+  <Card>
+    <CardHeader>
+      <CardTitle>Contact List Manager</CardTitle>
+      <CardDescription>Manage your contact lists here</CardDescription>
+    </CardHeader>
+    <CardContent>
+      <p className="text-muted-foreground">Contact list management interface will be here.</p>
+    </CardContent>
+  </Card>
+);
+
+const CampaignScheduler = () => (
+  <Card>
+    <CardHeader>
+      <CardTitle>Campaign Scheduler</CardTitle>
+      <CardDescription>Schedule your marketing campaigns</CardDescription>
+    </CardHeader>
+    <CardContent>
+      <p className="text-muted-foreground">Campaign scheduling interface will be here.</p>
+    </CardContent>
+  </Card>
+);
+
+// Mock CampaignWizard component
+const CampaignWizard = ({ onClose }: { onClose: () => void }) => (
+  <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+    <div className="bg-white p-6 rounded-md shadow-lg">
+      <h2 className="text-lg font-semibold mb-4">Campaign Wizard</h2>
+      <p className="text-muted-foreground">This is a mock campaign wizard.</p>
+      <div className="mt-4 flex justify-end">
+        <Button variant="secondary" onClick={onClose}>Close</Button>
+      </div>
+    </div>
+  </div>
+);
 
 interface Campaign {
   id: string;
   name: string;
-  status: 'active' | 'draft' | 'scheduled' | 'completed';
+  description: string;
   type: 'email' | 'sms' | 'push';
-  targetAudience: string;
-  startDate: string;
-  endDate: string;
+  status: 'active' | 'paused' | 'draft';
+  contactCount: number;
+  sentCount: number;
+  openRate: number;
 }
 
 const MarketingAutomation = () => {
   const [campaigns, setCampaigns] = useState<Campaign[]>([
     {
-      id: 'campaign-1',
+      id: '1',
       name: 'Welcome Email Series',
-      status: 'active',
+      description: 'Introduce new users to our platform',
       type: 'email',
-      targetAudience: 'New Subscribers',
-      startDate: '2024-01-01',
-      endDate: '2024-12-31',
+      status: 'active',
+      contactCount: 500,
+      sentCount: 450,
+      openRate: 25,
     },
     {
-      id: 'campaign-2',
-      name: 'Summer SMS Promotion',
-      status: 'scheduled',
+      id: '2',
+      name: 'Summer Sale SMS Blast',
+      description: 'Promote our summer sale via SMS',
       type: 'sms',
-      targetAudience: 'All Customers',
-      startDate: '2024-06-01',
-      endDate: '2024-08-31',
+      status: 'paused',
+      contactCount: 1200,
+      sentCount: 0,
+      openRate: 0,
+    },
+    {
+      id: '3',
+      name: 'New Feature Push Notification',
+      description: 'Notify users about our latest feature',
+      type: 'push',
+      status: 'draft',
+      contactCount: 800,
+      sentCount: 0,
+      openRate: 0,
     },
   ]);
-
-  const [newCampaignModalOpen, setNewCampaignModalOpen] = useState(false);
-  const [schedulerModalOpen, setSchedulerModalOpen] = useState(false);
-  const [contactListModalOpen, setContactListModalOpen] = useState(false);
-
-  const openNewCampaignModal = () => setNewCampaignModalOpen(true);
-  const closeNewCampaignModal = () => setNewCampaignModalOpen(false);
-  const openSchedulerModal = () => setSchedulerModalOpen(true);
-  const closeSchedulerModal = () => setSchedulerModalOpen(false);
-  const openContactListModal = () => setContactListModalOpen(true);
-  const closeContactListModal = () => setContactListModalOpen(false);
+  const [showCampaignWizard, setShowCampaignWizard] = useState(false);
 
   return (
     <div className="container mx-auto py-6 space-y-6">
@@ -80,9 +114,9 @@ const MarketingAutomation = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold">Marketing Automation</h1>
-          <p className="text-muted-foreground">Automate marketing campaigns and customer engagement</p>
+          <p className="text-muted-foreground">Create and manage automated marketing campaigns</p>
         </div>
-        <Button onClick={openNewCampaignModal}>
+        <Button onClick={() => setShowCampaignWizard(true)}>
           <Plus className="mr-2 h-4 w-4" />
           Create Campaign
         </Button>
@@ -91,9 +125,9 @@ const MarketingAutomation = () => {
       <Tabs defaultValue="campaigns" className="space-y-4">
         <TabsList>
           <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
-          <TabsTrigger value="contacts">Contacts</TabsTrigger>
-          <TabsTrigger value="templates">Templates</TabsTrigger>
-          <TabsTrigger value="settings">Settings</TabsTrigger>
+          <TabsTrigger value="contacts">Contact Lists</TabsTrigger>
+          <TabsTrigger value="scheduler">Scheduler</TabsTrigger>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
 
         <TabsContent value="campaigns" className="space-y-4">
@@ -103,19 +137,34 @@ const MarketingAutomation = () => {
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg">{campaign.name}</CardTitle>
-                    <Badge variant="secondary">{campaign.type}</Badge>
+                    <Badge variant={campaign.status === 'active' ? 'default' : campaign.status === 'paused' ? 'secondary' : 'outline'}>
+                      {campaign.status}
+                    </Badge>
                   </div>
-                  <CardDescription>
-                    Target: {campaign.targetAudience}
-                  </CardDescription>
+                  <CardDescription>{campaign.description}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Clock className="h-4 w-4 mr-1 inline-block" />
-                      {campaign.startDate} - {campaign.endDate}
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>Type:</span>
+                      <span className="capitalize">{campaign.type}</span>
                     </div>
-                    <Badge variant="default">{campaign.status}</Badge>
+                    <div className="flex justify-between">
+                      <span>Contacts:</span>
+                      <span>{campaign.contactCount}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Sent:</span>
+                      <span>{campaign.sentCount}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Opens:</span>
+                      <span>{campaign.openRate}%</span>
+                    </div>
+                  </div>
+                  <div className="mt-4 flex gap-2">
+                    <Button size="sm" variant="outline">Edit</Button>
+                    <Button size="sm" variant="outline">View Reports</Button>
                   </div>
                 </CardContent>
               </Card>
@@ -124,51 +173,29 @@ const MarketingAutomation = () => {
         </TabsContent>
 
         <TabsContent value="contacts" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Contact Lists</CardTitle>
-              <CardDescription>Manage and segment your contact lists</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button onClick={openContactListModal}>
-                <Users className="mr-2 h-4 w-4" />
-                Manage Contacts
-              </Button>
-            </CardContent>
-          </Card>
+          <ContactListManager />
         </TabsContent>
 
-        <TabsContent value="templates" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Email Templates</CardTitle>
-              <CardDescription>Create and manage email templates for campaigns</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button>
-                <Mail className="mr-2 h-4 w-4" />
-                Create Template
-              </Button>
-            </CardContent>
-          </Card>
+        <TabsContent value="scheduler" className="space-y-4">
+          <CampaignScheduler />
         </TabsContent>
 
-        <TabsContent value="settings" className="space-y-4">
+        <TabsContent value="analytics" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Automation Settings</CardTitle>
-              <CardDescription>Configure global automation preferences</CardDescription>
+              <CardTitle>Marketing Analytics</CardTitle>
+              <CardDescription>Overview of your marketing performance</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">Automation settings configuration will be available here.</p>
+              <p className="text-muted-foreground">Marketing analytics dashboard will be displayed here.</p>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
 
-      <CampaignWizard open={newCampaignModalOpen} onClose={closeNewCampaignModal} />
-      <CampaignScheduler open={schedulerModalOpen} onClose={closeSchedulerModal} />
-      <ContactListManager open={contactListModalOpen} onClose={closeContactListModal} />
+      {showCampaignWizard && (
+        <CampaignWizard onClose={() => setShowCampaignWizard(false)} />
+      )}
     </div>
   );
 };
