@@ -1,8 +1,8 @@
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button-modern';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus } from 'lucide-react';
+import { Plus, Settings, History, FileTemplate, Zap } from 'lucide-react';
 import { 
   Breadcrumb, 
   BreadcrumbList, 
@@ -81,25 +81,35 @@ const WorkflowAutomation = () => {
           </BreadcrumbList>
         </Breadcrumb>
 
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold">Workflow Automation</h1>
-            <p className="text-muted-foreground">Automate your business processes and tasks</p>
-          </div>
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            Create Workflow
-          </Button>
-        </div>
+        <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary via-primary-600 to-accent-orange bg-clip-text text-transparent">
+          Workflow Automation
+        </h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-1">Automate your business processes and tasks</p>
+
+        <Button variant="gradient" leftIcon={<Plus className="h-4 w-4" />}>
+          Create Workflow
+        </Button>
 
         <WorkflowStats />
 
         <Tabs defaultValue="workflows" className="space-y-4">
           <TabsList>
-            <TabsTrigger value="workflows">Workflows</TabsTrigger>
-            <TabsTrigger value="templates">Templates</TabsTrigger>
-            <TabsTrigger value="history">Execution History</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
+            <TabsTrigger value="workflows" className="flex items-center gap-2">
+              <Zap className="h-4 w-4" />
+              Workflows
+            </TabsTrigger>
+            <TabsTrigger value="templates" className="flex items-center gap-2">
+              <FileTemplate className="h-4 w-4" />
+              Templates
+            </TabsTrigger>
+            <TabsTrigger value="history" className="flex items-center gap-2">
+              <History className="h-4 w-4" />
+              Execution History
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              Settings
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="workflows" className="space-y-4">

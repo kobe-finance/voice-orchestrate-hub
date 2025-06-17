@@ -1,11 +1,12 @@
+
 import React, { useState } from "react";
 import { PageHeader } from "@/components/ui/page-header";
 import ReportTemplateGallery from "@/components/reports/ReportTemplateGallery";
 import ReportDesigner from "@/components/reports/ReportDesigner";
 import ReportPreview from "@/components/reports/ReportPreview";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Download, Mail, Save } from "lucide-react";
+import { Button } from "@/components/ui/button-modern";
+import { Download, Mail, Save, FileTemplate, Edit, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { Report, ReportTemplate, Visualization } from "@/types/report";
 import { 
@@ -77,51 +78,49 @@ const ReportBuilder = () => {
           </BreadcrumbList>
         </Breadcrumb>
 
-        <div className="flex justify-between items-center">
-          <PageHeader 
-            title="Report Builder" 
-            description="Create and schedule custom reports"
-          />
-          <div className="flex gap-2">
-            {report && activeTab === "preview" && (
-              <>
-                <Button 
-                  variant="outline" 
-                  onClick={() => handleExportReport("pdf")}
-                >
-                  <Download className="mr-2 h-4 w-4" />
-                  Export PDF
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => handleExportReport("excel")}
-                >
-                  <Download className="mr-2 h-4 w-4" />
-                  Export Excel
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => handleExportReport("csv")}
-                >
-                  <Download className="mr-2 h-4 w-4" />
-                  Export CSV
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={handleEmailReport}
-                >
-                  <Mail className="mr-2 h-4 w-4" />
-                  Schedule Email
-                </Button>
-              </>
-            )}
-            {report && (
-              <Button onClick={handleSaveReport}>
-                <Save className="mr-2 h-4 w-4" />
-                Save Report
+        <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary via-primary-600 to-accent-orange bg-clip-text text-transparent">
+          Report Builder
+        </h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-1">Create and schedule custom reports</p>
+
+        <div className="flex gap-2">
+          {report && activeTab === "preview" && (
+            <>
+              <Button 
+                variant="outline" 
+                onClick={() => handleExportReport("pdf")}
+                leftIcon={<Download className="h-4 w-4" />}
+              >
+                Export PDF
               </Button>
-            )}
-          </div>
+              <Button 
+                variant="outline" 
+                onClick={() => handleExportReport("excel")}
+                leftIcon={<Download className="h-4 w-4" />}
+              >
+                Export Excel
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => handleExportReport("csv")}
+                leftIcon={<Download className="h-4 w-4" />}
+              >
+                Export CSV
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={handleEmailReport}
+                leftIcon={<Mail className="h-4 w-4" />}
+              >
+                Schedule Email
+              </Button>
+            </>
+          )}
+          {report && (
+            <Button variant="gradient" onClick={handleSaveReport} leftIcon={<Save className="h-4 w-4" />}>
+              Save Report
+            </Button>
+          )}
         </div>
 
         <Tabs 
@@ -131,17 +130,24 @@ const ReportBuilder = () => {
           className="w-full"
         >
           <TabsList className="grid grid-cols-3 w-full max-w-md mb-8">
-            <TabsTrigger value="templates">Templates</TabsTrigger>
+            <TabsTrigger value="templates" className="flex items-center gap-2">
+              <FileTemplate className="h-4 w-4" />
+              Templates
+            </TabsTrigger>
             <TabsTrigger 
               value="design" 
               disabled={!selectedTemplate}
+              className="flex items-center gap-2"
             >
+              <Edit className="h-4 w-4" />
               Design
             </TabsTrigger>
             <TabsTrigger 
               value="preview" 
               disabled={!report?.visualizations?.length}
+              className="flex items-center gap-2"
             >
+              <Eye className="h-4 w-4" />
               Preview
             </TabsTrigger>
           </TabsList>

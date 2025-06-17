@@ -1,10 +1,10 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card-modern';
+import { Button } from '@/components/ui/button-modern';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus } from 'lucide-react';
+import { Plus, Mail, Users, Calendar, BarChart3 } from 'lucide-react';
 import { 
   Breadcrumb, 
   BreadcrumbList, 
@@ -16,7 +16,7 @@ import {
 
 // Mock components for ContactListManager and CampaignScheduler
 const ContactListManager = () => (
-  <Card>
+  <Card variant="elevated">
     <CardHeader>
       <CardTitle>Contact List Manager</CardTitle>
       <CardDescription>Manage your contact lists here</CardDescription>
@@ -28,7 +28,7 @@ const ContactListManager = () => (
 );
 
 const CampaignScheduler = () => (
-  <Card>
+  <Card variant="elevated">
     <CardHeader>
       <CardTitle>Campaign Scheduler</CardTitle>
       <CardDescription>Schedule your marketing campaigns</CardDescription>
@@ -113,29 +113,39 @@ const MarketingAutomation = () => {
           </BreadcrumbList>
         </Breadcrumb>
 
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold">Marketing Automation</h1>
-            <p className="text-muted-foreground">Create and manage automated marketing campaigns</p>
-          </div>
-          <Button onClick={() => setShowCampaignWizard(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Create Campaign
-          </Button>
-        </div>
+        <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary via-primary-600 to-accent-orange bg-clip-text text-transparent">
+          Marketing Automation
+        </h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-1">Create and manage automated marketing campaigns</p>
+
+        <Button variant="gradient" onClick={() => setShowCampaignWizard(true)} leftIcon={<Plus className="h-4 w-4" />}>
+          Create Campaign
+        </Button>
 
         <Tabs defaultValue="campaigns" className="space-y-4">
           <TabsList>
-            <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
-            <TabsTrigger value="contacts">Contact Lists</TabsTrigger>
-            <TabsTrigger value="scheduler">Scheduler</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="campaigns" className="flex items-center gap-2">
+              <Mail className="h-4 w-4" />
+              Campaigns
+            </TabsTrigger>
+            <TabsTrigger value="contacts" className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              Contact Lists
+            </TabsTrigger>
+            <TabsTrigger value="scheduler" className="flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              Scheduler
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Analytics
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="campaigns" className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {campaigns.map((campaign) => (
-                <Card key={campaign.id}>
+                <Card key={campaign.id} variant="elevated">
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-lg">{campaign.name}</CardTitle>
@@ -183,7 +193,7 @@ const MarketingAutomation = () => {
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-4">
-            <Card>
+            <Card variant="elevated">
               <CardHeader>
                 <CardTitle>Marketing Analytics</CardTitle>
                 <CardDescription>Overview of your marketing performance</CardDescription>
