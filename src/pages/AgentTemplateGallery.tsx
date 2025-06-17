@@ -4,15 +4,17 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Mic, Users, Calendar, DollarSign, Wrench, Zap, Heart } from "lucide-react";
+import { ArrowLeft, Mic, Users, Calendar, Wrench, Zap, Heart, Bot } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AgentConfigForm } from "@/components/templates/AgentConfigForm";
+import { toast } from "sonner";
 
 // Template data structure
 interface AgentTemplate {
   id: string;
   name: string;
   description: string;
-  category: 'persona' | 'vertical';
+  category: 'persona' | 'vertical' | 'industry';
   icon: React.ComponentType<{ className?: string }>;
   persona: string;
   greeting: string;
@@ -20,108 +22,144 @@ interface AgentTemplate {
   voiceType: string;
   tags: string[];
   features: string[];
+  useCases: string[];
+  complexity: 'beginner' | 'intermediate' | 'advanced';
 }
 
 const personaTemplates: AgentTemplate[] = [
   {
     id: "warm-friendly",
-    name: "Warm & Friendly Receptionist",
-    description: "Creates a welcoming first impression with empathetic, personal service",
+    name: "Warm & Friendly Assistant",
+    description: "Creates a welcoming atmosphere with empathetic, personal service",
     category: 'persona',
     icon: Heart,
-    persona: "You are a warm, friendly, and empathetic receptionist who makes every caller feel valued and heard. You speak with genuine care and always maintain a positive, helpful attitude.",
+    persona: "You are a warm, friendly, and empathetic assistant who makes every caller feel valued and heard. You speak with genuine care and always maintain a positive, helpful attitude.",
     greeting: "Hello! Thank you for calling. I'm so glad you reached out today. How may I help make your day better?",
     primaryPurpose: "customer_service",
     voiceType: "female_friendly",
     tags: ["Empathetic", "Personal", "Caring"],
-    features: ["Warm tone", "Active listening", "Personal touch"]
+    features: ["Warm tone", "Active listening", "Personal touch"],
+    useCases: ["Customer support", "Reception", "Patient care"],
+    complexity: "beginner"
   },
   {
     id: "professional-concise",
-    name: "Concise & Professional Support",
-    description: "Efficient, direct communication focused on quick problem resolution",
+    name: "Professional & Efficient",
+    description: "Direct communication focused on quick problem resolution",
     category: 'persona',
     icon: Users,
-    persona: "You are a professional, efficient support agent who values the caller's time. You communicate clearly and directly while maintaining politeness and getting to solutions quickly.",
+    persona: "You are a professional, efficient assistant who values the caller's time. You communicate clearly and directly while maintaining politeness and getting to solutions quickly.",
     greeting: "Good day, this is professional support. I'm here to help you resolve any issues quickly and efficiently. What can I assist you with?",
     primaryPurpose: "customer_service",
     voiceType: "male_professional",
     tags: ["Efficient", "Direct", "Solution-focused"],
-    features: ["Quick resolution", "Clear communication", "Time-conscious"]
+    features: ["Quick resolution", "Clear communication", "Time-conscious"],
+    useCases: ["Technical support", "Business services", "Consultations"],
+    complexity: "intermediate"
   },
   {
-    id: "empathetic-care",
-    name: "Empathetic Customer Care",
-    description: "Specializes in handling sensitive issues with understanding and patience",
+    id: "sales-expert",
+    name: "Sales Expert",
+    description: "Persuasive and knowledgeable sales professional",
     category: 'persona',
-    icon: Heart,
-    persona: "You are an empathetic customer care specialist who excels at handling difficult situations with patience, understanding, and emotional intelligence. You listen carefully and respond with genuine concern.",
-    greeting: "Hello, I'm here to listen and help you through whatever you're experiencing today. Please take your time and tell me how I can support you.",
-    primaryPurpose: "customer_service",
-    voiceType: "female_professional",
-    tags: ["Patient", "Understanding", "Supportive"],
-    features: ["Emotional intelligence", "Conflict resolution", "Patient approach"]
+    icon: Bot,
+    persona: "You are an experienced sales professional who understands customer needs and can effectively communicate value propositions while building trust and rapport.",
+    greeting: "Hi there! Thanks for your interest in our services. I'm here to help you find the perfect solution for your needs. What brings you to us today?",
+    primaryPurpose: "sales",
+    voiceType: "male_confident",
+    tags: ["Persuasive", "Knowledgeable", "Results-driven"],
+    features: ["Lead qualification", "Objection handling", "Closing techniques"],
+    useCases: ["Sales calls", "Lead generation", "Product demos"],
+    complexity: "advanced"
   }
 ];
 
 const verticalTemplates: AgentTemplate[] = [
   {
-    id: "plumbing-service",
-    name: "Plumbing Service Scheduler",
-    description: "Specialized in plumbing emergencies, diagnostics, and service booking",
+    id: "healthcare-scheduler",
+    name: "Healthcare Appointment Scheduler",
+    description: "Specialized in medical appointment booking and patient care",
     category: 'vertical',
-    icon: Wrench,
-    persona: "You are a knowledgeable plumbing service coordinator who understands plumbing emergencies and can quickly assess situations, provide basic troubleshooting, and schedule appropriate service calls.",
-    greeting: "Hello, you've reached the plumbing service line. Whether it's an emergency or routine maintenance, I'm here to help. What plumbing issue can I assist you with today?",
-    primaryPurpose: "appointment_booking",
-    voiceType: "male_professional",
-    tags: ["Emergency-ready", "Technical knowledge", "Service scheduling"],
-    features: ["Emergency triage", "Basic diagnostics", "Scheduling integration"]
-  },
-  {
-    id: "electrical-support",
-    name: "Electrical Service Assistant",
-    description: "Handles electrical service calls, safety assessments, and technician dispatch",
-    category: 'vertical',
-    icon: Zap,
-    persona: "You are an electrical service assistant with knowledge of electrical systems and safety protocols. You can assess electrical issues, provide safety guidance, and coordinate emergency or routine service calls.",
-    greeting: "Hi, this is electrical service support. For your safety, please let me know about any electrical issues you're experiencing so I can help determine the right level of service needed.",
+    icon: Heart,
+    persona: "You are a caring healthcare coordinator who understands medical scheduling needs, patient privacy, and can handle sensitive health-related inquiries with empathy and professionalism.",
+    greeting: "Hello, you've reached [Practice Name] scheduling. I'm here to help you with appointments and answer any questions about our services. How can I assist you today?",
     primaryPurpose: "appointment_booking",
     voiceType: "female_professional",
-    tags: ["Safety-focused", "Emergency protocols", "Technical assessment"],
-    features: ["Safety assessment", "Emergency dispatch", "Technical guidance"]
+    tags: ["Medical knowledge", "HIPAA compliant", "Empathetic"],
+    features: ["Medical terminology", "Insurance verification", "Emergency protocols"],
+    useCases: ["Doctor appointments", "Medical consultations", "Patient intake"],
+    complexity: "advanced"
   },
   {
-    id: "hvac-scheduler",
-    name: "HVAC Maintenance Scheduler",
-    description: "Manages heating, cooling service calls and preventive maintenance scheduling",
+    id: "real-estate-agent",
+    name: "Real Estate Assistant",
+    description: "Property inquiries, showings, and market information",
     category: 'vertical',
     icon: Users,
-    persona: "You are an HVAC service coordinator who understands heating and cooling systems. You can troubleshoot basic issues, schedule maintenance, and help prioritize urgent vs. routine service needs.",
-    greeting: "Hello! You've reached HVAC service scheduling. Whether your system isn't working properly or you need routine maintenance, I'm here to get you comfortable again. What's going on with your heating or cooling?",
-    primaryPurpose: "appointment_booking",
-    voiceType: "male_friendly",
-    tags: ["Seasonal expertise", "Maintenance scheduling", "Comfort-focused"],
-    features: ["System diagnostics", "Seasonal planning", "Maintenance reminders"]
+    persona: "You are a knowledgeable real estate assistant who can provide property information, schedule showings, and answer questions about the local market with expertise and enthusiasm.",
+    greeting: "Hi! Thanks for calling about our properties. I'm excited to help you find your perfect home or investment. What type of property are you looking for?",
+    primaryPurpose: "lead_qualification",
+    voiceType: "female_enthusiastic",
+    tags: ["Property knowledge", "Market savvy", "Customer-focused"],
+    features: ["Property database", "Market insights", "Showing coordination"],
+    useCases: ["Property inquiries", "Market research", "Buyer qualification"],
+    complexity: "intermediate"
   },
   {
-    id: "auto-service",
+    id: "automotive-service",
     name: "Auto Service Coordinator",
-    description: "Handles automotive service scheduling and basic diagnostics",
+    description: "Vehicle service scheduling and maintenance reminders",
     category: 'vertical',
     icon: Wrench,
-    persona: "You are an automotive service coordinator who understands vehicle issues and can help diagnose problems, schedule service appointments, and provide estimates for common repairs.",
-    greeting: "Hi there! You've reached auto service scheduling. Whether it's routine maintenance or something's not running right, I'm here to help get your vehicle back on the road. What's bringing you in?",
+    persona: "You are an automotive service coordinator who understands vehicle maintenance, can diagnose basic issues, and helps customers schedule appropriate service appointments.",
+    greeting: "Hello! You've reached [Service Center] scheduling. Whether it's routine maintenance or something's not running right, I'm here to help get your vehicle back on the road. What's going on?",
     primaryPurpose: "appointment_booking",
     voiceType: "male_professional",
-    tags: ["Automotive knowledge", "Diagnostic help", "Service scheduling"],
-    features: ["Vehicle diagnostics", "Service estimates", "Parts availability"]
+    tags: ["Automotive expertise", "Diagnostic help", "Service scheduling"],
+    features: ["Vehicle diagnostics", "Service estimates", "Parts availability"],
+    useCases: ["Service appointments", "Maintenance reminders", "Repair estimates"],
+    complexity: "advanced"
+  }
+];
+
+const industryTemplates: AgentTemplate[] = [
+  {
+    id: "restaurant-reservations",
+    name: "Restaurant Host",
+    description: "Table reservations and dining inquiries",
+    category: 'industry',
+    icon: Calendar,
+    persona: "You are a friendly restaurant host who can handle reservations, answer menu questions, and provide information about special events and dining options.",
+    greeting: "Good [time of day]! Thank you for calling [Restaurant Name]. I'd be happy to help you with reservations or answer any questions about our menu and dining experience.",
+    primaryPurpose: "appointment_booking",
+    voiceType: "female_friendly",
+    tags: ["Hospitality", "Menu knowledge", "Event coordination"],
+    features: ["Table management", "Menu expertise", "Special accommodations"],
+    useCases: ["Dinner reservations", "Private events", "Menu inquiries"],
+    complexity: "beginner"
+  },
+  {
+    id: "fitness-membership",
+    name: "Fitness Center Assistant",
+    description: "Membership inquiries and class scheduling",
+    category: 'industry',
+    icon: Zap,
+    persona: "You are an energetic fitness center assistant who can help with membership questions, class schedules, and provide motivation for fitness goals.",
+    greeting: "Hey there! Thanks for calling [Gym Name]. I'm excited to help you on your fitness journey. Are you interested in membership, classes, or have questions about our facilities?",
+    primaryPurpose: "lead_qualification",
+    voiceType: "female_energetic",
+    tags: ["Fitness knowledge", "Motivational", "Schedule coordination"],
+    features: ["Class scheduling", "Membership options", "Fitness guidance"],
+    useCases: ["Membership sales", "Class bookings", "Facility tours"],
+    complexity: "intermediate"
   }
 ];
 
 const AgentTemplateGallery = () => {
   const navigate = useNavigate();
   const [selectedTemplate, setSelectedTemplate] = useState<AgentTemplate | null>(null);
+  const [showConfigForm, setShowConfigForm] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
 
   const handleTemplateSelect = (template: AgentTemplate) => {
     setSelectedTemplate(template);
@@ -129,18 +167,37 @@ const AgentTemplateGallery = () => {
 
   const handleUseTemplate = () => {
     if (selectedTemplate) {
-      // Navigate to create agent with template data
-      navigate("/create-voice-agent", { 
-        state: { 
-          template: selectedTemplate 
-        }
-      });
+      setShowConfigForm(true);
+    }
+  };
+
+  const handleSaveAgent = async (config: any) => {
+    setIsCreating(true);
+    try {
+      // Simulate agent creation
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      toast.success(`Agent "${config.name}" created successfully!`);
+      navigate("/voice-agents");
+    } catch (error) {
+      toast.error("Failed to create agent");
+    } finally {
+      setIsCreating(false);
     }
   };
 
   const TemplateCard = ({ template }: { template: AgentTemplate }) => {
     const Icon = template.icon;
     const isSelected = selectedTemplate?.id === template.id;
+
+    const getComplexityColor = (complexity: string) => {
+      switch (complexity) {
+        case 'beginner': return 'bg-green-100 text-green-800';
+        case 'intermediate': return 'bg-yellow-100 text-yellow-800';
+        case 'advanced': return 'bg-red-100 text-red-800';
+        default: return 'bg-gray-100 text-gray-800';
+      }
+    };
 
     return (
       <Card 
@@ -162,22 +219,25 @@ const AgentTemplateGallery = () => {
                 </CardDescription>
               </div>
             </div>
+            <Badge variant="outline" className={getComplexityColor(template.complexity)}>
+              {template.complexity}
+            </Badge>
           </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
             <div className="flex flex-wrap gap-1">
-              {template.tags.map((tag) => (
+              {template.tags.slice(0, 3).map((tag) => (
                 <Badge key={tag} variant="secondary" className="text-xs">
                   {tag}
                 </Badge>
               ))}
             </div>
             <div className="space-y-1">
-              <p className="text-xs font-medium text-muted-foreground">Key Features:</p>
+              <p className="text-xs font-medium text-muted-foreground">Use Cases:</p>
               <ul className="text-xs text-muted-foreground">
-                {template.features.slice(0, 3).map((feature, index) => (
-                  <li key={index}>• {feature}</li>
+                {template.useCases.slice(0, 2).map((useCase, index) => (
+                  <li key={index}>• {useCase}</li>
                 ))}
               </ul>
             </div>
@@ -186,6 +246,40 @@ const AgentTemplateGallery = () => {
       </Card>
     );
   };
+
+  if (showConfigForm && selectedTemplate) {
+    return (
+      <div className="container mx-auto py-6 max-w-4xl">
+        <div className="flex items-center mb-6">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="mr-2"
+            onClick={() => setShowConfigForm(false)}
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold">Configure Agent: {selectedTemplate.name}</h1>
+            <p className="text-muted-foreground">Customize the template to match your needs</p>
+          </div>
+        </div>
+
+        <AgentConfigForm
+          initialConfig={{
+            name: selectedTemplate.name,
+            description: selectedTemplate.description,
+            persona: selectedTemplate.persona,
+            greeting: selectedTemplate.greeting,
+            primaryPurpose: selectedTemplate.primaryPurpose
+          }}
+          onSave={handleSaveAgent}
+          onCancel={() => setShowConfigForm(false)}
+          isLoading={isCreating}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto py-6 max-w-6xl">
@@ -206,17 +300,32 @@ const AgentTemplateGallery = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <Tabs defaultValue="vertical" className="w-full">
+          <Tabs defaultValue="industry" className="w-full">
             <TabsList className="mb-6">
+              <TabsTrigger value="industry">Industry Specific</TabsTrigger>
               <TabsTrigger value="vertical">Business Verticals</TabsTrigger>
               <TabsTrigger value="persona">Personality Types</TabsTrigger>
             </TabsList>
             
-            <TabsContent value="vertical" className="space-y-4">
+            <TabsContent value="industry" className="space-y-4">
               <div>
                 <h3 className="text-lg font-semibold mb-3">Industry-Specific Templates</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Pre-configured agents with industry knowledge and specialized workflows
+                  Ready-to-use agents for specific industries and business types
+                </p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {industryTemplates.map((template) => (
+                  <TemplateCard key={template.id} template={template} />
+                ))}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="vertical" className="space-y-4">
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Business Vertical Templates</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Specialized agents with deep domain knowledge and workflows
                 </p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -230,7 +339,7 @@ const AgentTemplateGallery = () => {
               <div>
                 <h3 className="text-lg font-semibold mb-3">Personality-Based Templates</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Different communication styles and approaches for various customer interactions
+                  Different communication styles and approaches for various interactions
                 </p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -257,8 +366,8 @@ const AgentTemplateGallery = () => {
                     </div>
                     <div>
                       <h4 className="font-semibold">{selectedTemplate.name}</h4>
-                      <p className="text-sm text-muted-foreground">
-                        {selectedTemplate.category === 'vertical' ? 'Business Vertical' : 'Personality Type'}
+                      <p className="text-sm text-muted-foreground capitalize">
+                        {selectedTemplate.category} • {selectedTemplate.complexity}
                       </p>
                     </div>
                   </div>
@@ -272,24 +381,30 @@ const AgentTemplateGallery = () => {
                     </div>
 
                     <div>
-                      <p className="text-sm font-medium mb-1">Agent Persona:</p>
-                      <p className="text-xs text-muted-foreground">
-                        {selectedTemplate.persona}
-                      </p>
-                    </div>
-
-                    <div>
-                      <p className="text-sm font-medium mb-1">Voice Type:</p>
-                      <Badge variant="outline">
-                        {selectedTemplate.voiceType.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                      </Badge>
-                    </div>
-
-                    <div>
                       <p className="text-sm font-medium mb-1">Primary Function:</p>
                       <Badge variant="outline">
                         {selectedTemplate.primaryPurpose.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                       </Badge>
+                    </div>
+
+                    <div>
+                      <p className="text-sm font-medium mb-1">Key Features:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {selectedTemplate.features.map((feature, index) => (
+                          <Badge key={index} variant="secondary" className="text-xs">
+                            {feature}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <p className="text-sm font-medium mb-1">Best For:</p>
+                      <ul className="text-xs text-muted-foreground">
+                        {selectedTemplate.useCases.map((useCase, index) => (
+                          <li key={index}>• {useCase}</li>
+                        ))}
+                      </ul>
                     </div>
                   </div>
 

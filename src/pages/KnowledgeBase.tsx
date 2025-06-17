@@ -1,19 +1,14 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
   File,
-  Folder,
   Search,
   Upload,
-  Trash2,
-  Archive,
   ListTree,
   Settings,
-  Database,
-  BarChart3,
-  TestTube
+  TestTube,
+  AlertCircle
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -44,7 +39,7 @@ import TagManager from "@/components/rag/TagManager";
 import { DocumentFilters } from "@/components/rag/DocumentFilters";
 import { CategoryTree } from "@/components/rag/CategoryTree";
 import { DocumentsGrid } from "@/components/rag/DocumentsGrid";
-import { RelatedDocuments } from "@/components/rag/RelatedDocuments";
+import { DocumentProcessor } from "@/components/knowledge/DocumentProcessor";
 import { DocumentType, CategoryType } from "@/types/document";
 
 const KnowledgeBase: React.FC = () => {
@@ -57,6 +52,32 @@ const KnowledgeBase: React.FC = () => {
   const [filter, setFilter] = useState({ status: 'all', priority: 'all' });
   const [selectedCategory, setSelectedCategory] = useState<CategoryType | null>(null);
   const [selectedDocuments, setSelectedDocuments] = useState<DocumentType[]>([]);
+
+  // Processing jobs state
+  const [processingJobs, setProcessingJobs] = useState([
+    {
+      id: '1',
+      fileName: 'Sales_Manual_2024.pdf',
+      status: 'processing' as const,
+      progress: 65,
+      chunks: 12
+    },
+    {
+      id: '2',
+      fileName: 'Product_FAQ.docx',
+      status: 'completed' as const,
+      progress: 100,
+      chunks: 8
+    },
+    {
+      id: '3',
+      fileName: 'Technical_Docs.txt',
+      status: 'failed' as const,
+      progress: 0,
+      chunks: 0,
+      error: 'File format not supported'
+    }
+  ]);
 
   // Mock document data
   const [documents, setDocuments] = useState<DocumentType[]>([
@@ -164,28 +185,45 @@ const KnowledgeBase: React.FC = () => {
 
   const handleUpload = (files: FileList) => {
     Array.from(files).forEach(file => {
-      const newDocument: DocumentType = {
-        id: `${documents.length + 1}`,
-        name: file.name,
-        type: file.name.split('.').pop() || "",
-        size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
-        uploadedBy: "Current User",
-        uploadDate: new Date().toISOString().split('T')[0],
-        tags: [],
-        status: "pending",
-        category: "uncategorized",
-        priority: "medium",
-        expirationDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
-        versions: [
-          { id: `v1`, date: new Date().toISOString().split('T')[0], notes: "Initial upload" },
-        ],
-        content: "Processing content...",
+      const newJob = {
+        id: `job_${Date.now()}_${Math.random()}`,
+        fileName: file.name,
+        status: 'pending' as const,
+        progress: 0,
+        chunks: 0
       };
       
-      setDocuments(prev => [...prev, newDocument]);
+      setProcessingJobs(prev => [...prev, newJob]);
+      
+      // Simulate processing
+      setTimeout(() => {
+        setProcessingJobs(prev => 
+          prev.map(job => 
+            job.id === newJob.id 
+              ? { ...job, status: 'processing' as const }
+              : job
+          )
+        );
+      }, 1000);
     });
     
-    toast.success(`${files.length} document${files.length > 1 ? 's' : ''} uploaded successfully`);
+    toast.success(`${files.length} document${files.length > 1 ? 's' : ''} added to processing queue`);
+  };
+
+  const handleRetryJob = (jobId: string) => {
+    setProcessingJobs(prev => 
+      prev.map(job => 
+        job.id === jobId 
+          ? { ...job, status: 'pending' as const, progress: 0 }
+          : job
+      )
+    );
+    toast.success('Job queued for retry');
+  };
+
+  const handleCancelJob = (jobId: string) => {
+    setProcessingJobs(prev => prev.filter(job => job.id !== jobId));
+    toast.success('Job cancelled');
   };
 
   const handleDeleteDocument = (id: string) => {
@@ -307,10 +345,14 @@ const KnowledgeBase: React.FC = () => {
 
       <div className="container py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="documents" className="flex items-center gap-2">
               <File size={16} />
               Documents
+            </TabsTrigger>
+            <TabsTrigger value="processing" className="flex items-center gap-2">
+              <AlertCircle size={16} />
+              Processing
             </TabsTrigger>
             <TabsTrigger value="organization" className="flex items-center gap-2">
               <ListTree size={16} />
@@ -325,6 +367,14 @@ const KnowledgeBase: React.FC = () => {
               Testing
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="processing">
+            <DocumentProcessor 
+              jobs={processingJobs}
+              onRetry={handleRetryJob}
+              onCancel={handleCancelJob}
+            />
+          </TabsContent>
 
           <TabsContent value="documents">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

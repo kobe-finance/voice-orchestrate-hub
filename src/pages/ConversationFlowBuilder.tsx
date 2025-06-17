@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -21,8 +20,9 @@ import { nodeTypes } from '@/components/flow-builder/node-types';
 import { NodePalette } from '@/components/flow-builder/NodePalette';
 import { PropertyPanel } from '@/components/flow-builder/PropertyPanel';
 import { FlowHeader } from '@/components/flow-builder/FlowHeader';
+import { FlowValidator } from '@/components/flow/FlowValidator';
 import { Button } from '@/components/ui/button';
-import { Book, Settings } from 'lucide-react';
+import { Book, Settings, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 const ConversationFlowBuilder = () => {
@@ -41,6 +41,25 @@ const ConversationFlowBuilder = () => {
   // Flow metadata
   const [flowName, setFlowName] = useState('New Conversation Flow');
   const [unsavedChanges, setUnsavedChanges] = useState(false);
+  
+  // Validation state
+  const [validationIssues, setValidationIssues] = useState([
+    {
+      id: '1',
+      type: 'warning' as const,
+      nodeId: 'start-1',
+      message: 'Start node has no outgoing connections',
+      suggestion: 'Connect to a response or condition node'
+    },
+    {
+      id: '2',
+      type: 'error' as const,
+      nodeId: 'condition-1',
+      message: 'Condition node missing required configuration',
+      suggestion: 'Set the condition expression in properties panel'
+    }
+  ]);
+  const [isValidating, setIsValidating] = useState(false);
 
   // Handle connections between nodes
   const onConnect: OnConnect = useCallback((params) => {
@@ -165,6 +184,66 @@ const ConversationFlowBuilder = () => {
     setUnsavedChanges(true);
   }, [nodes, setNodes]);
 
+  // Handle validation
+  const handleValidate = useCallback(() => {
+    setIsValidating(true);
+    
+    // Simulate validation process
+    setTimeout(() => {
+      // Mock validation logic
+      const issues = [];
+      
+      // Check for disconnected nodes
+      nodes.forEach(node => {
+        const hasIncoming = edges.some(edge => edge.target === node.id);
+        const hasOutgoing = edges.some(edge => edge.source === node.id);
+        
+        if (!hasIncoming && node.type !== 'start') {
+          issues.push({
+            id: `${node.id}_no_incoming`,
+            type: 'warning' as const,
+            nodeId: node.id,
+            message: `Node "${node.data.label}" has no incoming connections`,
+            suggestion: 'Connect from another node or remove if unused'
+          });
+        }
+        
+        if (!hasOutgoing && node.type !== 'end') {
+          issues.push({
+            id: `${node.id}_no_outgoing`,
+            type: 'warning' as const,
+            nodeId: node.id,
+            message: `Node "${node.data.label}" has no outgoing connections`,
+            suggestion: 'Connect to another node or add an end node'
+          });
+        }
+      });
+      
+      setValidationIssues(issues);
+      setIsValidating(false);
+      
+      if (issues.length === 0) {
+        toast.success('Flow validation passed!');
+      } else {
+        toast.warning(`Found ${issues.length} validation issues`);
+      }
+    }, 2000);
+  }, [nodes, edges]);
+
+  const handleFixIssue = useCallback((issueId: string) => {
+    const issue = validationIssues.find(i => i.id === issueId);
+    if (issue?.nodeId) {
+      const node = nodes.find(n => n.id === issue.nodeId);
+      if (node) {
+        setSelectedNode(node);
+        toast.info(`Selected node "${node.data.label}" for editing`);
+      }
+    }
+    
+    // Remove the issue as if it was fixed
+    setValidationIssues(prev => prev.filter(i => i.id !== issueId));
+  }, [validationIssues, nodes]);
+
   return (
     <div className="h-screen flex flex-col">
       <FlowHeader 
@@ -176,10 +255,17 @@ const ConversationFlowBuilder = () => {
       />
       
       <div className="flex-1 flex">
-        <div className="w-60 p-4 border-r overflow-y-auto bg-background">
+        <div className="w-60 p-4 border-r overflow-y-auto bg-background space-y-4">
           <NodePalette onAddNode={onNodeAdd} />
 
-          <div className="mt-6 space-y-2">
+          <FlowValidator 
+            issues={validationIssues}
+            onFixIssue={handleFixIssue}
+            onValidate={handleValidate}
+            isValidating={isValidating}
+          />
+
+          <div className="space-y-2">
             <Button 
               variant="outline" 
               className="w-full justify-start" 
