@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Mic, ArrowRight, CheckCircle, Sparkles, Zap, Shield } from "lucide-react";
@@ -15,15 +16,7 @@ import {
 import { cn } from "@/lib/utils";
 
 const Index = () => {
-  // Initialize hooks immediately - no conditional calls
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
-  const [isReactReady, setIsReactReady] = useState(true); // Start as true to avoid conditional rendering
-
-  useEffect(() => {
-    // Simple ready check without affecting hook order
-    console.log('Index component - React initialized');
-    setIsReactReady(true);
-  }, []);
 
   const handleOpenVoiceModal = () => {
     setIsVoiceModalOpen(true);
