@@ -20,24 +20,18 @@ import BillingSubscription from './pages/BillingSubscription';
 import IntegrationMarketplace from './pages/IntegrationMarketplace';
 import ConversationFlowBuilder from './pages/ConversationFlowBuilder';
 import BusinessHours from './pages/BusinessHours';
-import FinancialInvoicing from './pages/FinancialInvoicing';
-import MarketingAutomation from './pages/MarketingAutomation';
-import WorkflowAutomation from './pages/WorkflowAutomation';
 import QualityAssurance from './pages/QualityAssurance';
 import Onboarding from './pages/Onboarding';
 import AgentTemplateGallery from "@/pages/AgentTemplateGallery";
 import ToolsPlugins from './pages/ToolsPlugins';
 import RAGConfiguration from './pages/RAGConfiguration';
 import KnowledgeBaseOrganization from './pages/KnowledgeBaseOrganization';
-import ReportBuilder from './pages/ReportBuilder';
 import Index from './pages/Index';
 import Auth from './pages/Auth';
 import ForgotPassword from './pages/ForgotPassword';
-import FieldServiceIntegration from './pages/FieldServiceIntegration';
 import APIKeyManagement from './pages/APIKeyManagement';
 import VoiceProviderManagement from './pages/VoiceProviderManagement';
 import VoiceSelection from './pages/VoiceSelection';
-import CRMIntegration from './pages/CRMIntegration';
 import AppointmentScheduling from './pages/AppointmentScheduling';
 import CustomerDatabase from './pages/CustomerDatabase';
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -114,18 +108,12 @@ function App() {
             <Route path="/integration-marketplace" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><IntegrationMarketplace /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
             <Route path="/conversation-flow" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><ConversationFlowBuilder /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
             <Route path="/business-hours" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><BusinessHours /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
-            <Route path="/financial-invoicing" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><FinancialInvoicing /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
-            <Route path="/marketing-automation" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><MarketingAutomation /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
-            <Route path="/workflow-automation" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><WorkflowAutomation /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
             <Route path="/quality-assurance" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><QualityAssurance /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
             <Route path="/agent-template-gallery" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><AgentTemplateGallery /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
             <Route path="/tools-plugins" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><ToolsPlugins /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
-            <Route path="/report-builder" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><ReportBuilder /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
-            <Route path="/field-service-integration" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><FieldServiceIntegration /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
             <Route path="/api-key-management" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><APIKeyManagement /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
             <Route path="/voice-provider-management" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><VoiceProviderManagement /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
             <Route path="/voice-selection" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><VoiceSelection /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
-            <Route path="/crm-integration" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><CRMIntegration /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
             <Route path="/appointments" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><AppointmentScheduling /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
             <Route path="/customers" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><CustomerDatabase /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
           </Routes>
