@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { X, Mic, AudioWaveform } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button-modern";
 import VoiceWaveform from "@/components/voice/VoiceWaveform";
 import { cn } from "@/lib/utils";
 
@@ -175,7 +175,7 @@ const VoiceModalContent: React.FC<VoiceModalProps> = ({ isOpen, onClose }) => {
           
           <Button 
             variant="destructive" 
-            size="icon"
+            size="icon-sm"
             className="h-8 w-8 rounded-full"
             onClick={handleEndConversation}
           >

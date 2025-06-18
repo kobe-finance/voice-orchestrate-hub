@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Mic, ArrowRight, CheckCircle, Sparkles, Zap, Shield } from "lucide-react";
@@ -146,13 +145,13 @@ const Index = () => {
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-pulse-soft" />
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent-orange/5 rounded-full blur-3xl animate-pulse-soft" style={{ animationDelay: '1s' }} />
         
-        <div className="max-w-4xl mx-auto relative z-10">
+        <div className="max-w-4xl mx-auto relative z-10 space-y-6">
           <div className="mb-6 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">
             <Sparkles className="h-4 w-4" />
             <span>Now with advanced voice AI</span>
           </div>
           
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6 leading-[1.1]">
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6 leading-[1.1] bg-gradient-to-r from-primary via-primary-600 to-accent-orange bg-clip-text text-transparent">
             Talk to Your AI Assistant{" "}
             <span className="text-gradient bg-gradient-to-r from-primary via-primary-600 to-accent-orange bg-clip-text text-transparent">
               Naturally
@@ -195,9 +194,9 @@ const Index = () => {
 
       {/* How It Works Section */}
       <section className="py-24 px-4 bg-gradient-to-b from-white to-gray-50 dark:from-gray-950 dark:to-gray-900">
-        <div className="container mx-auto max-w-6xl">
+        <div className="container mx-auto max-w-6xl space-y-6">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">How It Works</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-primary via-primary-600 to-accent-orange bg-clip-text text-transparent">How It Works</h2>
             <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
               Get started with AI conversations in three simple steps
             </p>
@@ -239,9 +238,9 @@ const Index = () => {
 
       {/* Benefits Section */}
       <section className="py-24 px-4">
-        <div className="container mx-auto max-w-6xl">
+        <div className="container mx-auto max-w-6xl space-y-6">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Choose VoiceOrchestrate</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-primary via-primary-600 to-accent-orange bg-clip-text text-transparent">Why Choose VoiceOrchestrate</h2>
             <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
               Built for the future of human-AI interaction
             </p>
@@ -292,8 +291,8 @@ const Index = () => {
 
       {/* CTA Section */}
       <section className="py-24 px-4 bg-gradient-to-br from-primary/5 via-primary/10 to-accent-orange/5">
-        <div className="container mx-auto max-w-3xl text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Experience the Future?</h2>
+        <div className="container mx-auto max-w-3xl text-center space-y-6">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-primary via-primary-600 to-accent-orange bg-clip-text text-transparent">Ready to Experience the Future?</h2>
           <p className="text-lg text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
             Start talking with our AI assistant today or sign up for a full-featured account.
           </p>
@@ -322,7 +321,7 @@ const Index = () => {
 
       {/* Footer */}
       <footer className="border-t border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-gray-950/50 backdrop-blur-sm">
-        <div className="container mx-auto py-12 px-4">
+        <div className="container mx-auto py-12 px-4 space-y-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
               {

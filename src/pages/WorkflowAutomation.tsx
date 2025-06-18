@@ -1,6 +1,8 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button-modern';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card } from '@/components/ui/card-modern';
 import { Plus, Settings, History, FileText, Zap } from 'lucide-react';
 import { 
   Breadcrumb, 
@@ -68,73 +70,81 @@ const WorkflowAutomation = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
       <div className="p-4 md:p-6 space-y-6">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Workflow Automation</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-
-        <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary via-primary-600 to-accent-orange bg-clip-text text-transparent">
-          Workflow Automation
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-1">Automate your business processes and tasks</p>
-
-        <Button variant="gradient" leftIcon={<Plus className="h-4 w-4" />}>
-          Create Workflow
-        </Button>
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+          <div>
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Workflow Automation</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+            <div className="mt-2">
+              <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary via-primary-600 to-accent-orange bg-clip-text text-transparent">
+                Workflow Automation
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400 mt-1">Automate your business processes and tasks</p>
+            </div>
+          </div>
+          <Button variant="gradient" leftIcon={<Plus className="h-4 w-4" />}>
+            Create Workflow
+          </Button>
+        </div>
 
         <WorkflowStats />
 
-        <Tabs defaultValue="workflows" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="workflows" className="flex items-center gap-2">
-              <Zap className="h-4 w-4" />
-              Workflows
-            </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              Templates
-            </TabsTrigger>
-            <TabsTrigger value="history" className="flex items-center gap-2">
-              <History className="h-4 w-4" />
-              Execution History
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              Settings
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="workflows" className="space-y-4">
-            <div className="space-y-4">
-              {workflows.map((workflow) => (
-                <WorkflowCard 
-                  key={workflow.id} 
-                  workflow={workflow} 
-                  onToggle={toggleWorkflow}
-                />
-              ))}
+        <Card variant="elevated" padding="none">
+          <Tabs defaultValue="workflows" className="w-full">
+            <div className="border-b border-border px-6 pt-6">
+              <TabsList className="grid w-full grid-cols-4 max-w-lg">
+                <TabsTrigger value="workflows" className="flex items-center gap-2">
+                  <Zap className="h-4 w-4" />
+                  Workflows
+                </TabsTrigger>
+                <TabsTrigger value="templates" className="flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Templates
+                </TabsTrigger>
+                <TabsTrigger value="history" className="flex items-center gap-2">
+                  <History className="h-4 w-4" />
+                  History
+                </TabsTrigger>
+                <TabsTrigger value="settings" className="flex items-center gap-2">
+                  <Settings className="h-4 w-4" />
+                  Settings
+                </TabsTrigger>
+              </TabsList>
             </div>
-          </TabsContent>
+            
+            <TabsContent value="workflows" className="p-6 pt-4">
+              <div className="space-y-4">
+                {workflows.map((workflow) => (
+                  <WorkflowCard 
+                    key={workflow.id} 
+                    workflow={workflow} 
+                    onToggle={toggleWorkflow}
+                  />
+                ))}
+              </div>
+            </TabsContent>
 
-          <TabsContent value="templates" className="space-y-4">
-            <WorkflowTemplates />
-          </TabsContent>
+            <TabsContent value="templates" className="p-6 pt-4">
+              <WorkflowTemplates />
+            </TabsContent>
 
-          <TabsContent value="history" className="space-y-4">
-            <WorkflowHistory />
-          </TabsContent>
+            <TabsContent value="history" className="p-6 pt-4">
+              <WorkflowHistory />
+            </TabsContent>
 
-          <TabsContent value="settings" className="space-y-4">
-            <WorkflowSettings />
-          </TabsContent>
-        </Tabs>
+            <TabsContent value="settings" className="p-6 pt-4">
+              <WorkflowSettings />
+            </TabsContent>
+          </Tabs>
+        </Card>
       </div>
     </div>
   );
