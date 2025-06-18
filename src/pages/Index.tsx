@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Mic, ArrowRight, CheckCircle, Sparkles, Zap, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button-modern";
@@ -15,12 +15,59 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 
+// Navigation Menu Styles
+const ListItem = React.forwardRef<
+  React.ElementRef<"a">,
+  React.ComponentPropsWithoutRef<"a"> & { 
+    title: string
+    icon?: React.ReactNode
+  }
+>(({ className, title, children, icon, ...props }, ref) => {
+  return (
+    <li>
+      <Link
+        to={props.href || "#"}
+        className={cn(
+          "block select-none space-y-1 rounded-lg p-4 leading-none no-underline outline-none transition-all hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground group",
+          className
+        )}
+        {...props}
+      >
+        <div className="flex items-center gap-2 text-sm font-medium leading-none mb-1">
+          {icon && <span className="text-primary">{icon}</span>}
+          {title}
+        </div>
+        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground group-hover:text-accent-foreground/80">
+          {children}
+        </p>
+      </Link>
+    </li>
+  );
+});
+ListItem.displayName = "ListItem";
+
+const navigationMenuTriggerStyle = () => {
+  return "group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50";
+};
+
 const Index = () => {
+  // Add safety check for React initialization
+  const [isReactReady, setIsReactReady] = useState(false);
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
+
+  // Ensure React is fully initialized
+  useEffect(() => {
+    setIsReactReady(true);
+  }, []);
 
   const handleOpenVoiceModal = () => {
     setIsVoiceModalOpen(true);
   };
+
+  // Don't render until React is ready
+  if (!isReactReady) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
@@ -348,41 +395,6 @@ const Index = () => {
       <VoiceModal isOpen={isVoiceModalOpen} onClose={() => setIsVoiceModalOpen(false)} />
     </div>
   );
-};
-
-// Navigation Menu Styles
-const ListItem = React.forwardRef<
-  React.ElementRef<"a">,
-  React.ComponentPropsWithoutRef<"a"> & { 
-    title: string
-    icon?: React.ReactNode
-  }
->(({ className, title, children, icon, ...props }, ref) => {
-  return (
-    <li>
-      <Link
-        to={props.href || "#"}
-        className={cn(
-          "block select-none space-y-1 rounded-lg p-4 leading-none no-underline outline-none transition-all hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground group",
-          className
-        )}
-        {...props}
-      >
-        <div className="flex items-center gap-2 text-sm font-medium leading-none mb-1">
-          {icon && <span className="text-primary">{icon}</span>}
-          {title}
-        </div>
-        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground group-hover:text-accent-foreground/80">
-          {children}
-        </p>
-      </Link>
-    </li>
-  );
-});
-ListItem.displayName = "ListItem";
-
-const navigationMenuTriggerStyle = () => {
-  return "group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50";
 };
 
 export default Index;
