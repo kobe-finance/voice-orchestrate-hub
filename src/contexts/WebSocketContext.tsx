@@ -32,20 +32,20 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
   const [reconnectAttempts, setReconnectAttempts] = useState(0);
   const [reconnectTimer, setReconnectTimer] = useState<NodeJS.Timeout | null>(null);
   
-  const { user, token, isAuthenticated } = useAuth();
+  const { user, session, isAuthenticated } = useAuth();
 
   const MAX_RECONNECT_ATTEMPTS = 5;
   const RECONNECT_INTERVAL = 3000; // 3 seconds
 
   const connect = () => {
-    if (!isAuthenticated || !token) {
+    if (!isAuthenticated || !session?.access_token) {
       return;
     }
 
     setConnectionStatus('connecting');
     
     try {
-      const ws = new WebSocket(`${WS_URL}?token=${token.accessToken}`);
+      const ws = new WebSocket(`${WS_URL}?token=${session.access_token}`);
       
       ws.onopen = () => {
         console.log('WebSocket connected');
@@ -58,7 +58,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
           type: 'auth',
           payload: {
             userId: user?.id,
-            tenantId: user?.tenantId,
+            tenantId: user?.user_metadata?.tenant_id || 'default',
           },
           timestamp: Date.now(),
         }));
@@ -159,14 +159,14 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
   };
 
   useEffect(() => {
-    if (isAuthenticated && token) {
+    if (isAuthenticated && session) {
       connect();
     } else {
       disconnect();
     }
 
     return () => disconnect();
-  }, [isAuthenticated, token]);
+  }, [isAuthenticated, session]);
 
   useEffect(() => {
     return () => {

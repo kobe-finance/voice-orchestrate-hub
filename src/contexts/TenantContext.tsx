@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/components/ui/sonner';
@@ -139,8 +138,9 @@ export const TenantProvider = ({ children }: { children: React.ReactNode }) => {
 
       setAvailableTenants(mockTenants);
       
-      // Set current tenant (from storage or user's primary tenant)
-      const targetTenantId = storedTenantId || user?.tenantId || mockTenants[0]?.id;
+      // Set current tenant (from storage or user's tenant from metadata or first available)
+      const userTenantId = user?.user_metadata?.tenant_id;
+      const targetTenantId = storedTenantId || userTenantId || mockTenants[0]?.id;
       const targetTenant = mockTenants.find(t => t.id === targetTenantId) || mockTenants[0];
       
       if (targetTenant) {
