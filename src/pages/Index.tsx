@@ -1,5 +1,5 @@
 
-import React, { useState, useCallback } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import { Mic, ArrowRight, CheckCircle, Sparkles, Zap, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button-modern";
@@ -51,13 +51,13 @@ const navigationMenuTriggerStyle = () => {
 };
 
 const Index: React.FC = () => {
-  const [isVoiceModalOpen, setIsVoiceModalOpen] = useState<boolean>(false);
+  const [isVoiceModalOpen, setIsVoiceModalOpen] = React.useState<boolean>(false);
 
-  const handleOpenVoiceModal = useCallback(() => {
+  const handleOpenVoiceModal = React.useCallback(() => {
     setIsVoiceModalOpen(true);
   }, []);
 
-  const handleCloseVoiceModal = useCallback(() => {
+  const handleCloseVoiceModal = React.useCallback(() => {
     setIsVoiceModalOpen(false);
   }, []);
 
@@ -71,57 +71,18 @@ const Index: React.FC = () => {
               VoiceOrchestrate<span className="text-gradient-accent">™</span>
             </Link>
             
-            <NavigationMenu className="hidden md:flex">
-              <NavigationMenuList>
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger className="text-sm font-medium">Features</NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <div className="grid w-[500px] gap-3 p-6">
-                      <div className="grid grid-cols-2 gap-4">
-                        <ListItem href="/voice-agents" title="Voice Agents" icon={<Mic className="h-4 w-4" />}>
-                          Create and manage AI agents with natural voices
-                        </ListItem>
-                        <ListItem href="/conversation-flow" title="Flow Builder" icon={<Sparkles className="h-4 w-4" />}>
-                          Design complex conversation flows visually
-                        </ListItem>
-                        <ListItem href="/knowledge-base" title="Knowledge Base" icon={<Shield className="h-4 w-4" />}>
-                          Manage knowledge base for your AI agents
-                        </ListItem>
-                        <ListItem href="/analytics" title="Analytics" icon={<Zap className="h-4 w-4" />}>
-                          Track and measure conversation metrics
-                        </ListItem>
-                      </div>
-                    </div>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger className="text-sm font-medium">Solutions</NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <div className="grid w-[500px] gap-3 p-6">
-                      <div className="grid grid-cols-2 gap-4">
-                        <ListItem title="Customer Support">
-                          Voice AI for 24/7 customer service
-                        </ListItem>
-                        <ListItem title="Sales & Marketing">
-                          Engage customers with intelligent conversations
-                        </ListItem>
-                        <ListItem title="Healthcare">
-                          Patient intake and follow-up automation
-                        </ListItem>
-                        <ListItem title="Education">
-                          Interactive learning assistants
-                        </ListItem>
-                      </div>
-                    </div>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <Link to="/pricing" className={navigationMenuTriggerStyle()}>
-                    Pricing
-                  </Link>
-                </NavigationMenuItem>
-              </NavigationMenuList>
-            </NavigationMenu>
+            {/* Simplified Navigation - Remove NavigationMenu for now */}
+            <nav className="hidden md:flex items-center gap-6">
+              <Link to="/features" className="text-sm font-medium hover:text-primary transition-colors">
+                Features
+              </Link>
+              <Link to="/solutions" className="text-sm font-medium hover:text-primary transition-colors">
+                Solutions
+              </Link>
+              <Link to="/pricing" className="text-sm font-medium hover:text-primary transition-colors">
+                Pricing
+              </Link>
+            </nav>
           </div>
 
           <div className="flex items-center gap-3">
