@@ -50,24 +50,12 @@ const navigationMenuTriggerStyle = () => {
   return "group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50";
 };
 
-const Index = () => {
-  // Add safety check for React initialization
-  const [isReactReady, setIsReactReady] = useState(false);
-  const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
-
-  // Ensure React is fully initialized
-  useEffect(() => {
-    setIsReactReady(true);
-  }, []);
+const Index: React.FC = () => {
+  const [isVoiceModalOpen, setIsVoiceModalOpen] = useState<boolean>(false);
 
   const handleOpenVoiceModal = () => {
     setIsVoiceModalOpen(true);
   };
-
-  // Don't render until React is ready
-  if (!isReactReady) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
