@@ -1,12 +1,8 @@
 
 import { createContext, useContext, useState, useEffect } from 'react';
+import { User, Session } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/sonner';
-
-interface AuthToken {
-  accessToken: string;
-  refreshToken: string;
-  expiresAt: number;
-}
 
 interface RegisterData {
   firstName: string;
@@ -18,9 +14,9 @@ interface RegisterData {
 interface AuthContextType {
   // State properties
   isAuthenticated: boolean;
-  user: any | null;
+  user: User | null;
+  session: Session | null;
   isLoading: boolean;
-  token: AuthToken | null;
   
   // Methods
   login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
@@ -31,110 +27,94 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const TOKEN_STORAGE_KEY = 'voiceorchestrate_token';
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<any | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [token, setToken] = useState<AuthToken | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Sync with Zustand store after React is ready
+  // Initialize auth state and set up listener
   useEffect(() => {
-    const syncWithStore = async () => {
+    let mounted = true;
+
+    const initializeAuth = async () => {
       try {
-        const { useAppStore } = await import('@/stores/useAppStore');
-        const store = useAppStore.getState();
-        
-        // Sync local state with store
-        if (store.user && !user) {
-          setUser(store.user);
-          setIsAuthenticated(store.isAuthenticated);
-        }
-      } catch (error) {
-        console.error('Failed to sync with store:', error);
-      }
-    };
-
-    if (isInitialized) {
-      syncWithStore();
-    }
-  }, [isInitialized, user]);
-
-  // Initialize auth state from localStorage
-  useEffect(() => {
-    const initializeAuth = () => {
-      setIsLoading(true);
-      
-      const storedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
-      const storedUser = localStorage.getItem('voiceorchestrate_user');
-
-      if (storedToken && storedUser) {
-        try {
-          const parsedToken = JSON.parse(storedToken);
-          const parsedUser = JSON.parse(storedUser);
-          
-          // Check if token is still valid
-          if (parsedToken.expiresAt > Date.now()) {
-            setUser(parsedUser);
-            setIsAuthenticated(true);
-            setToken(parsedToken);
-          } else {
-            // Token expired, try to refresh
-            refreshTokenSilently(parsedToken.refreshToken);
+        // Set up auth state listener first
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(
+          async (event, session) => {
+            console.log('Auth state changed:', event, session?.user?.email);
+            
+            if (mounted) {
+              setSession(session);
+              setUser(session?.user ?? null);
+              setIsAuthenticated(!!session);
+              
+              // Sync with Zustand store after auth state changes
+              if (session?.user) {
+                setTimeout(() => {
+                  syncWithZustandStore(session.user);
+                }, 0);
+              }
+            }
           }
-        } catch (error) {
-          console.error('Error parsing stored auth data:', error);
-          clearAuthData();
+        );
+
+        // Get initial session
+        const { data: { session: initialSession }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting initial session:', error);
+        }
+
+        if (mounted) {
+          setSession(initialSession);
+          setUser(initialSession?.user ?? null);
+          setIsAuthenticated(!!initialSession);
+          setIsLoading(false);
+          setIsInitialized(true);
+
+          if (initialSession?.user) {
+            await syncWithZustandStore(initialSession.user);
+          }
+        }
+
+        return () => {
+          subscription.unsubscribe();
+        };
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+        if (mounted) {
+          setIsLoading(false);
+          setIsInitialized(true);
         }
       }
-      
-      setIsLoading(false);
-      setIsInitialized(true);
     };
 
-    // Small delay to ensure React is fully initialized
-    const timeoutId = setTimeout(initializeAuth, 0);
-    return () => clearTimeout(timeoutId);
+    initializeAuth();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
-  // Auto-refresh token before expiration
-  useEffect(() => {
-    if (!isInitialized || !user || !token) return;
-
-    const timeUntilExpiry = token.expiresAt - Date.now();
-    const refreshTime = Math.max(timeUntilExpiry - 5 * 60 * 1000, 60 * 1000);
-
-    const refreshTimer = setTimeout(() => {
-      refreshTokenMethod();
-    }, refreshTime);
-
-    return () => clearTimeout(refreshTimer);
-  }, [user, token, isInitialized]);
-
-  const clearAuthData = () => {
-    localStorage.removeItem(TOKEN_STORAGE_KEY);
-    localStorage.removeItem('voiceorchestrate_user');
-    setToken(null);
-    setUser(null);
-    setIsAuthenticated(false);
-  };
-
-  const storeAuthData = (tokenData: AuthToken, userData: any, remember: boolean = false) => {
-    const storage = remember ? localStorage : sessionStorage;
-    storage.setItem(TOKEN_STORAGE_KEY, JSON.stringify(tokenData));
-    storage.setItem('voiceorchestrate_user', JSON.stringify(userData));
-    setToken(tokenData);
-    setUser(userData);
-    setIsAuthenticated(true);
-  };
-
-  const syncWithZustandStore = async (userData: any) => {
+  const syncWithZustandStore = async (userData: User) => {
     try {
       const { useAppStore } = await import('@/stores/useAppStore');
       const store = useAppStore.getState();
-      store.setUser(userData);
+      
+      // Convert Supabase User to app user format
+      const appUser = {
+        id: userData.id,
+        email: userData.email || '',
+        firstName: userData.user_metadata?.first_name || '',
+        lastName: userData.user_metadata?.last_name || '',
+        role: userData.user_metadata?.role || 'user',
+        tenantId: userData.user_metadata?.tenant_id || 'default',
+        isEmailVerified: userData.email_confirmed_at != null,
+      };
+      
+      store.setUser(appUser);
     } catch (error) {
       console.error('Failed to sync with Zustand store:', error);
     }
@@ -143,40 +123,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string, rememberMe: boolean = false) => {
     setIsLoading(true);
     try {
-      // Simulate API call with enhanced error handling
-      await new Promise((resolve, reject) => {
-        setTimeout(() => {
-          // Simulate occasional failures for demo
-          if (Math.random() > 0.9) {
-            reject(new Error('Network error'));
-          } else {
-            resolve(true);
-          }
-        }, 1500);
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
 
-      // Mock successful response
-      const mockTokenData: AuthToken = {
-        accessToken: 'mock_access_token_' + Date.now(),
-        refreshToken: 'mock_refresh_token_' + Date.now(),
-        expiresAt: Date.now() + 3600 * 1000, // 1 hour
-      };
+      if (error) {
+        console.error('Login error:', error);
+        
+        // Handle specific error cases
+        if (error.message.includes('Invalid login credentials')) {
+          toast.error('Invalid email or password. Please check your credentials.');
+        } else if (error.message.includes('Email not confirmed')) {
+          toast.error('Please verify your email address before signing in.');
+        } else {
+          toast.error(error.message || 'Login failed. Please try again.');
+        }
+        throw error;
+      }
 
-      const mockUser = {
-        id: '1',
-        email,
-        firstName: 'John',
-        lastName: 'Doe',
-        role: 'admin',
-        tenantId: 'tenant_1',
-        isEmailVerified: true,
-      };
-
-      storeAuthData(mockTokenData, mockUser, rememberMe);
-      await syncWithZustandStore(mockUser);
-      toast.success('Login successful!');
+      if (data.user && data.session) {
+        console.log('Login successful:', data.user.email);
+        toast.success('Welcome back! Login successful.');
+      }
     } catch (error) {
-      toast.error('Login failed. Please check your credentials.');
+      console.error('Login failed:', error);
       throw error;
     } finally {
       setIsLoading(false);
@@ -186,77 +157,109 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (data: RegisterData) => {
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise((resolve, reject) => {
-        setTimeout(() => {
-          if (Math.random() > 0.9) {
-            reject(new Error('Registration failed'));
-          } else {
-            resolve(true);
+      const redirectUrl = `${window.location.origin}/`;
+      
+      const { data: authData, error } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            first_name: data.firstName,
+            last_name: data.lastName,
+            role: 'user',
           }
-        }, 2000);
+        }
       });
 
-      toast.success('Registration successful! Please verify your email.');
-      console.log('Registration successful (mock):', data);
+      if (error) {
+        console.error('Registration error:', error);
+        
+        // Handle specific error cases
+        if (error.message.includes('User already registered')) {
+          toast.error('An account with this email already exists. Please sign in instead.');
+        } else if (error.message.includes('Password should be at least')) {
+          toast.error('Password must be at least 6 characters long.');
+        } else {
+          toast.error(error.message || 'Registration failed. Please try again.');
+        }
+        throw error;
+      }
+
+      if (authData.user) {
+        console.log('Registration successful:', authData.user.email);
+        
+        if (!authData.session) {
+          toast.success('Registration successful! Please check your email for verification.');
+        } else {
+          toast.success('Registration successful! Welcome to VoiceOrchestrate.');
+        }
+      }
     } catch (error) {
-      toast.error('Registration failed. Please try again.');
+      console.error('Registration failed:', error);
       throw error;
     } finally {
       setIsLoading(false);
     }
   };
 
-  const refreshTokenSilently = async (refreshTokenValue: string) => {
+  const refreshToken = async () => {
     try {
-      // Simulate refresh token API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { data, error } = await supabase.auth.refreshSession();
       
-      const newTokenData: AuthToken = {
-        accessToken: 'refreshed_access_token_' + Date.now(),
-        refreshToken: refreshTokenValue,
-        expiresAt: Date.now() + 3600 * 1000,
-      };
+      if (error) {
+        console.error('Token refresh failed:', error);
+        await logout();
+        return;
+      }
 
-      localStorage.setItem(TOKEN_STORAGE_KEY, JSON.stringify(newTokenData));
-      setToken(newTokenData);
+      if (data.session) {
+        console.log('Token refreshed successfully');
+      }
     } catch (error) {
-      console.error('Silent token refresh failed:', error);
-      clearAuthData();
-      // Use window.location instead of useNavigate
-      window.location.href = '/auth';
+      console.error('Token refresh error:', error);
+      await logout();
     }
   };
 
-  const refreshTokenMethod = async () => {
-    if (!token) {
-      logout();
-      return;
-    }
-
+  const logout = async () => {
     try {
-      await refreshTokenSilently(token.refreshToken);
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('Logout error:', error);
+        toast.error('Error during logout. Please try again.');
+      } else {
+        console.log('Logout successful');
+        toast.success('Logged out successfully');
+        
+        // Clear Zustand store
+        try {
+          const { useAppStore } = await import('@/stores/useAppStore');
+          const store = useAppStore.getState();
+          store.setUser(null);
+        } catch (error) {
+          console.error('Failed to clear store:', error);
+        }
+        
+        // Redirect to auth page
+        window.location.href = '/auth';
+      }
     } catch (error) {
-      logout();
+      console.error('Logout failed:', error);
+      toast.error('Logout failed. Please try again.');
     }
-  };
-
-  const logout = () => {
-    clearAuthData();
-    // Use window.location instead of useNavigate to avoid context issues
-    window.location.href = '/auth';
-    toast.success('Logged out successfully');
   };
 
   const value: AuthContextType = {
     isAuthenticated,
     user,
+    session,
     isLoading,
-    token,
     login,
     register,
     logout,
-    refreshToken: refreshTokenMethod,
+    refreshToken,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

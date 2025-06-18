@@ -1,9 +1,9 @@
-
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,36 +11,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { GoogleIcon, MicrosoftIcon } from "@/components/icons/AuthIcons";
-
-// Simple toast function that doesn't use any React hooks or external dependencies
-const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
-  const toast = document.createElement('div');
-  toast.className = `fixed top-4 right-4 z-50 max-w-sm p-4 rounded-lg shadow-lg transition-all duration-300 transform translate-x-full`;
-  
-  const colors = {
-    success: 'bg-green-500 text-white',
-    error: 'bg-red-500 text-white', 
-    info: 'bg-blue-500 text-white'
-  };
-  
-  toast.className += ` ${colors[type]}`;
-  toast.textContent = message;
-  
-  document.body.appendChild(toast);
-  
-  setTimeout(() => {
-    toast.style.transform = 'translateX(0)';
-  }, 10);
-  
-  setTimeout(() => {
-    toast.style.transform = 'translateX(100%)';
-    setTimeout(() => {
-      if (document.body.contains(toast)) {
-        document.body.removeChild(toast);
-      }
-    }, 300);
-  }, 4000);
-};
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "@/components/ui/sonner";
 
 // Enhanced form schemas with better validation
 const loginSchema = z.object({
@@ -49,7 +21,7 @@ const loginSchema = z.object({
     .email("Please enter a valid email address"),
   password: z.string()
     .min(1, "Password is required")
-    .min(8, "Password must be at least 8 characters"),
+    .min(6, "Password must be at least 6 characters"),
   rememberMe: z.boolean().optional(),
 });
 
@@ -66,10 +38,7 @@ const registerSchema = z.object({
     .min(1, "Email is required")
     .email("Please enter a valid email address"),
   password: z.string()
-    .min(8, "Password must be at least 8 characters")
-    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, { 
-      message: "Password must contain at least one uppercase letter, one lowercase letter, and one number" 
-    })
+    .min(6, "Password must be at least 6 characters")
     .max(128, "Password must be less than 128 characters"),
   confirmPassword: z.string(),
   acceptTerms: z.boolean().refine((val) => val === true, {
@@ -84,7 +53,17 @@ type LoginFormData = z.infer<typeof loginSchema>;
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 const Auth = () => {
-  const [isLoading, setIsLoading] = React.useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { login, register, isAuthenticated, isLoading } = useAuth();
+  
+  // Redirect if already authenticated
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      const from = location.state?.from?.pathname || '/dashboard';
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, navigate, location]);
   
   // Form configurations with improved default values
   const loginForm = useForm<LoginFormData>({
@@ -110,100 +89,40 @@ const Auth = () => {
     mode: "onChange",
   });
 
-  // Mock authentication functions - completely self-contained
-  const mockLogin = async (email: string, password: string, rememberMe?: boolean) => {
-    // Simulate API call with enhanced error handling
-    await new Promise((resolve, reject) => {
-      setTimeout(() => {
-        // Simulate occasional failures for demo
-        if (Math.random() > 0.9) {
-          reject(new Error('Network error'));
-        } else {
-          resolve(true);
-        }
-      }, 1500);
-    });
-
-    // Store mock user data
-    const mockUser = {
-      id: '1',
-      email,
-      firstName: 'John',
-      lastName: 'Doe',
-      role: 'admin',
-      tenantId: 'tenant_1',
-      isEmailVerified: true,
-    };
-
-    const storage = rememberMe ? localStorage : sessionStorage;
-    storage.setItem('voiceorchestrate_user', JSON.stringify(mockUser));
-    storage.setItem('voiceorchestrate_token', JSON.stringify({
-      accessToken: 'mock_access_token_' + Date.now(),
-      refreshToken: 'mock_refresh_token_' + Date.now(),
-      expiresAt: Date.now() + 3600 * 1000,
-    }));
-  };
-
-  const mockRegister = async (data: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    password: string;
-  }) => {
-    // Simulate API call
-    await new Promise((resolve, reject) => {
-      setTimeout(() => {
-        if (Math.random() > 0.9) {
-          reject(new Error('Registration failed'));
-        } else {
-          resolve(true);
-        }
-      }, 2000);
-    });
-
-    console.log('Registration successful (mock):', data);
-  };
-
   const onLoginSubmit = async (values: LoginFormData) => {
-    setIsLoading(true);
     try {
-      await mockLogin(values.email, values.password, values.rememberMe);
-      showToast("Welcome back! Login successful.", 'success');
-      window.location.href = "/dashboard";
+      await login(values.email, values.password, values.rememberMe);
+      const from = location.state?.from?.pathname || '/dashboard';
+      navigate(from, { replace: true });
     } catch (error) {
-      showToast("Login failed. Please check your credentials and try again.", 'error');
-    } finally {
-      setIsLoading(false);
+      // Error is already handled in the login function with toast
+      console.error('Login failed:', error);
     }
   };
 
   const onRegisterSubmit = async (values: RegisterFormData) => {
-    setIsLoading(true);
     try {
-      await mockRegister({
+      await register({
         firstName: values.firstName,
         lastName: values.lastName,
         email: values.email,
         password: values.password,
       });
-      showToast("Account created successfully! Please check your email for verification.", 'success');
-      window.location.href = "/onboarding";
+      // Stay on auth page to show success message
+      // User will be redirected after email verification
     } catch (error) {
-      showToast("Registration failed. Please try again.", 'error');
-    } finally {
-      setIsLoading(false);
+      // Error is already handled in the register function with toast
+      console.error('Registration failed:', error);
     }
   };
 
   const handleForgotPassword = () => {
-    window.location.href = "/forgot-password";
+    navigate("/forgot-password");
   };
 
   const handleSSOLogin = (provider: string) => {
-    setIsLoading(true);
     console.log(`SSO login with ${provider}`);
-    showToast(`Redirecting to ${provider} for authentication...`, 'info');
-    setTimeout(() => setIsLoading(false), 2000);
+    toast.info(`${provider} authentication coming soon!`);
   };
 
   const containerVariants = {
