@@ -1,5 +1,5 @@
 
-import * as React from "react";
+import React, { useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Mic, ArrowRight, CheckCircle, Sparkles, Zap, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button-modern";
@@ -51,13 +51,13 @@ const navigationMenuTriggerStyle = () => {
 };
 
 const Index: React.FC = () => {
-  const [isVoiceModalOpen, setIsVoiceModalOpen] = React.useState<boolean>(false);
+  const [isVoiceModalOpen, setIsVoiceModalOpen] = useState<boolean>(false);
 
-  const handleOpenVoiceModal = React.useCallback(() => {
+  const handleOpenVoiceModal = useCallback(() => {
     setIsVoiceModalOpen(true);
   }, []);
 
-  const handleCloseVoiceModal = React.useCallback(() => {
+  const handleCloseVoiceModal = useCallback(() => {
     setIsVoiceModalOpen(false);
   }, []);
 
