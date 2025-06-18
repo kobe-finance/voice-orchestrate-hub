@@ -11,27 +11,6 @@ interface VoiceModalProps {
 }
 
 export const VoiceModal: React.FC<VoiceModalProps> = ({ isOpen, onClose }) => {
-  const [isReactReady, setIsReactReady] = useState(false);
-
-  // Ensure React is fully initialized before using hooks
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsReactReady(true);
-    }, 50);
-    
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Don't render anything until React is ready
-  if (!isReactReady) {
-    return null;
-  }
-
-  return <VoiceModalContent isOpen={isOpen} onClose={onClose} />;
-};
-
-// Separate the main modal content to avoid hook initialization issues
-const VoiceModalContent: React.FC<VoiceModalProps> = ({ isOpen, onClose }) => {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState<string[]>([]);
   const [elapsedTime, setElapsedTime] = useState(0);
