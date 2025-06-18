@@ -20,7 +20,6 @@ import BillingSubscription from './pages/BillingSubscription';
 import IntegrationMarketplace from './pages/IntegrationMarketplace';
 import ConversationFlowBuilder from './pages/ConversationFlowBuilder';
 import BusinessHours from './pages/BusinessHours';
-import QualityAssurance from './pages/QualityAssurance';
 import Onboarding from './pages/Onboarding';
 import AgentTemplateGallery from "@/pages/AgentTemplateGallery";
 import ToolsPlugins from './pages/ToolsPlugins';
@@ -108,7 +107,6 @@ function App() {
             <Route path="/integration-marketplace" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><IntegrationMarketplace /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
             <Route path="/conversation-flow" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><ConversationFlowBuilder /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
             <Route path="/business-hours" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><BusinessHours /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
-            <Route path="/quality-assurance" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><QualityAssurance /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
             <Route path="/agent-template-gallery" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><AgentTemplateGallery /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
             <Route path="/tools-plugins" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><ToolsPlugins /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
             <Route path="/api-key-management" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><APIKeyManagement /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />

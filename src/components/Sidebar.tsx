@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { 
@@ -37,7 +36,6 @@ import {
   Calendar,
   Zap,
   LucideIcon,
-  Shield,
   Brain,
   Wrench,
   Palette,
@@ -65,7 +63,6 @@ const navigationItems: NavigationItem[] = [
   { title: "Customers", path: "/customers", icon: UserCheck },
   { title: "Appointments", path: "/appointments", icon: Calendar },
   { title: "Business Hours", path: "/business-hours", icon: Clock },
-  { title: "Quality Assurance", path: "/quality-assurance", icon: Shield },
   { title: "Tools & Plugins", path: "/tools-plugins", icon: Wrench },
   { title: "API Integrations", path: "/integration-marketplace", icon: Brain },
   { title: "API Keys", path: "/api-key-management", icon: KeyRound },
