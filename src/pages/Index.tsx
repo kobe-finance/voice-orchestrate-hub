@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import * as React from "react";
 import { Link } from "react-router-dom";
 import { Mic, ArrowRight, CheckCircle, Sparkles, Zap, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button-modern";
@@ -51,11 +51,15 @@ const navigationMenuTriggerStyle = () => {
 };
 
 const Index: React.FC = () => {
-  const [isVoiceModalOpen, setIsVoiceModalOpen] = useState<boolean>(false);
+  const [isVoiceModalOpen, setIsVoiceModalOpen] = React.useState<boolean>(false);
 
-  const handleOpenVoiceModal = () => {
+  const handleOpenVoiceModal = React.useCallback(() => {
     setIsVoiceModalOpen(true);
-  };
+  }, []);
+
+  const handleCloseVoiceModal = React.useCallback(() => {
+    setIsVoiceModalOpen(false);
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
@@ -380,7 +384,7 @@ const Index: React.FC = () => {
       </footer>
 
       {/* Voice Modal */}
-      <VoiceModal isOpen={isVoiceModalOpen} onClose={() => setIsVoiceModalOpen(false)} />
+      <VoiceModal isOpen={isVoiceModalOpen} onClose={handleCloseVoiceModal} />
     </div>
   );
 };
