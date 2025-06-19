@@ -32,7 +32,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [isInitialized, setIsInitialized] = useState(false);
 
   // Initialize auth state and set up listener
   useEffect(() => {
@@ -72,7 +71,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setUser(initialSession?.user ?? null);
           setIsAuthenticated(!!initialSession);
           setIsLoading(false);
-          setIsInitialized(true);
 
           if (initialSession?.user) {
             await syncWithZustandStore(initialSession.user);
@@ -86,7 +84,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.error('Auth initialization error:', error);
         if (mounted) {
           setIsLoading(false);
-          setIsInitialized(true);
         }
       }
     };
@@ -241,8 +238,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } catch (error) {
           console.error('Failed to clear store:', error);
         }
-        
-        // Navigation will be handled by the components using this hook
       }
     } catch (error) {
       console.error('Logout failed:', error);
