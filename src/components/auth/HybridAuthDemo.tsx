@@ -23,7 +23,7 @@ export const HybridAuthDemo: React.FC = () => {
       
       <div className="grid md:grid-cols-2 gap-4">
         {/* Supabase Auth Info */}
-        <Card variant="outlined" className="p-4">
+        <Card variant="elevated" className="p-4">
           <div className="flex items-center justify-between mb-3">
             <h4 className="font-medium">Supabase Authentication</h4>
             <Badge variant="default">Active</Badge>
@@ -37,7 +37,7 @@ export const HybridAuthDemo: React.FC = () => {
         </Card>
 
         {/* Backend Auth Info */}
-        <Card variant="outlined" className="p-4">
+        <Card variant="elevated" className="p-4">
           <div className="flex items-center justify-between mb-3">
             <h4 className="font-medium">Backend Service</h4>
             <Badge variant={isBackendConnected ? 'default' : 'destructive'}>

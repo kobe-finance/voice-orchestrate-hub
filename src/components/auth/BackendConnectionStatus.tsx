@@ -10,7 +10,7 @@ export const BackendConnectionStatus: React.FC = () => {
   const { isBackendConnected, backendUser, refreshBackendUser, isLoading } = useHybridAuth();
 
   return (
-    <Card variant="outlined" className="p-4">
+    <Card variant="elevated" className="p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           {isBackendConnected ? (
