@@ -112,6 +112,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
       
       store.setUser(appUser);
+      console.log('Successfully synced user with Zustand store:', appUser);
     } catch (error) {
       console.error('Failed to sync with Zustand store:', error);
     }
@@ -119,6 +120,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string, rememberMe: boolean = false) => {
     setIsLoading(true);
+    console.log('Login attempt for:', email);
+    
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -153,6 +156,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (data: RegisterData) => {
     setIsLoading(true);
+    console.log('Registration attempt for:', data.email);
+    
     try {
       const redirectUrl = `${window.location.origin}/`;
       
@@ -220,6 +225,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = async () => {
+    console.log('Logout initiated');
+    
     try {
       const { error } = await supabase.auth.signOut();
       

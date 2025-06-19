@@ -74,7 +74,7 @@ const HybridAuthWrapper: React.FC<{ children: React.ReactNode }> = ({ children }
 );
 
 function App() {
-  console.log('App: Rendering application with hybrid auth');
+  console.log('App: Rendering application');
 
   return (
     <ErrorBoundary>
