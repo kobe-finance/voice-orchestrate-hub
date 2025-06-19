@@ -7,6 +7,7 @@ import { WebSocketProvider } from "@/contexts/WebSocketContext"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/Sidebar"
 import { AuthProvider } from "@/hooks/useAuth";
+import { HybridAuthProvider } from "@/contexts/HybridAuthContext";
 import Dashboard from './pages/Dashboard';
 import VoiceAgents from './pages/VoiceAgents';
 import CreateVoiceAgent from './pages/CreateVoiceAgent';
@@ -61,8 +62,21 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   );
 };
 
+// Hybrid Auth Wrapper for protected routes
+const HybridAuthWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <AuthProvider>
+    <HybridAuthProvider>
+      <TenantProvider>
+        <WebSocketProvider>
+          {children}
+        </WebSocketProvider>
+      </TenantProvider>
+    </HybridAuthProvider>
+  </AuthProvider>
+);
+
 function App() {
-  console.log('App: Rendering application');
+  console.log('App: Rendering application with hybrid auth');
 
   return (
     <ErrorBoundary>
@@ -81,39 +95,35 @@ function App() {
               </AuthProvider>
             } />
             
-            {/* Protected routes with full provider hierarchy */}
+            {/* Protected routes with hybrid auth */}
             <Route path="/dashboard" element={
-              <AuthProvider>
-                <TenantProvider>
-                  <WebSocketProvider>
-                    <AppLayout><Dashboard /></AppLayout>
-                  </WebSocketProvider>
-                </TenantProvider>
-              </AuthProvider>
+              <HybridAuthWrapper>
+                <AppLayout><Dashboard /></AppLayout>
+              </HybridAuthWrapper>
             } />
             
-            <Route path="/voice-agents" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><VoiceAgents /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
-            <Route path="/voice-agents/edit/:id" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><EditVoiceAgent /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
-            <Route path="/create-voice-agent" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><CreateVoiceAgent /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
-            <Route path="/call-management" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><CallManagement /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
-            <Route path="/conversation-explorer" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><ConversationExplorer /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
-            <Route path="/knowledge-base" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><KnowledgeBase /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
-            <Route path="/document-management" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><KnowledgeBase /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
-            <Route path="/rag-configuration" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><KnowledgeBase /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
-            <Route path="/knowledge-organization" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><KnowledgeBase /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
-            <Route path="/analytics" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><Analytics /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
-            <Route path="/user-management" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><UserManagement /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
-            <Route path="/billing-subscription" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><BillingSubscription /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
-            <Route path="/integration-marketplace" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><IntegrationMarketplace /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
-            <Route path="/conversation-flow" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><ConversationFlowBuilder /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
-            <Route path="/business-hours" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><BusinessHours /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
-            <Route path="/agent-template-gallery" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><AgentTemplateGallery /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
-            <Route path="/tools-plugins" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><ToolsPlugins /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
-            <Route path="/api-key-management" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><APIKeyManagement /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
-            <Route path="/voice-provider-management" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><VoiceProviderManagement /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
-            <Route path="/voice-selection" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><VoiceSelection /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
-            <Route path="/appointments" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><AppointmentScheduling /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
-            <Route path="/customers" element={<AuthProvider><TenantProvider><WebSocketProvider><AppLayout><CustomerDatabase /></AppLayout></WebSocketProvider></TenantProvider></AuthProvider>} />
+            <Route path="/voice-agents" element={<HybridAuthWrapper><AppLayout><VoiceAgents /></AppLayout></HybridAuthWrapper>} />
+            <Route path="/voice-agents/edit/:id" element={<HybridAuthWrapper><AppLayout><EditVoiceAgent /></AppLayout></HybridAuthWrapper>} />
+            <Route path="/create-voice-agent" element={<HybridAuthWrapper><AppLayout><CreateVoiceAgent /></AppLayout></HybridAuthWrapper>} />
+            <Route path="/call-management" element={<HybridAuthWrapper><AppLayout><CallManagement /></AppLayout></HybridAuthWrapper>} />
+            <Route path="/conversation-explorer" element={<HybridAuthWrapper><AppLayout><ConversationExplorer /></AppLayout></HybridAuthWrapper>} />
+            <Route path="/knowledge-base" element={<HybridAuthWrapper><AppLayout><KnowledgeBase /></AppLayout></HybridAuthWrapper>} />
+            <Route path="/document-management" element={<HybridAuthWrapper><AppLayout><KnowledgeBase /></AppLayout></HybridAuthWrapper>} />
+            <Route path="/rag-configuration" element={<HybridAuthWrapper><AppLayout><KnowledgeBase /></AppLayout></HybridAuthWrapper>} />
+            <Route path="/knowledge-organization" element={<HybridAuthWrapper><AppLayout><KnowledgeBase /></AppLayout></HybridAuthWrapper>} />
+            <Route path="/analytics" element={<HybridAuthWrapper><AppLayout><Analytics /></AppLayout></HybridAuthWrapper>} />
+            <Route path="/user-management" element={<HybridAuthWrapper><AppLayout><UserManagement /></AppLayout></HybridAuthWrapper>} />
+            <Route path="/billing-subscription" element={<HybridAuthWrapper><AppLayout><BillingSubscription /></AppLayout></HybridAuthWrapper>} />
+            <Route path="/integration-marketplace" element={<HybridAuthWrapper><AppLayout><IntegrationMarketplace /></AppLayout></HybridAuthWrapper>} />
+            <Route path="/conversation-flow" element={<HybridAuthWrapper><AppLayout><ConversationFlowBuilder /></AppLayout></HybridAuthWrapper>} />
+            <Route path="/business-hours" element={<HybridAuthWrapper><AppLayout><BusinessHours /></AppLayout></HybridAuthWrapper>} />
+            <Route path="/agent-template-gallery" element={<HybridAuthWrapper><AppLayout><AgentTemplateGallery /></AppLayout></HybridAuthWrapper>} />
+            <Route path="/tools-plugins" element={<HybridAuthWrapper><AppLayout><ToolsPlugins /></AppLayout></HybridAuthWrapper>} />
+            <Route path="/api-key-management" element={<HybridAuthWrapper><AppLayout><APIKeyManagement /></AppLayout></HybridAuthWrapper>} />
+            <Route path="/voice-provider-management" element={<HybridAuthWrapper><AppLayout><VoiceProviderManagement /></AppLayout></HybridAuthWrapper>} />
+            <Route path="/voice-selection" element={<HybridAuthWrapper><AppLayout><VoiceSelection /></AppLayout></HybridAuthWrapper>} />
+            <Route path="/appointments" element={<HybridAuthWrapper><AppLayout><AppointmentScheduling /></AppLayout></HybridAuthWrapper>} />
+            <Route path="/customers" element={<HybridAuthWrapper><AppLayout><CustomerDatabase /></AppLayout></HybridAuthWrapper>} />
           </Routes>
         </Router>
       </QueryClientProvider>
