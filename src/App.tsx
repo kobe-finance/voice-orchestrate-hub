@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -84,9 +83,24 @@ function App() {
         <Router>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/login" element={<Auth />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
+            
+            {/* Auth routes - now wrapped with AuthProvider */}
+            <Route path="/auth" element={
+              <AuthProvider>
+                <Auth />
+              </AuthProvider>
+            } />
+            <Route path="/login" element={
+              <AuthProvider>
+                <Auth />
+              </AuthProvider>
+            } />
+            <Route path="/forgot-password" element={
+              <AuthProvider>
+                <ForgotPassword />
+              </AuthProvider>
+            } />
+            
             <Route path="/onboarding" element={
               <AuthProvider>
                 <TenantProvider>
