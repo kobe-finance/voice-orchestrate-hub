@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -63,15 +64,13 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 // Hybrid Auth Wrapper for protected routes
 const HybridAuthWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <AuthProvider>
-    <HybridAuthProvider>
-      <TenantProvider>
-        <WebSocketProvider>
-          {children}
-        </WebSocketProvider>
-      </TenantProvider>
-    </HybridAuthProvider>
-  </AuthProvider>
+  <HybridAuthProvider>
+    <TenantProvider>
+      <WebSocketProvider>
+        {children}
+      </WebSocketProvider>
+    </TenantProvider>
+  </HybridAuthProvider>
 );
 
 function App() {
@@ -81,64 +80,52 @@ function App() {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <Router>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            
-            {/* Auth routes - now wrapped with AuthProvider */}
-            <Route path="/auth" element={
-              <AuthProvider>
-                <Auth />
-              </AuthProvider>
-            } />
-            <Route path="/login" element={
-              <AuthProvider>
-                <Auth />
-              </AuthProvider>
-            } />
-            <Route path="/forgot-password" element={
-              <AuthProvider>
-                <ForgotPassword />
-              </AuthProvider>
-            } />
-            
-            <Route path="/onboarding" element={
-              <AuthProvider>
+          <AuthProvider>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              
+              {/* Auth routes - now have access to Router context */}
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/login" element={<Auth />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              
+              <Route path="/onboarding" element={
                 <TenantProvider>
                   <Onboarding />
                 </TenantProvider>
-              </AuthProvider>
-            } />
-            
-            {/* Protected routes with hybrid auth */}
-            <Route path="/dashboard" element={
-              <HybridAuthWrapper>
-                <AppLayout><Dashboard /></AppLayout>
-              </HybridAuthWrapper>
-            } />
-            
-            <Route path="/voice-agents" element={<HybridAuthWrapper><AppLayout><VoiceAgents /></AppLayout></HybridAuthWrapper>} />
-            <Route path="/voice-agents/edit/:id" element={<HybridAuthWrapper><AppLayout><EditVoiceAgent /></AppLayout></HybridAuthWrapper>} />
-            <Route path="/create-voice-agent" element={<HybridAuthWrapper><AppLayout><CreateVoiceAgent /></AppLayout></HybridAuthWrapper>} />
-            <Route path="/call-management" element={<HybridAuthWrapper><AppLayout><CallManagement /></AppLayout></HybridAuthWrapper>} />
-            <Route path="/conversation-explorer" element={<HybridAuthWrapper><AppLayout><ConversationExplorer /></AppLayout></HybridAuthWrapper>} />
-            <Route path="/knowledge-base" element={<HybridAuthWrapper><AppLayout><KnowledgeBase /></AppLayout></HybridAuthWrapper>} />
-            <Route path="/document-management" element={<HybridAuthWrapper><AppLayout><KnowledgeBase /></AppLayout></HybridAuthWrapper>} />
-            <Route path="/rag-configuration" element={<HybridAuthWrapper><AppLayout><KnowledgeBase /></AppLayout></HybridAuthWrapper>} />
-            <Route path="/knowledge-organization" element={<HybridAuthWrapper><AppLayout><KnowledgeBase /></AppLayout></HybridAuthWrapper>} />
-            <Route path="/analytics" element={<HybridAuthWrapper><AppLayout><Analytics /></AppLayout></HybridAuthWrapper>} />
-            <Route path="/user-management" element={<HybridAuthWrapper><AppLayout><UserManagement /></AppLayout></HybridAuthWrapper>} />
-            <Route path="/billing-subscription" element={<HybridAuthWrapper><AppLayout><BillingSubscription /></AppLayout></HybridAuthWrapper>} />
-            <Route path="/integration-marketplace" element={<HybridAuthWrapper><AppLayout><IntegrationMarketplace /></AppLayout></HybridAuthWrapper>} />
-            <Route path="/conversation-flow" element={<HybridAuthWrapper><AppLayout><ConversationFlowBuilder /></AppLayout></HybridAuthWrapper>} />
-            <Route path="/business-hours" element={<HybridAuthWrapper><AppLayout><BusinessHours /></AppLayout></HybridAuthWrapper>} />
-            <Route path="/agent-template-gallery" element={<HybridAuthWrapper><AppLayout><AgentTemplateGallery /></AppLayout></HybridAuthWrapper>} />
-            <Route path="/tools-plugins" element={<HybridAuthWrapper><AppLayout><ToolsPlugins /></AppLayout></HybridAuthWrapper>} />
-            <Route path="/api-key-management" element={<HybridAuthWrapper><AppLayout><APIKeyManagement /></AppLayout></HybridAuthWrapper>} />
-            <Route path="/voice-provider-management" element={<HybridAuthWrapper><AppLayout><VoiceProviderManagement /></AppLayout></HybridAuthWrapper>} />
-            <Route path="/voice-selection" element={<HybridAuthWrapper><AppLayout><VoiceSelection /></AppLayout></HybridAuthWrapper>} />
-            <Route path="/appointments" element={<HybridAuthWrapper><AppLayout><AppointmentScheduling /></AppLayout></HybridAuthWrapper>} />
-            <Route path="/customers" element={<HybridAuthWrapper><AppLayout><CustomerDatabase /></AppLayout></HybridAuthWrapper>} />
-          </Routes>
+              } />
+              
+              {/* Protected routes with hybrid auth */}
+              <Route path="/dashboard" element={
+                <HybridAuthWrapper>
+                  <AppLayout><Dashboard /></AppLayout>
+                </HybridAuthWrapper>
+              } />
+              
+              <Route path="/voice-agents" element={<HybridAuthWrapper><AppLayout><VoiceAgents /></AppLayout></HybridAuthWrapper>} />
+              <Route path="/voice-agents/edit/:id" element={<HybridAuthWrapper><AppLayout><EditVoiceAgent /></AppLayout></HybridAuthWrapper>} />
+              <Route path="/create-voice-agent" element={<HybridAuthWrapper><AppLayout><CreateVoiceAgent /></AppLayout></HybridAuthWrapper>} />
+              <Route path="/call-management" element={<HybridAuthWrapper><AppLayout><CallManagement /></AppLayout></HybridAuthWrapper>} />
+              <Route path="/conversation-explorer" element={<HybridAuthWrapper><AppLayout><ConversationExplorer /></AppLayout></HybridAuthWrapper>} />
+              <Route path="/knowledge-base" element={<HybridAuthWrapper><AppLayout><KnowledgeBase /></AppLayout></HybridAuthWrapper>} />
+              <Route path="/document-management" element={<HybridAuthWrapper><AppLayout><KnowledgeBase /></AppLayout></HybridAuthWrapper>} />
+              <Route path="/rag-configuration" element={<HybridAuthWrapper><AppLayout><KnowledgeBase /></AppLayout></HybridAuthWrapper>} />
+              <Route path="/knowledge-organization" element={<HybridAuthWrapper><AppLayout><KnowledgeBase /></AppLayout></HybridAuthWrapper>} />
+              <Route path="/analytics" element={<HybridAuthWrapper><AppLayout><Analytics /></AppLayout></HybridAuthWrapper>} />
+              <Route path="/user-management" element={<HybridAuthWrapper><AppLayout><UserManagement /></AppLayout></HybridAuthWrapper>} />
+              <Route path="/billing-subscription" element={<HybridAuthWrapper><AppLayout><BillingSubscription /></AppLayout></HybridAuthWrapper>} />
+              <Route path="/integration-marketplace" element={<HybridAuthWrapper><AppLayout><IntegrationMarketplace /></AppLayout></HybridAuthWrapper>} />
+              <Route path="/conversation-flow" element={<HybridAuthWrapper><AppLayout><ConversationFlowBuilder /></AppLayout></HybridAuthWrapper>} />
+              <Route path="/business-hours" element={<HybridAuthWrapper><AppLayout><BusinessHours /></AppLayout></HybridAuthWrapper>} />
+              <Route path="/agent-template-gallery" element={<HybridAuthWrapper><AppLayout><AgentTemplateGallery /></AppLayout></HybridAuthWrapper>} />
+              <Route path="/tools-plugins" element={<HybridAuthWrapper><AppLayout><ToolsPlugins /></AppLayout></HybridAuthWrapper>} />
+              <Route path="/api-key-management" element={<HybridAuthWrapper><AppLayout><APIKeyManagement /></AppLayout></HybridAuthWrapper>} />
+              <Route path="/voice-provider-management" element={<HybridAuthWrapper><AppLayout><VoiceProviderManagement /></AppLayout></HybridAuthWrapper>} />
+              <Route path="/voice-selection" element={<HybridAuthWrapper><AppLayout><VoiceSelection /></AppLayout></HybridAuthWrapper>} />
+              <Route path="/appointments" element={<HybridAuthWrapper><AppLayout><AppointmentScheduling /></AppLayout></HybridAuthWrapper>} />
+              <Route path="/customers" element={<HybridAuthWrapper><AppLayout><CustomerDatabase /></AppLayout></HybridAuthWrapper>} />
+            </Routes>
+          </AuthProvider>
         </Router>
       </QueryClientProvider>
     </ErrorBoundary>
