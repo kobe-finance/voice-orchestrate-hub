@@ -5,6 +5,7 @@ import App from './App.tsx'
 import './index.css'
 
 console.log('Main.tsx - Starting application');
+console.log('React version:', React.version);
 
 const container = document.getElementById("root");
 if (!container) {
@@ -12,8 +13,12 @@ if (!container) {
 }
 
 try {
+  console.log('Main.tsx - Creating React root');
   const root = createRoot(container);
+  
+  console.log('Main.tsx - Rendering App component');
   root.render(<App />);
+  
   console.log('Main.tsx - App rendered successfully');
 } catch (error) {
   console.error('Failed to render App:', error);
@@ -22,6 +27,7 @@ try {
     <div style="padding: 20px; font-family: system-ui;">
       <h1>Application Error</h1>
       <p>Failed to initialize the application. Please refresh the page.</p>
+      <p>Error: ${error instanceof Error ? error.message : 'Unknown error'}</p>
       <button onclick="window.location.reload()">Refresh</button>
     </div>
   `;

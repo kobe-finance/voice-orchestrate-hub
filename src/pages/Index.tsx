@@ -45,20 +45,22 @@ const ListItem = React.forwardRef<
 });
 ListItem.displayName = "ListItem";
 
-const navigationMenuTriggerStyle = () => {
-  return "group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50";
-};
-
 const Index: React.FC = () => {
+  console.log('Index component rendering');
+  
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState<boolean>(false);
 
   const handleOpenVoiceModal = useCallback(() => {
+    console.log('Opening voice modal');
     setIsVoiceModalOpen(true);
   }, []);
 
   const handleCloseVoiceModal = useCallback(() => {
+    console.log('Closing voice modal');
     setIsVoiceModalOpen(false);
   }, []);
+
+  console.log('Index component state:', { isVoiceModalOpen });
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
@@ -70,7 +72,7 @@ const Index: React.FC = () => {
               VoiceOrchestrate<span className="text-gradient-accent">™</span>
             </Link>
             
-            {/* Simplified Navigation - Remove NavigationMenu for now */}
+            {/* Simplified Navigation */}
             <nav className="hidden md:flex items-center gap-6">
               <Link to="/features" className="text-sm font-medium hover:text-primary transition-colors">
                 Features
