@@ -55,7 +55,7 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 const Auth = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, register, isAuthenticated, isLoading } = useAuth();
+  const { login, register, isAuthenticated, isLoading, logout } = useAuth();
   
   // Redirect if already authenticated
   React.useEffect(() => {
@@ -124,6 +124,18 @@ const Auth = () => {
     console.log(`SSO login with ${provider}`);
     toast.info(`${provider} authentication coming soon!`);
   };
+
+  // Handle logout navigation
+  React.useEffect(() => {
+    const handleLogoutNavigation = async () => {
+      // If user logs out, redirect to auth page
+      if (!isAuthenticated && location.pathname !== '/auth' && location.pathname !== '/') {
+        navigate('/auth');
+      }
+    };
+
+    handleLogoutNavigation();
+  }, [isAuthenticated, navigate, location.pathname]);
 
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },

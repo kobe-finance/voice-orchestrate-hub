@@ -242,8 +242,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.error('Failed to clear store:', error);
         }
         
-        // Redirect to auth page
-        window.location.href = '/auth';
+        // Navigation will be handled by the components using this hook
       }
     } catch (error) {
       console.error('Logout failed:', error);
