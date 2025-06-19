@@ -84,7 +84,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Index />} />
               
-              {/* Auth routes - now have access to Router context */}
+              {/* Auth routes */}
               <Route path="/auth" element={<Auth />} />
               <Route path="/login" element={<Auth />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
