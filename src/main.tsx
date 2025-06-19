@@ -13,11 +13,7 @@ if (!container) {
 
 try {
   const root = createRoot(container);
-  root.render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>
-  );
+  root.render(<App />);
   console.log('Main.tsx - App rendered successfully');
 } catch (error) {
   console.error('Failed to render App:', error);
