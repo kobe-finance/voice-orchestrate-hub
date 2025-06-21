@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,6 +13,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { GoogleIcon, MicrosoftIcon } from "@/components/icons/AuthIcons";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/components/ui/sonner";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Mail, AlertCircle } from "lucide-react";
 
 // Enhanced email validation function
 const isValidEmail = (email: string): boolean => {
@@ -85,6 +86,10 @@ const Auth = () => {
   const [registrationSuccess, setRegistrationSuccess] = React.useState(false);
   const [registeredEmail, setRegisteredEmail] = React.useState("");
   const [activeTab, setActiveTab] = React.useState("login");
+  const [emailConfirmationError, setEmailConfirmationError] = React.useState<{
+    show: boolean;
+    email: string;
+  }>({ show: false, email: "" });
   
   // Redirect if already authenticated
   React.useEffect(() => {
@@ -120,14 +125,24 @@ const Auth = () => {
 
   const onLoginSubmit = async (values: LoginFormData) => {
     try {
+      // Clear any previous email confirmation errors
+      setEmailConfirmationError({ show: false, email: "" });
+      
       await login(values.email, values.password, values.rememberMe);
       const from = location.state?.from?.pathname || '/dashboard';
       navigate(from, { replace: true });
     } catch (error: any) {
+      console.log('Login error details:', error);
+      
       // Enhanced error handling for login
-      if (error?.code === 'email_not_confirmed') {
+      if (error?.message?.includes('Email not confirmed') || error?.code === 'email_not_confirmed') {
+        // Show specific email confirmation error state
+        setEmailConfirmationError({ 
+          show: true, 
+          email: values.email 
+        });
         toast.error(
-          `Please check your email and click the verification link before signing in. We sent a confirmation email to ${values.email}`,
+          `Please verify your email address before signing in. Check your email for a confirmation link.`,
           { duration: 8000 }
         );
       } else if (error?.message?.includes('Invalid login credentials')) {
@@ -181,14 +196,23 @@ const Auth = () => {
     }
   };
 
-  const handleResendConfirmation = async () => {
-    if (!registeredEmail) return;
+  const handleResendConfirmation = async (email?: string) => {
+    const emailToResend = email || registeredEmail || emailConfirmationError.email;
+    if (!emailToResend) return;
     
     try {
       // Note: This would need to be implemented with a proper resend endpoint
       toast.info('Resending confirmation email...');
+      
       // For now, just show instruction
-      toast.success(`We've sent another confirmation email to ${registeredEmail}`);
+      toast.success(`We've sent another confirmation email to ${emailToResend}`, {
+        duration: 6000
+      });
+      
+      // Clear the email confirmation error after resending
+      if (email) {
+        setEmailConfirmationError({ show: false, email: "" });
+      }
     } catch (error) {
       toast.error('Failed to resend confirmation email. Please try again.');
     }
@@ -326,6 +350,49 @@ const Auth = () => {
                   
                   <AnimatePresence mode="wait">
                     <TabsContent value="login" className="space-y-6">
+                      {/* Email Confirmation Error Alert */}
+                      <AnimatePresence>
+                        {emailConfirmationError.show && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            <Alert className="border-amber-200 bg-amber-50">
+                              <AlertCircle className="h-4 w-4 text-amber-600" />
+                              <AlertDescription className="text-amber-800">
+                                <div className="space-y-3">
+                                  <p className="font-medium">Email verification required</p>
+                                  <p className="text-sm">
+                                    Please check your email ({emailConfirmationError.email}) and click the verification link before signing in.
+                                  </p>
+                                  <div className="flex gap-2">
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => handleResendConfirmation(emailConfirmationError.email)}
+                                      className="bg-white border-amber-300 text-amber-700 hover:bg-amber-50"
+                                    >
+                                      <Mail className="h-3 w-3 mr-1" />
+                                      Resend email
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => setEmailConfirmationError({ show: false, email: "" })}
+                                      className="text-amber-700 hover:bg-amber-100"
+                                    >
+                                      Dismiss
+                                    </Button>
+                                  </div>
+                                </div>
+                              </AlertDescription>
+                            </Alert>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
                       <motion.div
                         variants={formVariants}
                         initial="hidden"
@@ -445,7 +512,7 @@ const Auth = () => {
                               <Button
                                 type="button"
                                 variant="outline"
-                                onClick={handleResendConfirmation}
+                                onClick={() => handleResendConfirmation(registeredEmail)}
                                 className="w-full"
                               >
                                 Resend confirmation email
