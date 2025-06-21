@@ -14,11 +14,32 @@ import { GoogleIcon, MicrosoftIcon } from "@/components/icons/AuthIcons";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/components/ui/sonner";
 
+// Enhanced email validation function
+const isValidEmail = (email: string): boolean => {
+  // More strict email validation
+  const emailRegex = /^[a-zA-Z0-9]([a-zA-Z0-9._-]*[a-zA-Z0-9])?@[a-zA-Z0-9]([a-zA-Z0-9.-]*[a-zA-Z0-9])?\.[a-zA-Z]{2,}$/;
+  
+  // Check basic format
+  if (!emailRegex.test(email)) return false;
+  
+  // Additional checks
+  if (email.length > 254) return false; // RFC 5321 limit
+  if (email.includes('..')) return false; // No consecutive dots
+  if (email.startsWith('.') || email.endsWith('.')) return false; // No leading/trailing dots
+  
+  const [localPart, domain] = email.split('@');
+  if (localPart.length > 64) return false; // RFC 5321 local part limit
+  if (domain.length > 253) return false; // RFC 5321 domain limit
+  
+  return true;
+};
+
 // Enhanced form schemas with better validation
 const loginSchema = z.object({
   email: z.string()
     .min(1, "Email is required")
-    .email("Please enter a valid email address"),
+    .email("Please enter a valid email address")
+    .refine(isValidEmail, "Please enter a properly formatted email address"),
   password: z.string()
     .min(1, "Password is required")
     .min(6, "Password must be at least 6 characters"),
@@ -29,17 +50,21 @@ const registerSchema = z.object({
   firstName: z.string()
     .min(1, "First name is required")
     .min(2, "First name must be at least 2 characters")
-    .max(50, "First name must be less than 50 characters"),
+    .max(50, "First name must be less than 50 characters")
+    .regex(/^[a-zA-Z\s'-]+$/, "First name can only contain letters, spaces, apostrophes, and hyphens"),
   lastName: z.string()
     .min(1, "Last name is required")
     .min(2, "Last name must be at least 2 characters")
-    .max(50, "Last name must be less than 50 characters"),
+    .max(50, "Last name must be less than 50 characters")
+    .regex(/^[a-zA-Z\s'-]+$/, "Last name can only contain letters, spaces, apostrophes, and hyphens"),
   email: z.string()
     .min(1, "Email is required")
-    .email("Please enter a valid email address"),
+    .email("Please enter a valid email address")
+    .refine(isValidEmail, "Please enter a properly formatted email address (e.g., user@domain.com)"),
   password: z.string()
     .min(6, "Password must be at least 6 characters")
-    .max(128, "Password must be less than 128 characters"),
+    .max(128, "Password must be less than 128 characters")
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, "Password must contain at least one uppercase letter, one lowercase letter, and one number"),
   confirmPassword: z.string(),
   acceptTerms: z.boolean().refine((val) => val === true, {
     message: "You must accept the terms and conditions",
@@ -102,16 +127,31 @@ const Auth = () => {
 
   const onRegisterSubmit = async (values: RegisterFormData) => {
     try {
+      // Additional client-side validation
+      if (!isValidEmail(values.email)) {
+        toast.error('Please enter a valid email address in the format: user@domain.com');
+        return;
+      }
+
       await register({
-        firstName: values.firstName,
-        lastName: values.lastName,
-        email: values.email,
+        firstName: values.firstName.trim(),
+        lastName: values.lastName.trim(),
+        email: values.email.toLowerCase().trim(),
         password: values.password,
       });
       // Stay on auth page to show success message
       // User will be redirected after email verification
     } catch (error) {
-      // Error is already handled in the register function with toast
+      // Enhanced error handling for specific cases
+      if (error instanceof Error) {
+        if (error.message.includes('Email address') && error.message.includes('invalid')) {
+          toast.error('The email address format is not accepted. Please use a standard email format like user@domain.com');
+        } else if (error.message.includes('User already registered')) {
+          toast.error('An account with this email already exists. Please sign in instead.');
+        } else {
+          toast.error(error.message || 'Registration failed. Please try again.');
+        }
+      }
       console.error('Registration failed:', error);
     }
   };
@@ -264,7 +304,7 @@ const Auth = () => {
                                     <FormLabel className="text-base">Email</FormLabel>
                                     <FormControl>
                                       <Input 
-                                        placeholder="your@email.com" 
+                                        placeholder="user@domain.com" 
                                         type="email"
                                         autoComplete="email"
                                         className="h-12 text-base"
@@ -401,7 +441,7 @@ const Auth = () => {
                                     <FormLabel className="text-base">Email</FormLabel>
                                     <FormControl>
                                       <Input 
-                                        placeholder="your@email.com"
+                                        placeholder="user@domain.com"
                                         type="email"
                                         autoComplete="email"
                                         className="h-12 text-base"
