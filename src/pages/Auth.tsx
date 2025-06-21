@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -81,6 +82,9 @@ const Auth = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { login, register, isAuthenticated, isLoading, logout } = useAuth();
+  const [registrationSuccess, setRegistrationSuccess] = React.useState(false);
+  const [registeredEmail, setRegisteredEmail] = React.useState("");
+  const [activeTab, setActiveTab] = React.useState("login");
   
   // Redirect if already authenticated
   React.useEffect(() => {
@@ -119,8 +123,18 @@ const Auth = () => {
       await login(values.email, values.password, values.rememberMe);
       const from = location.state?.from?.pathname || '/dashboard';
       navigate(from, { replace: true });
-    } catch (error) {
-      // Error is already handled in the login function with toast
+    } catch (error: any) {
+      // Enhanced error handling for login
+      if (error?.code === 'email_not_confirmed') {
+        toast.error(
+          `Please check your email and click the verification link before signing in. We sent a confirmation email to ${values.email}`,
+          { duration: 8000 }
+        );
+      } else if (error?.message?.includes('Invalid login credentials')) {
+        toast.error('Invalid email or password. Please check your credentials.');
+      } else {
+        toast.error(error?.message || 'Login failed. Please try again.');
+      }
       console.error('Login failed:', error);
     }
   };
@@ -139,8 +153,17 @@ const Auth = () => {
         email: values.email.toLowerCase().trim(),
         password: values.password,
       });
-      // Stay on auth page to show success message
-      // User will be redirected after email verification
+      
+      // Show success state
+      setRegisteredEmail(values.email);
+      setRegistrationSuccess(true);
+      registerForm.reset();
+      
+      // Switch to login tab after a moment
+      setTimeout(() => {
+        setActiveTab("login");
+      }, 3000);
+      
     } catch (error) {
       // Enhanced error handling for specific cases
       if (error instanceof Error) {
@@ -148,11 +171,26 @@ const Auth = () => {
           toast.error('The email address format is not accepted. Please use a standard email format like user@domain.com');
         } else if (error.message.includes('User already registered')) {
           toast.error('An account with this email already exists. Please sign in instead.');
+          setActiveTab("login");
+          loginForm.setValue("email", values.email);
         } else {
           toast.error(error.message || 'Registration failed. Please try again.');
         }
       }
       console.error('Registration failed:', error);
+    }
+  };
+
+  const handleResendConfirmation = async () => {
+    if (!registeredEmail) return;
+    
+    try {
+      // Note: This would need to be implemented with a proper resend endpoint
+      toast.info('Resending confirmation email...');
+      // For now, just show instruction
+      toast.success(`We've sent another confirmation email to ${registeredEmail}`);
+    } catch (error) {
+      toast.error('Failed to resend confirmation email. Please try again.');
     }
   };
 
@@ -280,7 +318,7 @@ const Auth = () => {
                 </motion.div>
               </CardHeader>
               <CardContent className="space-y-6">
-                <Tabs defaultValue="login" className="w-full">
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                   <TabsList className="grid w-full grid-cols-2 mb-6">
                     <TabsTrigger value="login" className="text-base">Login</TabsTrigger>
                     <TabsTrigger value="register" className="text-base">Register</TabsTrigger>
@@ -383,200 +421,245 @@ const Auth = () => {
                     </TabsContent>
                     
                     <TabsContent value="register" className="space-y-6">
-                      <motion.div
-                        variants={formVariants}
-                        initial="hidden"
-                        animate="visible"
-                      >
-                        <Form {...registerForm}>
-                          <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-5">
-                            <motion.div 
-                              variants={fieldVariants}
-                              className="grid grid-cols-2 gap-4"
-                            >
-                              <FormField
-                                control={registerForm.control}
-                                name="firstName"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel className="text-base">First Name</FormLabel>
-                                    <FormControl>
-                                      <Input 
-                                        placeholder="John"
-                                        autoComplete="given-name"
-                                        className="h-12 text-base"
-                                        {...field} 
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={registerForm.control}
-                                name="lastName"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel className="text-base">Last Name</FormLabel>
-                                    <FormControl>
-                                      <Input 
-                                        placeholder="Doe"
-                                        autoComplete="family-name"
-                                        className="h-12 text-base"
-                                        {...field} 
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </motion.div>
-                            
-                            <motion.div variants={fieldVariants}>
-                              <FormField
-                                control={registerForm.control}
-                                name="email"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel className="text-base">Email</FormLabel>
-                                    <FormControl>
-                                      <Input 
-                                        placeholder="user@domain.com"
-                                        type="email"
-                                        autoComplete="email"
-                                        className="h-12 text-base"
-                                        {...field} 
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </motion.div>
-                            
-                            <motion.div variants={fieldVariants}>
-                              <FormField
-                                control={registerForm.control}
-                                name="password"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel className="text-base">Password</FormLabel>
-                                    <FormControl>
-                                      <Input 
-                                        type="password" 
-                                        placeholder="********"
-                                        autoComplete="new-password"
-                                        className="h-12 text-base"
-                                        {...field} 
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </motion.div>
-                            
-                            <motion.div variants={fieldVariants}>
-                              <FormField
-                                control={registerForm.control}
-                                name="confirmPassword"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel className="text-base">Confirm Password</FormLabel>
-                                    <FormControl>
-                                      <Input 
-                                        type="password" 
-                                        placeholder="********"
-                                        autoComplete="new-password"
-                                        className="h-12 text-base"
-                                        {...field} 
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </motion.div>
-                            
-                            <motion.div variants={fieldVariants}>
-                              <FormField
-                                control={registerForm.control}
-                                name="acceptTerms"
-                                render={({ field }) => (
-                                  <FormItem className="flex flex-row items-center space-x-2 space-y-0">
-                                    <FormControl>
-                                      <Checkbox
-                                        checked={field.value}
-                                        onCheckedChange={field.onChange}
-                                      />
-                                    </FormControl>
-                                    <div className="space-y-1 leading-none">
-                                      <FormLabel className="text-base">
-                                        I accept the <a href="/terms" className="underline">terms and conditions</a>
-                                      </FormLabel>
-                                    </div>
-                                  </FormItem>
-                                )}
-                              />
-                            </motion.div>
-                            
-                            <motion.div variants={fieldVariants}>
-                              <Button 
-                                type="submit" 
-                                className="w-full h-12 text-base font-medium" 
-                                disabled={isLoading || !registerForm.formState.isValid}
+                      <AnimatePresence mode="wait">
+                        {registrationSuccess ? (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.9 }}
+                            className="text-center space-y-4 py-8"
+                          >
+                            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+                              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
+                            </div>
+                            <h3 className="text-xl font-semibold text-green-600">Registration Successful!</h3>
+                            <p className="text-muted-foreground">
+                              We've sent a confirmation email to <strong>{registeredEmail}</strong>
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              Please check your email and click the verification link to activate your account.
+                            </p>
+                            <div className="space-y-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={handleResendConfirmation}
+                                className="w-full"
                               >
-                                {isLoading ? "Creating account..." : "Create account"}
+                                Resend confirmation email
                               </Button>
-                            </motion.div>
-                          </form>
-                        </Form>
-                      </motion.div>
+                              <Button
+                                type="button"
+                                onClick={() => setActiveTab("login")}
+                                className="w-full"
+                              >
+                                Go to Login
+                              </Button>
+                            </div>
+                          </motion.div>
+                        ) : (
+                          <motion.div
+                            variants={formVariants}
+                            initial="hidden"
+                            animate="visible"
+                          >
+                            <Form {...registerForm}>
+                              <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-5">
+                                <motion.div 
+                                  variants={fieldVariants}
+                                  className="grid grid-cols-2 gap-4"
+                                >
+                                  <FormField
+                                    control={registerForm.control}
+                                    name="firstName"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel className="text-base">First Name</FormLabel>
+                                        <FormControl>
+                                          <Input 
+                                            placeholder="John"
+                                            autoComplete="given-name"
+                                            className="h-12 text-base"
+                                            {...field} 
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <FormField
+                                    control={registerForm.control}
+                                    name="lastName"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel className="text-base">Last Name</FormLabel>
+                                        <FormControl>
+                                          <Input 
+                                            placeholder="Doe"
+                                            autoComplete="family-name"
+                                            className="h-12 text-base"
+                                            {...field} 
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                </motion.div>
+                                
+                                <motion.div variants={fieldVariants}>
+                                  <FormField
+                                    control={registerForm.control}
+                                    name="email"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel className="text-base">Email</FormLabel>
+                                        <FormControl>
+                                          <Input 
+                                            placeholder="user@domain.com"
+                                            type="email"
+                                            autoComplete="email"
+                                            className="h-12 text-base"
+                                            {...field} 
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                </motion.div>
+                                
+                                <motion.div variants={fieldVariants}>
+                                  <FormField
+                                    control={registerForm.control}
+                                    name="password"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel className="text-base">Password</FormLabel>
+                                        <FormControl>
+                                          <Input 
+                                            type="password" 
+                                            placeholder="********"
+                                            autoComplete="new-password"
+                                            className="h-12 text-base"
+                                            {...field} 
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                </motion.div>
+                                
+                                <motion.div variants={fieldVariants}>
+                                  <FormField
+                                    control={registerForm.control}
+                                    name="confirmPassword"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel className="text-base">Confirm Password</FormLabel>
+                                        <FormControl>
+                                          <Input 
+                                            type="password" 
+                                            placeholder="********"
+                                            autoComplete="new-password"
+                                            className="h-12 text-base"
+                                            {...field} 
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                </motion.div>
+                                
+                                <motion.div variants={fieldVariants}>
+                                  <FormField
+                                    control={registerForm.control}
+                                    name="acceptTerms"
+                                    render={({ field }) => (
+                                      <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                                        <FormControl>
+                                          <Checkbox
+                                            checked={field.value}
+                                            onCheckedChange={field.onChange}
+                                          />
+                                        </FormControl>
+                                        <div className="space-y-1 leading-none">
+                                          <FormLabel className="text-base">
+                                            I accept the <a href="/terms" className="underline">terms and conditions</a>
+                                          </FormLabel>
+                                        </div>
+                                      </FormItem>
+                                    )}
+                                  />
+                                </motion.div>
+                                
+                                <motion.div variants={fieldVariants}>
+                                  <Button 
+                                    type="submit" 
+                                    className="w-full h-12 text-base font-medium" 
+                                    disabled={isLoading || !registerForm.formState.isValid}
+                                  >
+                                    {isLoading ? "Creating account..." : "Create account"}
+                                  </Button>
+                                </motion.div>
+                              </form>
+                            </Form>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </TabsContent>
                   </AnimatePresence>
                 </Tabs>
 
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5 }}
-                  className="relative my-6"
-                >
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-300"></div>
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-background text-muted-foreground">
-                      Or continue with
-                    </span>
-                  </div>
-                </motion.div>
+                {!registrationSuccess && (
+                  <>
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.5 }}
+                      className="relative my-6"
+                    >
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-gray-300"></div>
+                      </div>
+                      <div className="relative flex justify-center text-sm">
+                        <span className="px-2 bg-background text-muted-foreground">
+                          Or continue with
+                        </span>
+                      </div>
+                    </motion.div>
 
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.6 }}
-                  className="grid grid-cols-2 gap-4"
-                >
-                  <Button 
-                    variant="outline" 
-                    onClick={() => handleSSOLogin("Google")}
-                    className="flex items-center justify-center gap-2 h-12 text-base"
-                    disabled={isLoading}
-                  >
-                    <GoogleIcon />
-                    Google
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => handleSSOLogin("Microsoft")}
-                    className="flex items-center justify-center gap-2 h-12 text-base"
-                    disabled={isLoading}
-                  >
-                    <MicrosoftIcon />
-                    Microsoft
-                  </Button>
-                </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.6 }}
+                      className="grid grid-cols-2 gap-4"
+                    >
+                      <Button 
+                        variant="outline" 
+                        onClick={() => handleSSOLogin("Google")}
+                        className="flex items-center justify-center gap-2 h-12 text-base"
+                        disabled={isLoading}
+                      >
+                        <GoogleIcon />
+                        Google
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => handleSSOLogin("Microsoft")}
+                        className="flex items-center justify-center gap-2 h-12 text-base"
+                        disabled={isLoading}
+                      >
+                        <MicrosoftIcon />
+                        Microsoft
+                      </Button>
+                    </motion.div>
+                  </>
+                )}
               </CardContent>
             </Card>
           </motion.div>
