@@ -1,9 +1,9 @@
+
 import React from "react";
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button-modern";
-import { Bell, User, Search, ChevronDown, Home, BarChart3, Settings, Users, FileText, Mic, Plus } from "lucide-react";
+import { Bell, Search, Home, BarChart3, Settings, Users, FileText, Mic, Plus } from "lucide-react";
 import { SearchInput } from "@/components/ui/search-input";
 import { useNavigate } from "react-router-dom";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -11,6 +11,7 @@ import { TenantSwitcher } from "@/components/tenant/TenantSwitcher";
 import { TenantIsolationIndicator } from "@/components/tenant/TenantIsolationIndicator";
 import { ConnectionStatus } from "@/components/ui/connection-status";
 import { Card } from "@/components/ui/card-modern";
+import { UserMenu } from "@/components/auth/UserMenu";
 
 const sidebarItems = [
   {
@@ -142,14 +143,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
                 <TooltipContent>Notifications</TooltipContent>
               </Tooltip>
 
-              <div className="flex items-center space-x-2">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src="/placeholder.svg" alt="User" />
-                  <AvatarFallback className="bg-primary text-primary-foreground">JD</AvatarFallback>
-                </Avatar>
-                <span className="hidden md:inline-block font-medium">John Doe</span>
-                <ChevronDown className="h-4 w-4" />
-              </div>
+              <UserMenu />
             </div>
           </header>
           <main className="flex-1">{children}</main>

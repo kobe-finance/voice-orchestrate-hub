@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -236,29 +235,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     console.log('Logout initiated');
+    setIsLoading(true);
     
     try {
+      // Clear Zustand store first
+      try {
+        const { useAppStore } = await import('@/stores/useAppStore');
+        const store = useAppStore.getState();
+        store.logout();
+        console.log('Zustand store cleared');
+      } catch (error) {
+        console.error('Failed to clear store:', error);
+      }
+
+      // Sign out from Supabase
       const { error } = await supabase.auth.signOut();
       
       if (error) {
         console.error('Logout error:', error);
         toast.error('Error during logout. Please try again.');
-      } else {
-        console.log('Logout successful');
-        toast.success('Logged out successfully');
-        
-        // Clear Zustand store
-        try {
-          const { useAppStore } = await import('@/stores/useAppStore');
-          const store = useAppStore.getState();
-          store.setUser(null);
-        } catch (error) {
-          console.error('Failed to clear store:', error);
-        }
+        return;
       }
+
+      console.log('Logout successful');
+      toast.success('Logged out successfully');
+      
+      // Force redirect to home page after logout
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 1000);
+      
     } catch (error) {
       console.error('Logout failed:', error);
       toast.error('Logout failed. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
