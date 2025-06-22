@@ -1,9 +1,8 @@
-
 import React from "react";
 import { KpiCard } from "@/components/dashboard/KpiCard";
 import { ActivityTimeline } from "@/components/dashboard/ActivityTimeline";
 import { QuickActions } from "@/components/dashboard/QuickActions";
-import { Card } from "@/components/ui/card-modern";
+import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";

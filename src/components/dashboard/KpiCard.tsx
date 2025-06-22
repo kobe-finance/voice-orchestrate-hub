@@ -1,6 +1,5 @@
-
 import React from "react";
-import { Card } from "@/components/ui/card-modern";
+import { Card } from "@/components/ui/card";
 import { ChevronDown, ChevronUp, Minus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
