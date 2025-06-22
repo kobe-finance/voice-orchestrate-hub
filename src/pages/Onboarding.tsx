@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
@@ -55,13 +56,11 @@ const Onboarding = () => {
 
   const handleNext = () => {
     if (currentStep < OnboardingSteps.length - 1) {
-      // Save progress
       toast({
         title: "Progress saved!",
       });
       setCurrentStep(currentStep + 1);
     } else {
-      // Complete onboarding
       toast({
         title: "Onboarding completed!",
       });
@@ -83,7 +82,6 @@ const Onboarding = () => {
   };
 
   const handleExit = () => {
-    // Save progress before exiting
     toast({
       title: "Progress saved",
     });
@@ -153,13 +151,6 @@ const Onboarding = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-secondary/30">
-      <header className="bg-white border-b p-4 flex justify-between items-center">
-        <div className="font-semibold text-lg">VoiceOrchestrate™</div>
-        <Button variant="outline" onClick={handleExit}>
-          Exit Setup
-        </Button>
-      </header>
-      
       <div className="flex-1 flex flex-col items-center justify-center p-4">
         <div className="w-full max-w-4xl">
           <div className="mb-8">
@@ -214,7 +205,6 @@ const Onboarding = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="aspect-video bg-muted flex items-center justify-center">
-            {/* Replace with actual video player */}
             <div className="text-center p-8">
               <p>Welcome video would play here</p>
               <p className="text-sm text-muted-foreground mt-2">

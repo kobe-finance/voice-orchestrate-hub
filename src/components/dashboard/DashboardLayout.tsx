@@ -1,15 +1,10 @@
 
 import React from "react";
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
-import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
 import { Button } from "@/components/ui/button-modern";
 import { Bell, Search, Home, BarChart3, Settings, Users, FileText, Mic, Plus } from "lucide-react";
 import { SearchInput } from "@/components/ui/search-input";
 import { useNavigate } from "react-router-dom";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { TenantSwitcher } from "@/components/tenant/TenantSwitcher";
-import { TenantIsolationIndicator } from "@/components/tenant/TenantIsolationIndicator";
-import { ConnectionStatus } from "@/components/ui/connection-status";
 import { Card } from "@/components/ui/card-modern";
 import { StandardHeader } from "@/components/common/StandardHeader";
 
@@ -122,7 +117,6 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
         <SidebarInset className="flex-1">
           <StandardHeader
             leftContent={<SidebarTrigger />}
-            centerContent={<TenantSwitcher />}
             showUserMenu={true}
           />
           <main className="flex-1">{children}</main>
