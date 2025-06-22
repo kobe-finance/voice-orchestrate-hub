@@ -3,7 +3,7 @@ import React, { useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Mic, ArrowRight, CheckCircle, Sparkles, Zap, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card-modern";
+import { Card } from "@/components/ui/card";
 import { VoiceModal } from "@/components/voice/VoiceModal";
 import { cn } from "@/lib/utils";
 import {

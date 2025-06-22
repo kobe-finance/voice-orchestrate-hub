@@ -6,7 +6,7 @@ import { RoleManagement } from "@/components/users/RoleManagement";
 import { ActivityLogViewer } from "@/components/users/ActivityLogViewer";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card-modern";
+import { Card } from "@/components/ui/card";
 import { Users, UserPlus, Shield, Activity } from "lucide-react";
 
 const UserManagement = () => {

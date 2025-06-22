@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useHybridAuth } from '@/contexts/HybridAuthContext';
-import { Card } from '@/components/ui/card-modern';
+import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { BackendConnectionStatus } from './BackendConnectionStatus';
 

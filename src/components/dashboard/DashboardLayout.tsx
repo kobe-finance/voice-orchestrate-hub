@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Bell, Search, Home, BarChart3, Settings, Users, FileText, Mic, Plus } from "lucide-react";
 import { SearchInput } from "@/components/ui/search-input";
 import { useNavigate } from "react-router-dom";
-import { Card } from "@/components/ui/card-modern";
+import { Card } from "@/components/ui/card";
 import { StandardHeader } from "@/components/common/StandardHeader";
 
 const sidebarItems = [
