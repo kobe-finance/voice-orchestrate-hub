@@ -1,4 +1,5 @@
 
+
 import { createContext, useContext, useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -21,7 +22,7 @@ interface AuthContextType {
   // Methods
   login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   refreshToken: () => Promise<void>;
 }
 
@@ -238,6 +239,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log('Logout initiated');
     
     try {
+      // Clear Zustand store first
+      try {
+        const { useAppStore } = await import('@/stores/useAppStore');
+        const store = useAppStore.getState();
+        store.setUser(null);
+        console.log('Zustand store cleared');
+      } catch (error) {
+        console.error('Failed to clear store:', error);
+      }
+
       const { error } = await supabase.auth.signOut();
       
       if (error) {
@@ -247,14 +258,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.log('Logout successful');
         toast.success('Logged out successfully');
         
-        // Clear Zustand store
-        try {
-          const { useAppStore } = await import('@/stores/useAppStore');
-          const store = useAppStore.getState();
-          store.setUser(null);
-        } catch (error) {
-          console.error('Failed to clear store:', error);
-        }
+        // Redirect to home page
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 1000);
       }
     } catch (error) {
       console.error('Logout failed:', error);
@@ -283,3 +290,4 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
+
