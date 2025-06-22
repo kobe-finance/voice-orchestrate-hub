@@ -1,24 +1,37 @@
 
 import React, { ReactNode } from "react";
 import { ModeToggle } from "@/components/theme/ModeToggle";
+import { UserMenu } from "@/components/auth/UserMenu";
+import { useAuth } from "@/hooks/useAuth";
 
 interface LayoutProps {
   children: ReactNode;
   showHeader?: boolean;
   showFooter?: boolean;
+  leftContent?: ReactNode;
 }
 
 export const Layout = ({ 
   children,
   showHeader = false, 
-  showFooter = false 
+  showFooter = false,
+  leftContent 
 }: LayoutProps) => {
+  const { user } = useAuth();
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
       {showHeader && (
         <header className="border-b border-gray-200/50 dark:border-gray-800/50 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md">
-          <div className="container flex h-16 items-center justify-end px-4 mx-auto max-w-7xl">
-            <ModeToggle />
+          <div className="container flex h-16 items-center justify-between px-4 mx-auto max-w-7xl">
+            <div className="flex items-center">
+              {leftContent}
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <ModeToggle />
+              {user && <UserMenu />}
+            </div>
           </div>
         </header>
       )}

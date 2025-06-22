@@ -1,3 +1,4 @@
+
 import React from "react";
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
@@ -10,7 +11,7 @@ import { TenantSwitcher } from "@/components/tenant/TenantSwitcher";
 import { TenantIsolationIndicator } from "@/components/tenant/TenantIsolationIndicator";
 import { ConnectionStatus } from "@/components/ui/connection-status";
 import { Card } from "@/components/ui/card-modern";
-import { UserMenu } from "@/components/auth/UserMenu";
+import { StandardHeader } from "@/components/common/StandardHeader";
 
 const sidebarItems = [
   {
@@ -119,32 +120,11 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
         </Sidebar>
         
         <SidebarInset className="flex-1">
-          <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b border-gray-200/50 dark:border-gray-800/50 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md px-4 md:px-6">
-            <SidebarTrigger />
-            
-            <div className="flex-1 flex items-center justify-center">
-              <TenantSwitcher />
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <TenantIsolationIndicator />
-              <ConnectionStatus />
-              
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="outline" size="icon" className="relative">
-                    <Bell className="h-4 w-4" />
-                    <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
-                      3
-                    </span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Notifications</TooltipContent>
-              </Tooltip>
-
-              <UserMenu />
-            </div>
-          </header>
+          <StandardHeader
+            leftContent={<SidebarTrigger />}
+            centerContent={<TenantSwitcher />}
+            showUserMenu={true}
+          />
           <main className="flex-1">{children}</main>
         </SidebarInset>
       </div>

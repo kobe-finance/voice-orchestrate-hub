@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -7,6 +8,8 @@ import { SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/Sidebar"
 import { AuthProvider } from "@/hooks/useAuth";
 import { HybridAuthProvider } from "@/contexts/HybridAuthContext";
+import { Layout } from "@/components/Layout";
+import { StandardHeader } from "@/components/common/StandardHeader";
 import Dashboard from './pages/Dashboard';
 import VoiceAgents from './pages/VoiceAgents';
 import CreateVoiceAgent from './pages/CreateVoiceAgent';
@@ -73,6 +76,16 @@ const HybridAuthWrapper: React.FC<{ children: React.ReactNode }> = ({ children }
   </HybridAuthProvider>
 );
 
+// Standardized page wrapper for non-dashboard pages
+const StandardPageWrapper: React.FC<{ children: React.ReactNode; leftContent?: React.ReactNode }> = ({ children, leftContent }) => (
+  <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+    <StandardHeader leftContent={leftContent} showUserMenu={true} />
+    <main className="flex-1">
+      {children}
+    </main>
+  </div>
+);
+
 function App() {
   console.log('App: Rendering application');
 
@@ -92,7 +105,9 @@ function App() {
               
               <Route path="/onboarding" element={
                 <TenantProvider>
-                  <Onboarding />
+                  <StandardPageWrapper>
+                    <Onboarding />
+                  </StandardPageWrapper>
                 </TenantProvider>
               } />
               
