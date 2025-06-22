@@ -1,5 +1,4 @@
 
-
 import { createContext, useContext, useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -258,7 +257,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.log('Logout successful');
         toast.success('Logged out successfully');
         
-        // Redirect to home page
+        // Use window.location for navigation instead of useNavigate
         setTimeout(() => {
           window.location.href = '/';
         }, 1000);
@@ -290,4 +289,3 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
-
