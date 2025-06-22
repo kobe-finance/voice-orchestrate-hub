@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ModernForm, FormField, FormActions } from "@/components/ui/form-modern";
+import { ModernForm, FormItem, FormActions } from "@/components/ui/form";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Mail } from "lucide-react";
@@ -72,7 +72,7 @@ const ForgotPassword = () => {
             </motion.div>
 
             <ModernForm onSubmit={form.handleSubmit(onSubmit)}>
-              <FormField
+              <FormItem
                 label="Email Address"
                 error={form.formState.errors.email?.message}
                 required
@@ -84,7 +84,7 @@ const ForgotPassword = () => {
                   autoComplete="email"
                   leftIcon={<Mail className="h-4 w-4" />}
                 />
-              </FormField>
+              </FormItem>
 
               <FormActions align="center">
                 <Button
