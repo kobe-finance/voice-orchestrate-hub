@@ -44,6 +44,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           async (event, session) => {
             console.log('Auth state changed:', event, session?.user?.email);
             
+            // SECURITY: Handle email confirmation event
+            if (event === 'TOKEN_REFRESHED' && session?.user && !session.user.email_confirmed_at) {
+              console.log('Email confirmation detected, but user not verified');
+              // Sign out unverified users for security
+              await supabase.auth.signOut();
+              return;
+            }
+            
             if (mounted) {
               setSession(session);
               setUser(session?.user ?? null);
@@ -159,7 +167,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log('Registration attempt for:', data.email);
     
     try {
-      const redirectUrl = `${window.location.origin}/`;
+      // SECURITY: Update redirect URL to go to confirmation page instead of auto-login
+      const redirectUrl = `${window.location.origin}/email-confirmation`;
       
       const { data: authData, error } = await supabase.auth.signUp({
         email: data.email,
@@ -191,11 +200,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (authData.user) {
         console.log('Registration successful:', authData.user.email);
         
-        if (!authData.session) {
-          toast.success('Registration successful! Please check your email for verification.');
-        } else {
-          toast.success('Registration successful! Welcome to VoiceOrchestrate.');
+        // SECURITY: Always sign out after registration to force email confirmation
+        if (authData.session) {
+          await supabase.auth.signOut();
         }
+        
+        toast.success('Registration successful! Please check your email for verification.');
       }
     } catch (error) {
       console.error('Registration failed:', error);

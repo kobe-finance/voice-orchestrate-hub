@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -36,6 +35,7 @@ import AppointmentScheduling from './pages/AppointmentScheduling';
 import CustomerDatabase from './pages/CustomerDatabase';
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import KnowledgeBase from './pages/KnowledgeBase';
+import EmailConfirmation from './pages/EmailConfirmation';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -88,6 +88,7 @@ function App() {
               <Route path="/auth" element={<Auth />} />
               <Route path="/login" element={<Auth />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/email-confirmation" element={<EmailConfirmation />} />
               
               <Route path="/onboarding" element={
                 <TenantProvider>

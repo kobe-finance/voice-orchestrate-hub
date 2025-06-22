@@ -14,7 +14,7 @@ import { GoogleIcon, MicrosoftIcon } from "@/components/icons/AuthIcons";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/components/ui/sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Mail, AlertCircle } from "lucide-react";
+import { Mail, AlertCircle, CheckCircle } from "lucide-react";
 
 // Enhanced email validation function
 const isValidEmail = (email: string): boolean => {
@@ -91,6 +91,11 @@ const Auth = () => {
     email: string;
   }>({ show: false, email: "" });
   
+  // Handle any messages from email confirmation or other redirects
+  const locationMessage = location.state?.message;
+  const confirmedEmail = location.state?.confirmedEmail;
+  const initialTab = location.state?.tab || "login";
+  
   // Redirect if already authenticated
   React.useEffect(() => {
     if (isAuthenticated) {
@@ -98,6 +103,23 @@ const Auth = () => {
       navigate(from, { replace: true });
     }
   }, [isAuthenticated, navigate, location]);
+  
+  // Set initial tab and handle confirmation messages
+  React.useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+    
+    // Pre-fill email if coming from confirmation
+    if (confirmedEmail && initialTab === 'login') {
+      loginForm.setValue('email', confirmedEmail);
+    }
+    
+    // Show success message if coming from email confirmation
+    if (locationMessage) {
+      toast.success(locationMessage, { duration: 5000 });
+    }
+  }, [initialTab, confirmedEmail, locationMessage]);
   
   // Form configurations with improved default values
   const loginForm = useForm<LoginFormData>({
@@ -350,6 +372,25 @@ const Auth = () => {
                   
                   <AnimatePresence mode="wait">
                     <TabsContent value="login" className="space-y-6">
+                      {/* Show success message for confirmed emails */}
+                      <AnimatePresence>
+                        {locationMessage && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            <Alert className="border-green-200 bg-green-50">
+                              <CheckCircle className="h-4 w-4 text-green-600" />
+                              <AlertDescription className="text-green-800">
+                                {locationMessage}
+                              </AlertDescription>
+                            </Alert>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
                       {/* Email Confirmation Error Alert */}
                       <AnimatePresence>
                         {emailConfirmationError.show && (
