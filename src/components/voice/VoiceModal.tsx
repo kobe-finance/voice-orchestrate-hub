@@ -11,11 +11,11 @@ interface VoiceModalProps {
 }
 
 export const VoiceModal: React.FC<VoiceModalProps> = ({ isOpen, onClose }) => {
-  const [isListening, setIsListening] = useState(false);
+  const [isListening, setIsListening] = useState<boolean>(false);
   const [transcript, setTranscript] = useState<string[]>([]);
-  const [elapsedTime, setElapsedTime] = useState(0);
+  const [elapsedTime, setElapsedTime] = useState<number>(0);
   const [hasMicPermission, setHasMicPermission] = useState<boolean | null>(null);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
   // Request microphone permission
   const requestMicPermission = async () => {
