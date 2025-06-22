@@ -6,7 +6,7 @@ import { QuickActions } from "@/components/dashboard/QuickActions";
 import { Card } from "@/components/ui/card-modern";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button-modern";
+import { Button } from "@/components/ui/button";
 import { Sparkles, TrendingUp, Users, Phone } from "lucide-react";
 
 const Dashboard = () => {
