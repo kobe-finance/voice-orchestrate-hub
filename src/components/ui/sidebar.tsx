@@ -44,16 +44,6 @@ function useSidebar() {
   return context
 }
 
-// Safe mobile detection that doesn't use hooks during initialization
-function getInitialMobileState() {
-  try {
-    if (typeof window === 'undefined') return false;
-    return window.innerWidth < 768;
-  } catch {
-    return false;
-  }
-}
-
 const SidebarProvider = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div"> & {
@@ -74,28 +64,25 @@ const SidebarProvider = React.forwardRef<
     },
     ref
   ) => {
-    // Initialize mobile state safely without hooks during first render
-    const [isMobile, setIsMobile] = React.useState(() => getInitialMobileState());
+    // Safe mobile detection without using external hooks
+    const [isMobile, setIsMobile] = React.useState(false);
     const [openMobile, setOpenMobile] = React.useState(false)
 
-    // Update mobile state on window resize
+    // Update mobile state safely after component mounts
     React.useEffect(() => {
-      const handleResize = () => {
+      const checkIfMobile = () => {
         try {
-          const newIsMobile = window.innerWidth < 768;
-          setIsMobile(newIsMobile);
+          setIsMobile(window.innerWidth < 768);
         } catch (error) {
           console.warn('Error detecting mobile state:', error);
         }
       };
 
-      if (typeof window !== 'undefined') {
-        // Set initial state after mount
-        handleResize();
-        
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-      }
+      // Set initial state after mount
+      checkIfMobile();
+      
+      window.addEventListener('resize', checkIfMobile);
+      return () => window.removeEventListener('resize', checkIfMobile);
     }, []);
 
     // This is the internal state of the sidebar.
