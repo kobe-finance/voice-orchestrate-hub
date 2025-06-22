@@ -39,6 +39,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const initializeAuth = async () => {
       try {
+        console.log('AuthProvider: Initializing auth');
+        
         // Set up auth state listener first
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           async (event, session) => {
@@ -257,7 +259,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.log('Logout successful');
         toast.success('Logged out successfully');
         
-        // Use window.location for navigation instead of useNavigate since we're outside Router context
+        // Use window.location for navigation since we're outside Router context
         setTimeout(() => {
           window.location.href = '/';
         }, 1000);
