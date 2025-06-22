@@ -44,8 +44,8 @@ function useSidebar() {
   return context
 }
 
-// Simple mobile detection without hooks to avoid React initialization issues
-function getIsMobile() {
+// Safe mobile detection that doesn't use hooks during initialization
+function getInitialMobileState() {
   try {
     if (typeof window === 'undefined') return false;
     return window.innerWidth < 768;
@@ -74,17 +74,25 @@ const SidebarProvider = React.forwardRef<
     },
     ref
   ) => {
-    // Use simple detection instead of hook to prevent React initialization issues
-    const [isMobile, setIsMobile] = React.useState(() => getIsMobile());
+    // Initialize mobile state safely without hooks during first render
+    const [isMobile, setIsMobile] = React.useState(() => getInitialMobileState());
     const [openMobile, setOpenMobile] = React.useState(false)
 
     // Update mobile state on window resize
     React.useEffect(() => {
       const handleResize = () => {
-        setIsMobile(getIsMobile());
+        try {
+          const newIsMobile = window.innerWidth < 768;
+          setIsMobile(newIsMobile);
+        } catch (error) {
+          console.warn('Error detecting mobile state:', error);
+        }
       };
 
       if (typeof window !== 'undefined') {
+        // Set initial state after mount
+        handleResize();
+        
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
       }
@@ -130,8 +138,10 @@ const SidebarProvider = React.forwardRef<
         }
       }
 
-      window.addEventListener("keydown", handleKeyDown)
-      return () => window.removeEventListener("keydown", handleKeyDown)
+      if (typeof window !== 'undefined') {
+        window.addEventListener("keydown", handleKeyDown)
+        return () => window.removeEventListener("keydown", handleKeyDown)
+      }
     }, [toggleSidebar])
 
     // We add a state so that we can do data-state="expanded" or "collapsed".
