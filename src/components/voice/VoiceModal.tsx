@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { X, Mic, AudioWaveform } from "lucide-react";
-import { Button } from "@/components/ui/button-modern";
+import { Button } from "@/components/ui/button";
 import VoiceWaveform from "@/components/voice/VoiceWaveform";
 import { cn } from "@/lib/utils";
 

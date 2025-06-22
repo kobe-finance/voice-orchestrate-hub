@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { Card } from '@/components/ui/card-modern';
-import { Button } from '@/components/ui/button-modern';
+import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { BarChart3, TrendingUp, Download, Filter, Calendar, Phone, Clock, Users, Target } from 'lucide-react';

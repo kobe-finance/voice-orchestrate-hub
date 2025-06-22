@@ -5,7 +5,7 @@ import { UserDirectory } from "@/components/users/UserDirectory";
 import { RoleManagement } from "@/components/users/RoleManagement";
 import { ActivityLogViewer } from "@/components/users/ActivityLogViewer";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button-modern";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card-modern";
 import { Users, UserPlus, Shield, Activity } from "lucide-react";
 

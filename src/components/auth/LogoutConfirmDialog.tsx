@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   AlertDialog,
@@ -10,7 +9,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button-modern';
+import { Button } from '@/components/ui/button';
 
 interface LogoutConfirmDialogProps {
   open: boolean;

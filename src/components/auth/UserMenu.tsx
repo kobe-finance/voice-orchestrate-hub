@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button-modern';
+import { Button } from '@/components/ui/button';
 import { LogoutConfirmDialog } from './LogoutConfirmDialog';
 import { useAuth } from '@/hooks/useAuth';
 

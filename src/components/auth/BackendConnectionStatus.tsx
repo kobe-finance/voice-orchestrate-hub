@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { useHybridAuth } from '@/contexts/HybridAuthContext';
 import { Card } from '@/components/ui/card-modern';
 import { Badge } from '@/components/ui/badge';
 import { Wifi, WifiOff, RefreshCw } from 'lucide-react';
-import { Button } from '@/components/ui/button-modern';
+import { Button } from '@/components/ui/button';
 
 export const BackendConnectionStatus: React.FC = () => {
   const { isBackendConnected, backendUser, refreshBackendUser, isLoading } = useHybridAuth();
@@ -51,3 +50,4 @@ export const BackendConnectionStatus: React.FC = () => {
     </Card>
   );
 };
+
