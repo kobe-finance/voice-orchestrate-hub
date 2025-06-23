@@ -2,7 +2,7 @@
 import React from "react";
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { Bell, Search, Home, BarChart3, Settings, Users, FileText, Mic, Plus } from "lucide-react";
+import { Bell, Search, BarChart3, Settings, Users, FileText, Mic, Plus } from "lucide-react";
 import { SearchInput } from "@/components/ui/search-input";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
@@ -12,7 +12,7 @@ const sidebarItems = [
   {
     title: "Dashboard",
     url: "/dashboard",
-    icon: Home,
+    icon: BarChart3,
   },
   {
     title: "Voice Agents",

@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { 
@@ -51,7 +52,6 @@ interface NavigationItem {
 }
 
 const navigationItems: NavigationItem[] = [
-  { title: "Onboarding", path: "/onboarding", icon: Laptop },
   { title: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
   { title: "Voice Agents", path: "/voice-agents", icon: Mic },
   { title: "Agent Templates", path: "/agent-template-gallery", icon: Palette },
