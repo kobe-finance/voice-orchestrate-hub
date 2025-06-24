@@ -28,6 +28,11 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
 
+  // Allow access to reset-password page even when temporarily authenticated
+  if (location.pathname === '/reset-password') {
+    return <>{children}</>;
+  }
+
   // Redirect to auth if not authenticated
   if (!isAuthenticated || !user) {
     return <Navigate to="/auth" state={{ from: location }} replace />;

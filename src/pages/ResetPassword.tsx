@@ -29,7 +29,6 @@ type PasswordResetFormData = z.infer<typeof passwordResetSchema>;
 
 const ResetPassword = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [isValidToken, setIsValidToken] = useState<boolean | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -49,6 +48,12 @@ const ResetPassword = () => {
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
       const accessToken = hashParams.get('access_token');
       const tokenType = hashParams.get('type');
+      
+      console.log('Password reset validation - URL hash params:', {
+        accessToken: accessToken ? 'present' : 'missing',
+        tokenType,
+        fullHash: window.location.hash
+      });
       
       if (accessToken && tokenType === 'recovery') {
         try {
@@ -100,6 +105,9 @@ const ResetPassword = () => {
       
       setIsSuccess(true);
       toast.success('Password updated successfully!');
+      
+      // Sign out the user to ensure they use the new password
+      await supabase.auth.signOut();
       
       // Redirect to login after success
       setTimeout(() => {

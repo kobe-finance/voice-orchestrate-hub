@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,8 +16,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/components/ui/sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Mail, AlertCircle, CheckCircle } from "lucide-react";
-import { PasswordResetHandler } from "@/components/auth/PasswordResetHandler";
-import { supabase } from "@/integrations/supabase/client";
 
 // Enhanced email validation function
 const isValidEmail = (email: string): boolean => {
@@ -84,7 +83,7 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 const Auth = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, register, isAuthenticated, isLoading, logout } = useAuth();
+  const { login, register, isAuthenticated, isLoading } = useAuth();
   const [registrationSuccess, setRegistrationSuccess] = React.useState(false);
   const [registeredEmail, setRegisteredEmail] = React.useState("");
   const [activeTab, setActiveTab] = React.useState("login");
@@ -92,7 +91,6 @@ const Auth = () => {
     show: boolean;
     email: string;
   }>({ show: false, email: "" });
-  const [isPasswordResetMode, setIsPasswordResetMode] = React.useState(false);
   
   // Handle any messages from email confirmation or other redirects
   const locationMessage = location.state?.message;
@@ -123,11 +121,6 @@ const Auth = () => {
       toast.success(locationMessage, { duration: 5000 });
     }
   }, [initialTab, confirmedEmail, locationMessage]);
-
-  const handlePasswordResetDetected = () => {
-    setIsPasswordResetMode(true);
-    setActiveTab("reset-password");
-  };
   
   // Form configurations with improved default values
   const loginForm = useForm<LoginFormData>({
@@ -313,9 +306,6 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/20">
-      {/* Password Reset Handler - detects reset tokens in URL */}
-      <PasswordResetHandler onResetDetected={handlePasswordResetDetected} />
-      
       <div className="grid lg:grid-cols-2 min-h-screen">
         <div className="hidden lg:flex flex-col justify-center items-center px-12 bg-gradient-to-br from-primary/5 to-accent-orange/5">
           <motion.div
@@ -382,48 +372,88 @@ const Auth = () => {
                   </TabsList>
                   
                   <AnimatePresence mode="wait">
-                    {isPasswordResetMode ? (
-                      <TabsContent value="reset-password" className="space-y-6">
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0.9 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          className="text-center space-y-4 py-8"
-                        >
-                          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
-                            <CheckCircle className="w-8 h-8 text-blue-600" />
-                          </div>
-                          <h3 className="text-xl font-semibold text-blue-600">Ready to Reset Password</h3>
-                          <p className="text-muted-foreground">
-                            You can now set a new password for your account.
-                          </p>
-                          <Form {...loginForm}>
-                            <form onSubmit={loginForm.handleSubmit(async (values) => {
-                              try {
-                                const { error } = await supabase.auth.updateUser({
-                                  password: values.password
-                                });
-                                
-                                if (error) {
-                                  toast.error('Failed to update password. Please try again.');
-                                  return;
-                                }
-                                
-                                toast.success('Password updated successfully!');
-                                navigate('/dashboard');
-                              } catch (error) {
-                                toast.error('Failed to update password. Please try again.');
-                              }
-                            })} className="space-y-4">
+                    <TabsContent value="login" className="space-y-6">
+                      {/* Show success message for confirmed emails */}
+                      <AnimatePresence>
+                        {locationMessage && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            <Alert className="border-green-200 bg-green-50">
+                              <CheckCircle className="h-4 w-4 text-green-600" />
+                              <AlertDescription className="text-green-800">
+                                {locationMessage}
+                              </AlertDescription>
+                            </Alert>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
+                      {/* Email Confirmation Error Alert */}
+                      <AnimatePresence>
+                        {emailConfirmationError.show && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            <Alert className="border-amber-200 bg-amber-50">
+                              <AlertCircle className="h-4 w-4 text-amber-600" />
+                              <AlertDescription className="text-amber-800">
+                                <div className="space-y-3">
+                                  <p className="font-medium">Email verification required</p>
+                                  <p className="text-sm">
+                                    Please check your email ({emailConfirmationError.email}) and click the verification link before signing in.
+                                  </p>
+                                  <div className="flex gap-2">
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => handleResendConfirmation(emailConfirmationError.email)}
+                                      className="bg-white border-amber-300 text-amber-700 hover:bg-amber-50"
+                                    >
+                                      <Mail className="h-3 w-3 mr-1" />
+                                      Resend email
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => setEmailConfirmationError({ show: false, email: "" })}
+                                      className="text-amber-700 hover:bg-amber-100"
+                                    >
+                                      Dismiss
+                                    </Button>
+                                  </div>
+                                </div>
+                              </AlertDescription>
+                            </Alert>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
+                      <motion.div
+                        variants={formVariants}
+                        initial="hidden"
+                        animate="visible"
+                      >
+                        <Form {...loginForm}>
+                          <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-5">
+                            <motion.div variants={fieldVariants}>
                               <FormField
                                 control={loginForm.control}
-                                name="password"
+                                name="email"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel className="text-base">New Password</FormLabel>
+                                    <FormLabel className="text-base">Email</FormLabel>
                                     <FormControl>
                                       <Input 
-                                        type="password" 
-                                        placeholder="Enter your new password"
+                                        placeholder="user@domain.com" 
+                                        type="email"
+                                        autoComplete="email"
                                         className="h-12 text-base"
                                         {...field} 
                                       />
@@ -432,99 +462,172 @@ const Auth = () => {
                                   </FormItem>
                                 )}
                               />
+                            </motion.div>
+                            
+                            <motion.div variants={fieldVariants}>
+                              <FormField
+                                control={loginForm.control}
+                                name="password"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-base">Password</FormLabel>
+                                    <FormControl>
+                                      <Input 
+                                        type="password" 
+                                        placeholder="********"
+                                        autoComplete="current-password"
+                                        className="h-12 text-base"
+                                        {...field} 
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </motion.div>
+                            
+                            <motion.div 
+                              variants={fieldVariants}
+                              className="flex items-center justify-between"
+                            >
+                              <FormField
+                                control={loginForm.control}
+                                name="rememberMe"
+                                render={({ field }) => (
+                                  <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                      />
+                                    </FormControl>
+                                    <FormLabel className="text-base">Remember me</FormLabel>
+                                  </FormItem>
+                                )}
+                              />
+                              <Button
+                                type="button"
+                                variant="link"
+                                onClick={handleForgotPassword}
+                                className="text-base p-0"
+                              >
+                                Forgot password?
+                              </Button>
+                            </motion.div>
+                            
+                            <motion.div variants={fieldVariants}>
                               <Button 
                                 type="submit" 
-                                className="w-full h-12 text-base font-medium"
-                                disabled={isLoading}
+                                className="w-full h-12 text-base font-medium" 
+                                disabled={isLoading || !loginForm.formState.isValid}
                               >
-                                Update Password
+                                {isLoading ? "Logging in..." : "Log in"}
                               </Button>
-                            </form>
-                          </Form>
-                        </motion.div>
-                      </TabsContent>
-                    ) : (
-                      <>
-                        <TabsContent value="login" className="space-y-6">
-                          {/* Show success message for confirmed emails */}
-                          <AnimatePresence>
-                            {locationMessage && (
-                              <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: "auto" }}
-                                exit={{ opacity: 0, height: 0 }}
-                                transition={{ duration: 0.3 }}
+                            </motion.div>
+                          </form>
+                        </Form>
+                      </motion.div>
+                    </TabsContent>
+                    
+                    <TabsContent value="register" className="space-y-6">
+                      <AnimatePresence mode="wait">
+                        {registrationSuccess ? (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.9 }}
+                            className="text-center space-y-4 py-8"
+                          >
+                            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+                              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
+                            </div>
+                            <h3 className="text-xl font-semibold text-green-600">Registration Successful!</h3>
+                            <p className="text-muted-foreground">
+                              We've sent a confirmation email to <strong>{registeredEmail}</strong>
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              Please check your email and click the verification link to activate your account.
+                            </p>
+                            <div className="space-y-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => handleResendConfirmation(registeredEmail)}
+                                className="w-full"
                               >
-                                <Alert className="border-green-200 bg-green-50">
-                                  <CheckCircle className="h-4 w-4 text-green-600" />
-                                  <AlertDescription className="text-green-800">
-                                    {locationMessage}
-                                  </AlertDescription>
-                                </Alert>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-
-                          {/* Email Confirmation Error Alert */}
-                          <AnimatePresence>
-                            {emailConfirmationError.show && (
-                              <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: "auto" }}
-                                exit={{ opacity: 0, height: 0 }}
-                                transition={{ duration: 0.3 }}
+                                Resend confirmation email
+                              </Button>
+                              <Button
+                                type="button"
+                                onClick={() => setActiveTab("login")}
+                                className="w-full"
                               >
-                                <Alert className="border-amber-200 bg-amber-50">
-                                  <AlertCircle className="h-4 w-4 text-amber-600" />
-                                  <AlertDescription className="text-amber-800">
-                                    <div className="space-y-3">
-                                      <p className="font-medium">Email verification required</p>
-                                      <p className="text-sm">
-                                        Please check your email ({emailConfirmationError.email}) and click the verification link before signing in.
-                                      </p>
-                                      <div className="flex gap-2">
-                                        <Button
-                                          variant="outline"
-                                          size="sm"
-                                          onClick={() => handleResendConfirmation(emailConfirmationError.email)}
-                                          className="bg-white border-amber-300 text-amber-700 hover:bg-amber-50"
-                                        >
-                                          <Mail className="h-3 w-3 mr-1" />
-                                          Resend email
-                                        </Button>
-                                        <Button
-                                          variant="ghost"
-                                          size="sm"
-                                          onClick={() => setEmailConfirmationError({ show: false, email: "" })}
-                                          className="text-amber-700 hover:bg-amber-100"
-                                        >
-                                          Dismiss
-                                        </Button>
-                                      </div>
-                                    </div>
-                                  </AlertDescription>
-                                </Alert>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-
+                                Go to Login
+                              </Button>
+                            </div>
+                          </motion.div>
+                        ) : (
                           <motion.div
                             variants={formVariants}
                             initial="hidden"
                             animate="visible"
                           >
-                            <Form {...loginForm}>
-                              <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-5">
+                            <Form {...registerForm}>
+                              <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-5">
+                                <motion.div 
+                                  variants={fieldVariants}
+                                  className="grid grid-cols-2 gap-4"
+                                >
+                                  <FormField
+                                    control={registerForm.control}
+                                    name="firstName"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel className="text-base">First Name</FormLabel>
+                                        <FormControl>
+                                          <Input 
+                                            placeholder="John"
+                                            autoComplete="given-name"
+                                            className="h-12 text-base"
+                                            {...field} 
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <FormField
+                                    control={registerForm.control}
+                                    name="lastName"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel className="text-base">Last Name</FormLabel>
+                                        <FormControl>
+                                          <Input 
+                                            placeholder="Doe"
+                                            autoComplete="family-name"
+                                            className="h-12 text-base"
+                                            {...field} 
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                </motion.div>
+                                
                                 <motion.div variants={fieldVariants}>
                                   <FormField
-                                    control={loginForm.control}
+                                    control={registerForm.control}
                                     name="email"
                                     render={({ field }) => (
                                       <FormItem>
                                         <FormLabel className="text-base">Email</FormLabel>
                                         <FormControl>
                                           <Input 
-                                            placeholder="user@domain.com" 
+                                            placeholder="user@domain.com"
                                             type="email"
                                             autoComplete="email"
                                             className="h-12 text-base"
@@ -539,7 +642,7 @@ const Auth = () => {
                                 
                                 <motion.div variants={fieldVariants}>
                                   <FormField
-                                    control={loginForm.control}
+                                    control={registerForm.control}
                                     name="password"
                                     render={({ field }) => (
                                       <FormItem>
@@ -548,7 +651,7 @@ const Auth = () => {
                                           <Input 
                                             type="password" 
                                             placeholder="********"
-                                            autoComplete="current-password"
+                                            autoComplete="new-password"
                                             className="h-12 text-base"
                                             {...field} 
                                           />
@@ -559,13 +662,32 @@ const Auth = () => {
                                   />
                                 </motion.div>
                                 
-                                <motion.div 
-                                  variants={fieldVariants}
-                                  className="flex items-center justify-between"
-                                >
+                                <motion.div variants={fieldVariants}>
                                   <FormField
-                                    control={loginForm.control}
-                                    name="rememberMe"
+                                    control={registerForm.control}
+                                    name="confirmPassword"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel className="text-base">Confirm Password</FormLabel>
+                                        <FormControl>
+                                          <Input 
+                                            type="password" 
+                                            placeholder="********"
+                                            autoComplete="new-password"
+                                            className="h-12 text-base"
+                                            {...field} 
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                </motion.div>
+                                
+                                <motion.div variants={fieldVariants}>
+                                  <FormField
+                                    control={registerForm.control}
+                                    name="acceptTerms"
                                     render={({ field }) => (
                                       <FormItem className="flex flex-row items-center space-x-2 space-y-0">
                                         <FormControl>
@@ -574,232 +696,35 @@ const Auth = () => {
                                             onCheckedChange={field.onChange}
                                           />
                                         </FormControl>
-                                        <FormLabel className="text-base">Remember me</FormLabel>
+                                        <div className="space-y-1 leading-none">
+                                          <FormLabel className="text-base">
+                                            I accept the <a href="/terms" className="underline">terms and conditions</a>
+                                          </FormLabel>
+                                        </div>
                                       </FormItem>
                                     )}
                                   />
-                                  <Button
-                                    type="button"
-                                    variant="link"
-                                    onClick={handleForgotPassword}
-                                    className="text-base p-0"
-                                  >
-                                    Forgot password?
-                                  </Button>
                                 </motion.div>
                                 
                                 <motion.div variants={fieldVariants}>
                                   <Button 
                                     type="submit" 
                                     className="w-full h-12 text-base font-medium" 
-                                    disabled={isLoading || !loginForm.formState.isValid}
+                                    disabled={isLoading || !registerForm.formState.isValid}
                                   >
-                                    {isLoading ? "Logging in..." : "Log in"}
+                                    {isLoading ? "Creating account..." : "Create account"}
                                   </Button>
                                 </motion.div>
                               </form>
                             </Form>
                           </motion.div>
-                        </TabsContent>
-                        
-                        <TabsContent value="register" className="space-y-6">
-                          <AnimatePresence mode="wait">
-                            {registrationSuccess ? (
-                              <motion.div
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.9 }}
-                                className="text-center space-y-4 py-8"
-                              >
-                                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                                  <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                  </svg>
-                                </div>
-                                <h3 className="text-xl font-semibold text-green-600">Registration Successful!</h3>
-                                <p className="text-muted-foreground">
-                                  We've sent a confirmation email to <strong>{registeredEmail}</strong>
-                                </p>
-                                <p className="text-sm text-muted-foreground">
-                                  Please check your email and click the verification link to activate your account.
-                                </p>
-                                <div className="space-y-2">
-                                  <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={() => handleResendConfirmation(registeredEmail)}
-                                    className="w-full"
-                                  >
-                                    Resend confirmation email
-                                  </Button>
-                                  <Button
-                                    type="button"
-                                    onClick={() => setActiveTab("login")}
-                                    className="w-full"
-                                  >
-                                    Go to Login
-                                  </Button>
-                                </div>
-                              </motion.div>
-                            ) : (
-                              <motion.div
-                                variants={formVariants}
-                                initial="hidden"
-                                animate="visible"
-                              >
-                                <Form {...registerForm}>
-                                  <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-5">
-                                    <motion.div 
-                                      variants={fieldVariants}
-                                      className="grid grid-cols-2 gap-4"
-                                    >
-                                      <FormField
-                                        control={registerForm.control}
-                                        name="firstName"
-                                        render={({ field }) => (
-                                          <FormItem>
-                                            <FormLabel className="text-base">First Name</FormLabel>
-                                            <FormControl>
-                                              <Input 
-                                                placeholder="John"
-                                                autoComplete="given-name"
-                                                className="h-12 text-base"
-                                                {...field} 
-                                              />
-                                            </FormControl>
-                                            <FormMessage />
-                                          </FormItem>
-                                        )}
-                                      />
-                                      <FormField
-                                        control={registerForm.control}
-                                        name="lastName"
-                                        render={({ field }) => (
-                                          <FormItem>
-                                            <FormLabel className="text-base">Last Name</FormLabel>
-                                            <FormControl>
-                                              <Input 
-                                                placeholder="Doe"
-                                                autoComplete="family-name"
-                                                className="h-12 text-base"
-                                                {...field} 
-                                              />
-                                            </FormControl>
-                                            <FormMessage />
-                                          </FormItem>
-                                        )}
-                                      />
-                                    </motion.div>
-                                    
-                                    <motion.div variants={fieldVariants}>
-                                      <FormField
-                                        control={registerForm.control}
-                                        name="email"
-                                        render={({ field }) => (
-                                          <FormItem>
-                                            <FormLabel className="text-base">Email</FormLabel>
-                                            <FormControl>
-                                              <Input 
-                                                placeholder="user@domain.com"
-                                                type="email"
-                                                autoComplete="email"
-                                                className="h-12 text-base"
-                                                {...field} 
-                                              />
-                                            </FormControl>
-                                            <FormMessage />
-                                          </FormItem>
-                                        )}
-                                      />
-                                    </motion.div>
-                                    
-                                    <motion.div variants={fieldVariants}>
-                                      <FormField
-                                        control={registerForm.control}
-                                        name="password"
-                                        render={({ field }) => (
-                                          <FormItem>
-                                            <FormLabel className="text-base">Password</FormLabel>
-                                            <FormControl>
-                                              <Input 
-                                                type="password" 
-                                                placeholder="********"
-                                                autoComplete="new-password"
-                                                className="h-12 text-base"
-                                                {...field} 
-                                              />
-                                            </FormControl>
-                                            <FormMessage />
-                                          </FormItem>
-                                        )}
-                                      />
-                                    </motion.div>
-                                    
-                                    <motion.div variants={fieldVariants}>
-                                      <FormField
-                                        control={registerForm.control}
-                                        name="confirmPassword"
-                                        render={({ field }) => (
-                                          <FormItem>
-                                            <FormLabel className="text-base">Confirm Password</FormLabel>
-                                            <FormControl>
-                                              <Input 
-                                                type="password" 
-                                                placeholder="********"
-                                                autoComplete="new-password"
-                                                className="h-12 text-base"
-                                                {...field} 
-                                              />
-                                            </FormControl>
-                                            <FormMessage />
-                                          </FormItem>
-                                        )}
-                                      />
-                                    </motion.div>
-                                    
-                                    <motion.div variants={fieldVariants}>
-                                      <FormField
-                                        control={registerForm.control}
-                                        name="acceptTerms"
-                                        render={({ field }) => (
-                                          <FormItem className="flex flex-row items-center space-x-2 space-y-0">
-                                            <FormControl>
-                                              <Checkbox
-                                                checked={field.value}
-                                                onCheckedChange={field.onChange}
-                                              />
-                                            </FormControl>
-                                            <div className="space-y-1 leading-none">
-                                              <FormLabel className="text-base">
-                                                I accept the <a href="/terms" className="underline">terms and conditions</a>
-                                              </FormLabel>
-                                            </div>
-                                          </FormItem>
-                                        )}
-                                      />
-                                    </motion.div>
-                                    
-                                    <motion.div variants={fieldVariants}>
-                                      <Button 
-                                        type="submit" 
-                                        className="w-full h-12 text-base font-medium" 
-                                        disabled={isLoading || !registerForm.formState.isValid}
-                                      >
-                                        {isLoading ? "Creating account..." : "Create account"}
-                                      </Button>
-                                    </motion.div>
-                                  </form>
-                                </Form>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                        </TabsContent>
-                      </>
-                    )}
+                        )}
+                      </AnimatePresence>
+                    </TabsContent>
                   </AnimatePresence>
                 </Tabs>
 
-                {!registrationSuccess && !isPasswordResetMode && (
+                {!registrationSuccess && (
                   <>
                     <motion.div
                       initial={{ opacity: 0 }}

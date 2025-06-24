@@ -74,8 +74,8 @@ const ForgotPassword = () => {
     try {
       console.log("Sending password reset request for:", values.email);
       
-      // Use the correct Lovable project URL
-      const redirectUrl = "https://lovable.dev/projects/8fd8949c-9dd4-4889-9f32-e6b6e177fb3e/auth";
+      // Updated redirect URL to point to /reset-password
+      const redirectUrl = `${window.location.origin}/reset-password`;
       
       const { error } = await supabase.auth.resetPasswordForEmail(values.email, {
         redirectTo: redirectUrl,
