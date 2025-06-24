@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -346,7 +345,7 @@ const IntegrationMarketplace = () => {
             onClose={handleCloseWizard}
             onAddCredential={addCredential}
             onTestConnection={testCredential}
-            onInstall={installIntegration}
+            onInstall={(integrationId, credentialId) => installIntegration({ integrationId, credentialId })}
             credentials={getCredentialsForIntegration(selectedIntegration.id)}
             isLoading={isAddingCredential || isTestingCredential || isInstallingIntegration}
           />
