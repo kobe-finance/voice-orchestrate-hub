@@ -1,11 +1,10 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Filter, Store, Settings, CheckCircle } from 'lucide-react';
+import { Search, Filter, Store, Settings, CheckCircle, Zap } from 'lucide-react';
 import { 
   Breadcrumb, 
   BreadcrumbList, 
@@ -15,12 +14,17 @@ import {
   BreadcrumbPage 
 } from '@/components/ui/breadcrumb';
 import { useIntegrations } from '@/hooks/useIntegrations';
+import { useIntegrationSubscriptions } from '@/hooks/useIntegrationSubscriptions';
 import IntegrationCard from '@/components/integrations/IntegrationCard';
+import IntegrationFlowWizard from '@/components/integrations/IntegrationFlowWizard';
+import IntegrationStatusIndicator from '@/components/integrations/IntegrationStatusIndicator';
 import type { Integration, UserIntegration } from '@/types/integration';
 
 const IntegrationMarketplace = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedIntegration, setSelectedIntegration] = useState<Integration | null>(null);
+  const [showWizard, setShowWizard] = useState(false);
   
   const {
     availableIntegrations,
@@ -36,6 +40,9 @@ const IntegrationMarketplace = () => {
     isInstallingIntegration,
     isUninstallingIntegration,
   } = useIntegrations();
+
+  // Enable real-time subscriptions
+  useIntegrationSubscriptions();
 
   // Filter integrations based on search and category
   const filteredIntegrations = availableIntegrations.filter(integration => {
@@ -89,6 +96,16 @@ const IntegrationMarketplace = () => {
     return userIntegrations.find(ui => ui.integration_id === integrationId);
   };
 
+  const handleQuickSetup = (integration: Integration) => {
+    setSelectedIntegration(integration);
+    setShowWizard(true);
+  };
+
+  const handleCloseWizard = () => {
+    setShowWizard(false);
+    setSelectedIntegration(null);
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
@@ -132,6 +149,12 @@ const IntegrationMarketplace = () => {
               <div className="flex items-center space-x-2 text-sm">
                 <CheckCircle className="h-4 w-4 text-green-600" />
                 <span>{installedIntegrations.length} Active</span>
+              </div>
+            </Card>
+            <Card className="p-2">
+              <div className="flex items-center space-x-2 text-sm">
+                <Zap className="h-4 w-4 text-blue-600" />
+                <span>Real-time Updates</span>
               </div>
             </Card>
           </div>
@@ -194,16 +217,29 @@ const IntegrationMarketplace = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {availableToInstall.map((integration) => (
-                  <IntegrationCard
-                    key={integration.id}
-                    integration={integration}
-                    credentials={getCredentialsForIntegration(integration.id)}
-                    userIntegration={getUserIntegrationForIntegration(integration.id)}
-                    onAddCredential={addCredential}
-                    onTestConnection={handleTestConnection}
-                    onInstall={handleInstallIntegration}
-                    isLoading={isAddingCredential || isTestingCredential || isInstallingIntegration}
-                  />
+                  <div key={integration.id} className="relative">
+                    <IntegrationCard
+                      integration={integration}
+                      credentials={getCredentialsForIntegration(integration.id)}
+                      userIntegration={getUserIntegrationForIntegration(integration.id)}
+                      onAddCredential={addCredential}
+                      onTestConnection={handleTestConnection}
+                      onInstall={handleInstallIntegration}
+                      isLoading={isAddingCredential || isTestingCredential || isInstallingIntegration}
+                    />
+                    {/* Quick Setup Button */}
+                    <div className="absolute top-2 right-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleQuickSetup(integration)}
+                        className="bg-white/90 backdrop-blur-sm hover:bg-white"
+                      >
+                        <Zap className="h-3 w-3 mr-1" />
+                        Quick Setup
+                      </Button>
+                    </div>
+                  </div>
                 ))}
               </div>
             )}
@@ -220,18 +256,29 @@ const IntegrationMarketplace = () => {
               </Card>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {installedIntegrations.map((integration) => (
-                  <IntegrationCard
-                    key={integration.id}
-                    integration={integration}
-                    credentials={getCredentialsForIntegration(integration.id)}
-                    userIntegration={getUserIntegrationForIntegration(integration.id)}
-                    onAddCredential={addCredential}
-                    onTestConnection={handleTestConnection}
-                    onUninstall={handleUninstallIntegration}
-                    isLoading={isAddingCredential || isTestingCredential || isUninstallingIntegration}
-                  />
-                ))}
+                {installedIntegrations.map((integration) => {
+                  const userIntegration = getUserIntegrationForIntegration(integration.id);
+                  return (
+                    <div key={integration.id} className="relative">
+                      <IntegrationCard
+                        integration={integration}
+                        credentials={getCredentialsForIntegration(integration.id)}
+                        userIntegration={userIntegration}
+                        onAddCredential={addCredential}
+                        onTestConnection={handleTestConnection}
+                        onUninstall={handleUninstallIntegration}
+                        isLoading={isAddingCredential || isTestingCredential || isUninstallingIntegration}
+                      />
+                      {/* Real-time Status Indicator */}
+                      <div className="absolute top-2 right-2">
+                        <IntegrationStatusIndicator
+                          userIntegration={userIntegration}
+                          showText={false}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </TabsContent>
@@ -241,7 +288,7 @@ const IntegrationMarketplace = () => {
               <CardHeader>
                 <CardTitle>Credential Management</CardTitle>
                 <CardDescription>
-                  View and manage all your API credentials and connection status
+                  View and manage all your API credentials with real-time status updates
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -262,25 +309,22 @@ const IntegrationMarketplace = () => {
                             <div className="text-sm text-muted-foreground">{credential.credential_name}</div>
                             <div className="text-xs text-muted-foreground">
                               Added {new Date(credential.created_at).toLocaleDateString()}
+                              {credential.last_tested_at && (
+                                <span className="ml-2">
+                                  • Last tested {new Date(credential.last_tested_at).toLocaleDateString()}
+                                </span>
+                              )}
                             </div>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <div className={`px-2 py-1 rounded text-xs ${
-                              credential.last_test_status === 'success' 
-                                ? 'bg-green-100 text-green-700'
-                                : credential.last_test_status === 'failed'
-                                ? 'bg-red-100 text-red-700'
-                                : 'bg-gray-100 text-gray-700'
-                            }`}>
-                              {credential.last_test_status || 'Not tested'}
-                            </div>
+                            <IntegrationStatusIndicator credential={credential} />
                             <Button 
                               size="sm" 
                               variant="outline"
                               onClick={() => handleTestConnection(credential.id)}
-                              disabled={isTestingCredential}
+                              disabled={isTestingCredential || credential.last_test_status === 'testing'}
                             >
-                              {isTestingCredential ? 'Testing...' : 'Test'}
+                              {credential.last_test_status === 'testing' ? 'Testing...' : 'Test'}
                             </Button>
                           </div>
                         </div>
@@ -292,6 +336,20 @@ const IntegrationMarketplace = () => {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Integration Flow Wizard */}
+        {selectedIntegration && (
+          <IntegrationFlowWizard
+            integration={selectedIntegration}
+            isOpen={showWizard}
+            onClose={handleCloseWizard}
+            onAddCredential={addCredential}
+            onTestConnection={testCredential}
+            onInstall={installIntegration}
+            credentials={getCredentialsForIntegration(selectedIntegration.id)}
+            isLoading={isAddingCredential || isTestingCredential || isInstallingIntegration}
+          />
+        )}
       </div>
     </div>
   );
