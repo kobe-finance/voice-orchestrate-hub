@@ -5,6 +5,9 @@ import { Mic, ArrowRight, CheckCircle, Sparkles, Zap, Shield } from "lucide-reac
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { VoiceModal } from "@/components/voice/VoiceModal";
+import { UserMenu } from "@/components/auth/UserMenu";
+import { ModeToggle } from "@/components/theme/ModeToggle";
+import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import {
   NavigationMenu,
@@ -49,6 +52,7 @@ ListItem.displayName = "ListItem";
 const Index: React.FC = () => {
   console.log('Index component rendering');
   
+  const { user } = useAuth();
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState<boolean>(false);
 
   const handleOpenVoiceModal = useCallback(() => {
@@ -88,12 +92,24 @@ const Index: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            <Link to="/auth">
-              <Button variant="ghost" size="sm">Sign In</Button>
-            </Link>
-            <Link to="/onboarding">
-              <Button variant="gradient" size="sm">Get Started</Button>
-            </Link>
+            <ModeToggle />
+            {user ? (
+              <>
+                <Link to="/dashboard">
+                  <Button variant="ghost" size="sm">Dashboard</Button>
+                </Link>
+                <UserMenu />
+              </>
+            ) : (
+              <>
+                <Link to="/auth">
+                  <Button variant="ghost" size="sm">Sign In</Button>
+                </Link>
+                <Link to="/onboarding">
+                  <Button variant="gradient" size="sm">Get Started</Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>
