@@ -19,11 +19,11 @@ import { initialNodes, initialEdges } from '@/components/flow-builder/initial-el
 import { nodeTypes } from '@/components/flow-builder/node-types';
 import { NodePalette } from '@/components/flow-builder/NodePalette';
 import { PropertyPanel } from '@/components/flow-builder/PropertyPanel';
-import { FlowHeader } from '@/components/flow-builder/FlowHeader';
 import { FlowValidator } from '@/components/flow/FlowValidator';
 import { Button } from '@/components/ui/button';
-import { Book, Settings, CheckCircle } from 'lucide-react';
+import { Book, Settings, Save, Share, Upload, Download } from 'lucide-react';
 import { toast } from 'sonner';
+import { PageLayout } from '@/components/layouts/PageLayout';
 
 const ConversationFlowBuilder = () => {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
@@ -155,17 +155,6 @@ const ConversationFlowBuilder = () => {
     }, 500);
   }, []);
 
-  // Navigate back to dashboard
-  const handleBack = useCallback(() => {
-    if (unsavedChanges) {
-      if (window.confirm('You have unsaved changes. Are you sure you want to leave?')) {
-        navigate('/dashboard');
-      }
-    } else {
-      navigate('/dashboard');
-    }
-  }, [navigate, unsavedChanges]);
-
   // Add an onNodeAdd handler for the NodePalette
   const onNodeAdd = useCallback((nodeType: string) => {
     const position = {
@@ -244,17 +233,40 @@ const ConversationFlowBuilder = () => {
     setValidationIssues(prev => prev.filter(i => i.id !== issueId));
   }, [validationIssues, nodes]);
 
+  const breadcrumbs = [
+    { label: "Dashboard", href: "/dashboard" },
+    { label: "Flow Builder" }
+  ];
+
+  const actions = (
+    <>
+      <Button variant="outline" size="sm">
+        <Share className="mr-2 h-4 w-4" />
+        Share
+      </Button>
+      <Button variant="outline" size="sm">
+        <Upload className="mr-2 h-4 w-4" />
+        Import
+      </Button>
+      <Button variant="outline" size="sm">
+        <Download className="mr-2 h-4 w-4" />
+        Export
+      </Button>
+      <Button onClick={handleSaveFlow} size="sm">
+        <Save className="mr-2 h-4 w-4" />
+        Save Flow
+      </Button>
+    </>
+  );
+
   return (
-    <div className="h-screen flex flex-col">
-      <FlowHeader 
-        flowName={flowName} 
-        setFlowName={setFlowName} 
-        onSave={handleSaveFlow} 
-        unsavedChanges={unsavedChanges} 
-        onBack={handleBack} 
-      />
-      
-      <div className="flex-1 flex">
+    <PageLayout
+      title="Conversation Flow Builder"
+      description="Design and configure conversation flows for your voice agents"
+      breadcrumbs={breadcrumbs}
+      actions={actions}
+    >
+      <div className="h-[calc(100vh-12rem)] flex bg-white rounded-lg shadow-sm border">
         <div className="w-60 p-4 border-r overflow-y-auto bg-background space-y-4">
           <NodePalette onAddNode={onNodeAdd} />
 
@@ -269,7 +281,7 @@ const ConversationFlowBuilder = () => {
             <Button 
               variant="outline" 
               className="w-full justify-start" 
-              onClick={() => navigate('/document-management')}
+              onClick={() => navigate('/knowledge-base')}
             >
               <Book className="mr-2 h-4 w-4" />
               Knowledge Base
@@ -320,7 +332,7 @@ const ConversationFlowBuilder = () => {
           </div>
         )}
       </div>
-    </div>
+    </PageLayout>
   );
 };
 

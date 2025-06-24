@@ -18,23 +18,17 @@ import {
   AlertCircle,
   CheckCircle,
   Clock,
-  Database
+  Settings
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { 
-  Breadcrumb, 
-  BreadcrumbList, 
-  BreadcrumbItem, 
-  BreadcrumbLink, 
-  BreadcrumbSeparator, 
-  BreadcrumbPage 
-} from '@/components/ui/breadcrumb';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { PageLayout } from '@/components/layouts/PageLayout';
+import { useNavigate } from 'react-router-dom';
 
 interface ProcessingJob {
   id: string;
@@ -130,6 +124,7 @@ const DocumentProcessor: React.FC<{
 };
 
 const KnowledgeBase = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [processingJobs, setProcessingJobs] = useState<ProcessingJob[]>([
@@ -242,42 +237,40 @@ const KnowledgeBase = () => {
     toast.success('Job cancelled');
   };
 
+  const breadcrumbs = [
+    { label: "Dashboard", href: "/dashboard" },
+    { label: "Knowledge Base" }
+  ];
+
+  const actions = (
+    <>
+      <Button variant="outline" size="sm" onClick={() => navigate('/knowledge-base-organization')}>
+        <Settings className="mr-2 h-4 w-4" />
+        Organize
+      </Button>
+      <Button asChild size="sm">
+        <label htmlFor="upload-file">
+          <Upload className="mr-2 h-4 w-4" />
+          Upload Document
+          <input
+            type="file"
+            id="upload-file"
+            className="hidden"
+            onChange={handleFileUpload}
+          />
+        </label>
+      </Button>
+    </>
+  );
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
-      <div className="p-4 md:p-6 space-y-6">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Knowledge Base</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 dark:from-gray-100 dark:via-gray-200 dark:to-gray-100 bg-clip-text text-transparent">
-              Knowledge Base
-            </h1>
-            <p className="text-muted-foreground">Manage documents and data for AI processing</p>
-          </div>
-          <Button asChild>
-            <label htmlFor="upload-file">
-              <Upload className="mr-2 h-4 w-4" />
-              Upload Document
-              <input
-                type="file"
-                id="upload-file"
-                className="hidden"
-                onChange={handleFileUpload}
-              />
-            </label>
-          </Button>
-        </div>
-
+    <PageLayout
+      title="Knowledge Base"
+      description="Manage documents and data for AI processing"
+      breadcrumbs={breadcrumbs}
+      actions={actions}
+    >
+      <div className="space-y-6">
         {isUploading && (
           <Card>
             <CardHeader>
@@ -386,7 +379,7 @@ const KnowledgeBase = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </div>
+    </PageLayout>
   );
 };
 

@@ -1,21 +1,16 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   ArrowLeft, 
   Search, 
-  FolderTree, 
-  Tag, 
   Filter,
   Save,
-  CircleCheck,
-  MoveVertical,
   ListTree,
+  Tag,
   CircleDot
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CategoryTree } from "@/components/rag/CategoryTree";
@@ -24,6 +19,7 @@ import { DocumentFilters } from "@/components/rag/DocumentFilters";
 import { RelatedDocuments } from "@/components/rag/RelatedDocuments";
 import { SearchInput } from "@/components/ui/search-input";
 import { DocumentType, CategoryType } from "@/types/document";
+import { PageLayout } from "@/components/layouts/PageLayout";
 
 const KnowledgeBaseOrganization = () => {
   const navigate = useNavigate();
@@ -314,35 +310,33 @@ const KnowledgeBaseOrganization = () => {
     return true;
   });
 
-  return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b sticky top-0 z-10 bg-background">
-        <div className="container flex items-center justify-between h-16">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate("/document-management")}
-            >
-              <ArrowLeft size={16} />
-              <span className="ml-2">Back to Knowledge Base</span>
-            </Button>
-            <h1 className="text-xl font-semibold">Knowledge Base Organization</h1>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm">
-              <Filter className="mr-2 h-4 w-4" />
-              Advanced Filters
-            </Button>
-            <Button size="sm">
-              <Save className="mr-2 h-4 w-4" />
-              Save Changes
-            </Button>
-          </div>
-        </div>
-      </header>
+  const breadcrumbs = [
+    { label: "Dashboard", href: "/dashboard" },
+    { label: "Knowledge Base", href: "/knowledge-base" },
+    { label: "Organization" }
+  ];
 
-      <div className="container py-6">
+  const actions = (
+    <>
+      <Button variant="outline" size="sm">
+        <Filter className="mr-2 h-4 w-4" />
+        Advanced Filters
+      </Button>
+      <Button size="sm">
+        <Save className="mr-2 h-4 w-4" />
+        Save Changes
+      </Button>
+    </>
+  );
+
+  return (
+    <PageLayout
+      title="Knowledge Base Organization"
+      description="Organize and categorize your knowledge base content"
+      breadcrumbs={breadcrumbs}
+      actions={actions}
+    >
+      <div className="space-y-6">
         <Tabs 
           defaultValue="categories" 
           value={activeTab} 
@@ -469,7 +463,7 @@ const KnowledgeBaseOrganization = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </div>
+    </PageLayout>
   );
 };
 
