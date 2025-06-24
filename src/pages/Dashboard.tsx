@@ -1,9 +1,9 @@
+
 import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, BarChart4, MessageSquare, Settings } from "lucide-react";
 import { PageLayout } from "@/components/layouts/PageLayout";
-import { OnboardingReminder } from "@/components/onboarding/OnboardingReminder";
 
 const Dashboard = () => {
   const breadcrumbs = [
@@ -26,9 +26,7 @@ const Dashboard = () => {
       breadcrumbs={breadcrumbs}
       actions={actions}
     >
-      <OnboardingReminder />
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Card className="bg-white dark:bg-gray-900 shadow-md">
           <div className="p-6 space-y-4">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
