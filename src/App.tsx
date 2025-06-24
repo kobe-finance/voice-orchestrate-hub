@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -6,6 +5,7 @@ import { TenantProvider } from "@/contexts/TenantContext"
 import { WebSocketProvider } from "@/contexts/WebSocketContext"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/Sidebar"
+import { StandardHeader } from "@/components/common/StandardHeader"
 import { AuthProvider } from "@/hooks/useAuth";
 import { HybridAuthProvider } from "@/contexts/HybridAuthContext";
 import { Layout } from "@/components/Layout";
@@ -48,13 +48,14 @@ const queryClient = new QueryClient({
   },
 });
 
-// App layout component for pages that need sidebar
+// App layout component for pages that need sidebar + header
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="flex min-h-screen w-full bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
         <AppSidebar />
         <main className="flex-1 min-w-0 overflow-x-hidden">
+          <StandardHeader />
           <div className="h-full w-full">
             {children}
           </div>
