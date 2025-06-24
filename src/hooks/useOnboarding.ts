@@ -182,13 +182,13 @@ export const useOnboarding = () => {
       
       const { error } = await supabase
         .from('user_onboarding')
-        .upsert({
-          user_id: user.id,
+        .update({
           current_step: step,
           completed_steps: newCompletedSteps,
           is_completed: newCompletedSteps.length >= 5, // All 5 steps completed
           completed_at: newCompletedSteps.length >= 5 ? new Date().toISOString() : null,
-        });
+        })
+        .eq('user_id', user.id);
       
       if (error) throw error;
     },
@@ -322,7 +322,7 @@ export const useOnboarding = () => {
         .from('onboarding_backups')
         .insert({
           user_id: user.id,
-          backup_data: backupData,
+          backup_data: backupData as any,
           backup_reason: 're-onboarding',
         });
       
