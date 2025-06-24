@@ -10,13 +10,13 @@ import {
   SidebarGroupLabel, 
   SidebarHeader, 
   SidebarMenu, 
-  SidebarMenuButton, 
   SidebarMenuItem,
+  SidebarMenuButton,
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem
 } from "@/components/ui/sidebar";
-import { TenantSwitcher } from "@/components/tenant/TenantSwitcher";
+import { TenantInfo } from "@/components/tenant/TenantInfo";
 import { 
   Mic, 
   Settings, 
@@ -143,7 +143,7 @@ export function AppSidebar() {
               <span className="text-gradient-accent text-lg">™</span>
             </div>
           </Link>
-          <TenantSwitcher />
+          <TenantInfo />
         </div>
       </SidebarHeader>
       <SidebarContent className="p-4">
