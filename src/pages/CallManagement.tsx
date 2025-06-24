@@ -4,9 +4,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Phone, PhoneCall, PhoneOff, Mic, MicOff, Volume2, VolumeX, Users, Clock, TrendingUp } from 'lucide-react';
 import { useWebSocket } from '@/contexts/WebSocketContext';
+import { PageLayout } from '@/components/layouts/PageLayout';
 
 interface ActiveCall {
   id: string;
@@ -110,36 +110,27 @@ const CallManagement: React.FC = () => {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
-      <div className="p-4 md:p-6 space-y-6">
-        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-          <div>
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem>
-                  <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>Call Management</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-            <div className="mt-2">
-              <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary via-primary-600 to-accent-orange bg-clip-text text-transparent">
-                Call Management
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">Monitor and manage live calls in real-time</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge variant={isConnected ? 'default' : 'destructive'}>
-              {isConnected ? 'Connected' : 'Disconnected'}
-            </Badge>
-          </div>
-        </div>
+  const breadcrumbs = [
+    { label: "Dashboard", href: "/dashboard" },
+    { label: "Call Management" }
+  ];
 
+  const actions = (
+    <>
+      <Badge variant={isConnected ? 'default' : 'destructive'}>
+        {isConnected ? 'Connected' : 'Disconnected'}
+      </Badge>
+    </>
+  );
+
+  return (
+    <PageLayout
+      title="Call Management"
+      description="Monitor and manage live calls in real-time"
+      breadcrumbs={breadcrumbs}
+      actions={actions}
+    >
+      <div className="space-y-6">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
@@ -267,7 +258,7 @@ const CallManagement: React.FC = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </PageLayout>
   );
 };
 
