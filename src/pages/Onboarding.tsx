@@ -1,11 +1,12 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useOnboarding } from "@/hooks/useOnboarding";
 import BusinessProfileStep from "@/components/onboarding/BusinessProfileStep";
 import VoiceAgentConfigStep from "@/components/onboarding/VoiceAgentConfigStep";
 import IntegrationSetupStep from "@/components/onboarding/IntegrationSetupStep";
@@ -42,7 +43,21 @@ const OnboardingSteps = [
 const Onboarding = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [currentStep, setCurrentStep] = useState(0);
+  const { 
+    onboardingStatus, 
+    isLoading,
+    skipToStep, 
+    completeStep,
+    saveBusinessProfile,
+    saveVoiceConfig,
+    saveIntegrations,
+    saveDemoCall,
+    businessProfile,
+    voiceConfig,
+    integrations,
+    demoCall
+  } = useOnboarding();
+  
   const [helpDialogOpen, setHelpDialogOpen] = useState(false);
   const [welcomeVideoOpen, setWelcomeVideoOpen] = useState(true);
   const [formData, setFormData] = useState({
@@ -52,33 +67,125 @@ const Onboarding = () => {
     demoCall: {},
   });
 
-  const progress = (currentStep / (OnboardingSteps.length - 1)) * 100;
+  // Get current step index based on onboarding status
+  const getCurrentStepIndex = () => {
+    if (!onboardingStatus) return 0;
+    const currentStepId = onboardingStatus.currentStep;
+    return OnboardingSteps.findIndex(step => step.id === currentStepId);
+  };
 
-  const handleNext = () => {
-    if (currentStep < OnboardingSteps.length - 1) {
+  const currentStepIndex = getCurrentStepIndex();
+  const progress = (currentStepIndex / (OnboardingSteps.length - 1)) * 100;
+
+  // Load existing data into form
+  useEffect(() => {
+    if (businessProfile) {
+      setFormData(prev => ({ ...prev, businessProfile }));
+    }
+    if (voiceConfig) {
+      setFormData(prev => ({ ...prev, voiceAgentConfig: voiceConfig }));
+    }
+    if (integrations) {
+      setFormData(prev => ({ ...prev, integrations }));
+    }
+    if (demoCall) {
+      setFormData(prev => ({ ...prev, demoCall }));
+    }
+  }, [businessProfile, voiceConfig, integrations, demoCall]);
+
+  const handleNext = async () => {
+    try {
+      const currentStep = OnboardingSteps[currentStepIndex];
+      
+      // Save current step data before moving to next
+      await saveCurrentStepData(currentStep.id);
+      
+      if (currentStepIndex < OnboardingSteps.length - 1) {
+        const nextStep = OnboardingSteps[currentStepIndex + 1];
+        await completeStep(currentStep.id);
+        await skipToStep(nextStep.id);
+        toast({
+          title: "Progress saved!",
+        });
+      } else {
+        // Complete the final step and onboarding
+        await completeStep(currentStep.id);
+        toast({
+          title: "Onboarding completed!",
+        });
+        setTimeout(() => navigate("/dashboard"), 1500);
+      }
+    } catch (error) {
+      console.error('Error progressing onboarding:', error);
       toast({
-        title: "Progress saved!",
+        title: "Error saving progress",
+        description: "Please try again",
+        variant: "destructive"
       });
-      setCurrentStep(currentStep + 1);
-    } else {
-      toast({
-        title: "Onboarding completed!",
-      });
-      setTimeout(() => navigate("/dashboard"), 1500);
     }
   };
 
-  const handleBack = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
+  const handleBack = async () => {
+    if (currentStepIndex > 0) {
+      const prevStep = OnboardingSteps[currentStepIndex - 1];
+      await skipToStep(prevStep.id);
     }
   };
 
-  const handleSkip = () => {
-    toast({
-      title: "Step skipped",
-    });
-    handleNext();
+  const handleSkip = async () => {
+    try {
+      if (currentStepIndex < OnboardingSteps.length - 1) {
+        const nextStep = OnboardingSteps[currentStepIndex + 1];
+        await skipToStep(nextStep.id);
+        toast({
+          title: "Step skipped",
+        });
+      } else {
+        // Skip final step - complete onboarding
+        const currentStep = OnboardingSteps[currentStepIndex];
+        await completeStep(currentStep.id);
+        toast({
+          title: "Onboarding completed!",
+        });
+        setTimeout(() => navigate("/dashboard"), 1500);
+      }
+    } catch (error) {
+      console.error('Error skipping step:', error);
+      toast({
+        title: "Error skipping step",
+        description: "Please try again",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const saveCurrentStepData = async (stepId: string) => {
+    try {
+      switch (stepId) {
+        case 'business-profile':
+          if (Object.keys(formData.businessProfile).length > 0) {
+            await saveBusinessProfile(formData.businessProfile as any);
+          }
+          break;
+        case 'voice-agent-config':
+          if (Object.keys(formData.voiceAgentConfig).length > 0) {
+            await saveVoiceConfig(formData.voiceAgentConfig as any);
+          }
+          break;
+        case 'integration-setup':
+          if (Object.keys(formData.integrations).length > 0) {
+            await saveIntegrations(formData.integrations as any);
+          }
+          break;
+        case 'demo-call':
+          if (Object.keys(formData.demoCall).length > 0) {
+            await saveDemoCall(formData.demoCall as any);
+          }
+          break;
+      }
+    } catch (error) {
+      console.error(`Error saving ${stepId} data:`, error);
+    }
   };
 
   const handleExit = () => {
@@ -96,7 +203,9 @@ const Onboarding = () => {
   };
 
   const renderStepContent = () => {
-    switch (OnboardingSteps[currentStep].id) {
+    const currentStep = OnboardingSteps[currentStepIndex];
+    
+    switch (currentStep?.id) {
       case "welcome":
         return (
           <div className="text-center space-y-6 py-8">
@@ -145,9 +254,22 @@ const Onboarding = () => {
           />
         );
       default:
-        return <div>Unknown step</div>;
+        return <div>Loading...</div>;
     }
   };
+
+  if (isLoading || !onboardingStatus) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center space-y-4">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto" />
+          <p className="text-muted-foreground">Loading onboarding...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const currentStep = OnboardingSteps[currentStepIndex];
 
   return (
     <div className="flex flex-col min-h-screen bg-secondary/30">
@@ -156,7 +278,7 @@ const Onboarding = () => {
           <div className="mb-8">
             <div className="flex justify-between items-center mb-2">
               <h2 className="text-lg font-medium">
-                Step {currentStep + 1} of {OnboardingSteps.length}: {OnboardingSteps[currentStep].title}
+                Step {currentStepIndex + 1} of {OnboardingSteps.length}: {currentStep?.title}
               </h2>
               <Button 
                 variant="ghost" 
@@ -177,18 +299,18 @@ const Onboarding = () => {
             <Button
               variant="outline"
               onClick={handleBack}
-              disabled={currentStep === 0}
+              disabled={currentStepIndex === 0}
             >
               Back
             </Button>
             <div className="space-x-2">
-              {currentStep > 0 && currentStep < OnboardingSteps.length - 1 && (
+              {currentStepIndex > 0 && currentStepIndex < OnboardingSteps.length - 1 && (
                 <Button variant="ghost" onClick={handleSkip}>
                   Skip for now
                 </Button>
               )}
               <Button onClick={handleNext}>
-                {currentStep === OnboardingSteps.length - 1 ? "Complete Setup" : "Continue"}
+                {currentStepIndex === OnboardingSteps.length - 1 ? "Complete Setup" : "Continue"}
               </Button>
             </div>
           </div>
@@ -225,9 +347,9 @@ const Onboarding = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <h3 className="font-medium">About {OnboardingSteps[currentStep].title}</h3>
+            <h3 className="font-medium">About {currentStep?.title}</h3>
             <p>
-              {OnboardingSteps[currentStep].description}
+              {currentStep?.description}
             </p>
             <p>
               If you need additional assistance, please contact our support team:
