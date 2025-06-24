@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -189,7 +188,10 @@ export const useOnboarding = () => {
           completed_steps: newCompletedSteps,
           is_completed: newCompletedSteps.length >= 5, // All 5 steps completed
           completed_at: newCompletedSteps.length >= 5 ? new Date().toISOString() : null,
-        }, { onConflict: 'user_id' });
+        }, { 
+          onConflict: 'user_id',
+          ignoreDuplicates: false 
+        });
       
       if (error) throw error;
     },
