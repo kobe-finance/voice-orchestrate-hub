@@ -3,28 +3,47 @@ import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Filter, Download, Play, Pause, MoreHorizontal } from 'lucide-react';
+import { Download, Filter } from 'lucide-react';
 import { ConversationList } from '@/components/conversations/ConversationList';
 import { ConversationTranscript } from '@/components/conversations/ConversationTranscript';
-import { ConversationSearchFilters } from '@/components/conversations/ConversationSearchFilters';
 import { TagsPanel } from '@/components/conversations/TagsPanel';
 import { mockConversations } from '@/data/conversation-data';
 import type { Conversation } from '@/types/conversation';
 import { PageLayout } from '@/components/layouts/PageLayout';
+import { PageLoading } from '@/components/ui/page-loading';
+import { PageError } from '@/components/ui/page-error';
+import { usePageState } from '@/hooks/usePageState';
 
 const ConversationExplorer = () => {
-  const [conversations, setConversations] = useState<Conversation[]>(mockConversations);
+  const { isLoading, error, setLoading, setError } = usePageState({ initialLoading: true });
+  const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   useEffect(() => {
-    // Simulate fetching conversations from an API
-    // In a real application, you would fetch data from an API endpoint
-    // and update the conversations state with the fetched data.
-    // For now, we're using the mock mockConversations.
-  }, []);
+    // Simulate loading conversations from an API
+    const loadConversations = async () => {
+      try {
+        setLoading(true);
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // In a real app, you would fetch from API
+        // const response = await fetchConversations();
+        setConversations(mockConversations);
+        
+        setLoading(false);
+      } catch (err) {
+        setError({
+          message: 'Failed to load conversations. Please check your connection and try again.',
+          code: 'CONVERSATIONS_LOAD_ERROR',
+          retry: loadConversations
+        });
+      }
+    };
+
+    loadConversations();
+  }, [setLoading, setError]);
 
   const handleSearch = (term: string) => {
     setSearchTerm(term);
@@ -34,10 +53,6 @@ const ConversationExplorer = () => {
 
   const handleSelectConversation = (conversation: Conversation) => {
     setSelectedConversation(conversation);
-  };
-
-  const toggleFilter = () => {
-    setIsFilterOpen(!isFilterOpen);
   };
 
   const handleAddTag = (conversationId: string, tag: string) => {
@@ -75,6 +90,31 @@ const ConversationExplorer = () => {
       </Button>
     </>
   );
+
+  if (error) {
+    return (
+      <PageLayout
+        title="Conversation Explorer"
+        breadcrumbs={breadcrumbs}
+        actions={actions}
+      >
+        <PageError error={error} />
+      </PageLayout>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <PageLayout
+        title="Conversation Explorer"
+        description="Search, filter, and analyze voice conversations"
+        breadcrumbs={breadcrumbs}
+        actions={actions}
+      >
+        <PageLoading type="full" text="Loading conversations..." />
+      </PageLayout>
+    );
+  }
 
   return (
     <PageLayout
