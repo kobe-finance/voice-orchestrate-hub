@@ -1,1 +1,8 @@
+
 project_id = "cdhihqaylfgoztunvkab"
+
+[functions.test-integration-credential]
+verify_jwt = false
+
+[functions.manage-integration]
+verify_jwt = false

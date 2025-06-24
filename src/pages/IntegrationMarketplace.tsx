@@ -28,7 +28,13 @@ const IntegrationMarketplace = () => {
     userIntegrations,
     isLoading,
     addCredential,
+    testCredential,
+    installIntegration,
+    uninstallIntegration,
     isAddingCredential,
+    isTestingCredential,
+    isInstallingIntegration,
+    isUninstallingIntegration,
   } = useIntegrations();
 
   // Filter integrations based on search and category
@@ -52,21 +58,27 @@ const IntegrationMarketplace = () => {
   );
 
   const handleTestConnection = async (credentialId: string) => {
-    // This will be implemented with edge function to Python backend
-    console.log('Testing connection for credential:', credentialId);
-    // TODO: Call edge function to test connection
+    try {
+      await testCredential(credentialId);
+    } catch (error) {
+      console.error('Test connection failed:', error);
+    }
   };
 
   const handleInstallIntegration = async (integrationId: string, credentialId: string) => {
-    // This will be implemented with edge function to Python backend
-    console.log('Installing integration:', integrationId, 'with credential:', credentialId);
-    // TODO: Call edge function to install integration
+    try {
+      await installIntegration({ integrationId, credentialId });
+    } catch (error) {
+      console.error('Install integration failed:', error);
+    }
   };
 
   const handleUninstallIntegration = async (userIntegrationId: string) => {
-    // This will be implemented with edge function to Python backend
-    console.log('Uninstalling integration:', userIntegrationId);
-    // TODO: Call edge function to uninstall integration
+    try {
+      await uninstallIntegration(userIntegrationId);
+    } catch (error) {
+      console.error('Uninstall integration failed:', error);
+    }
   };
 
   const getCredentialsForIntegration = (integrationId: string) => {
@@ -190,7 +202,7 @@ const IntegrationMarketplace = () => {
                     onAddCredential={addCredential}
                     onTestConnection={handleTestConnection}
                     onInstall={handleInstallIntegration}
-                    isLoading={isAddingCredential}
+                    isLoading={isAddingCredential || isTestingCredential || isInstallingIntegration}
                   />
                 ))}
               </div>
@@ -217,7 +229,7 @@ const IntegrationMarketplace = () => {
                     onAddCredential={addCredential}
                     onTestConnection={handleTestConnection}
                     onUninstall={handleUninstallIntegration}
-                    isLoading={isAddingCredential}
+                    isLoading={isAddingCredential || isTestingCredential || isUninstallingIntegration}
                   />
                 ))}
               </div>
@@ -266,8 +278,9 @@ const IntegrationMarketplace = () => {
                               size="sm" 
                               variant="outline"
                               onClick={() => handleTestConnection(credential.id)}
+                              disabled={isTestingCredential}
                             >
-                              Test
+                              {isTestingCredential ? 'Testing...' : 'Test'}
                             </Button>
                           </div>
                         </div>
