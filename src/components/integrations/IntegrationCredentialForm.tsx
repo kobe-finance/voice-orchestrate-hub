@@ -35,21 +35,17 @@ const IntegrationCredentialForm: React.FC<IntegrationCredentialFormProps> = ({
 
   // Build dynamic schema based on integration config
   const buildSchema = () => {
-    const schemaObj: Record<string, any> = {
+    const schemaObj: Record<string, z.ZodTypeAny> = {
       credential_name: z.string().min(1, 'Credential name is required'),
     };
 
     if (integration.config_schema?.fields) {
       integration.config_schema.fields.forEach((field: ConfigField) => {
-        let fieldSchema = z.string();
-        
         if (field.required) {
-          fieldSchema = fieldSchema.min(1, `${field.label} is required`);
+          schemaObj[field.name] = z.string().min(1, `${field.label} is required`);
         } else {
-          fieldSchema = fieldSchema.optional();
+          schemaObj[field.name] = z.string().optional();
         }
-        
-        schemaObj[field.name] = fieldSchema;
       });
     }
 

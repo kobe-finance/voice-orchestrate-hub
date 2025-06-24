@@ -4,7 +4,7 @@ export interface Integration {
   name: string;
   slug: string;
   category: string;
-  description: string;
+  description: string | null;
   icon_url: string | null;
   documentation_url: string | null;
   required_scopes: string[] | null;
@@ -73,3 +73,39 @@ export interface IntegrationTestLog {
   tested_at: string;
   tested_by: string | null;
 }
+
+// Database to frontend type converters
+export const convertDatabaseIntegration = (dbIntegration: any): Integration => ({
+  id: dbIntegration.id,
+  name: dbIntegration.name,
+  slug: dbIntegration.slug,
+  category: dbIntegration.category,
+  description: dbIntegration.description,
+  icon_url: dbIntegration.icon_url,
+  documentation_url: dbIntegration.documentation_url,
+  required_scopes: Array.isArray(dbIntegration.required_scopes) ? dbIntegration.required_scopes : null,
+  config_schema: dbIntegration.config_schema as ConfigSchema | null,
+  is_active: dbIntegration.is_active,
+  created_at: dbIntegration.created_at,
+  updated_at: dbIntegration.updated_at,
+});
+
+export const convertDatabaseUserIntegration = (dbUserIntegration: any): UserIntegration & { integration?: Integration; credential?: IntegrationCredential } => ({
+  id: dbUserIntegration.id,
+  tenant_id: dbUserIntegration.tenant_id,
+  user_id: dbUserIntegration.user_id,
+  integration_id: dbUserIntegration.integration_id,
+  credential_id: dbUserIntegration.credential_id,
+  status: dbUserIntegration.status as 'installing' | 'active' | 'paused' | 'error',
+  config: dbUserIntegration.config as Record<string, any> | null,
+  installed_at: dbUserIntegration.installed_at,
+  installed_by: dbUserIntegration.installed_by,
+  last_sync_at: dbUserIntegration.last_sync_at,
+  sync_status: dbUserIntegration.sync_status,
+  error_count: dbUserIntegration.error_count,
+  metadata: dbUserIntegration.metadata as Record<string, any> | null,
+  created_at: dbUserIntegration.created_at,
+  updated_at: dbUserIntegration.updated_at,
+  integration: dbUserIntegration.integration ? convertDatabaseIntegration(dbUserIntegration.integration) : undefined,
+  credential: dbUserIntegration.credential as IntegrationCredential | undefined,
+});

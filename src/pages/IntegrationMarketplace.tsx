@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/breadcrumb';
 import { useIntegrations } from '@/hooks/useIntegrations';
 import IntegrationCard from '@/components/integrations/IntegrationCard';
+import type { Integration, UserIntegration } from '@/types/integration';
 
 const IntegrationMarketplace = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -42,7 +43,10 @@ const IntegrationMarketplace = () => {
   const categories = Array.from(new Set(availableIntegrations.map(i => i.category)));
 
   // Group integrations by installation status
-  const installedIntegrations = userIntegrations.map(ui => ui.integration).filter(Boolean);
+  const installedIntegrations = userIntegrations
+    .map(ui => ui.integration)
+    .filter((integration): integration is Integration => Boolean(integration));
+    
   const availableToInstall = filteredIntegrations.filter(integration => 
     !installedIntegrations.some(installed => installed.id === integration.id)
   );

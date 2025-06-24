@@ -4,7 +4,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
-import type { Integration, IntegrationCredential, UserIntegration } from '@/types/integration';
+import type { 
+  Integration, 
+  IntegrationCredential, 
+  UserIntegration,
+  convertDatabaseIntegration,
+  convertDatabaseUserIntegration
+} from '@/types/integration';
 
 export const useIntegrations = () => {
   const { user } = useAuth();
@@ -21,7 +27,10 @@ export const useIntegrations = () => {
         .order('name');
       
       if (error) throw error;
-      return data as Integration[];
+      
+      // Convert database types to frontend types
+      const { convertDatabaseIntegration } = await import('@/types/integration');
+      return data.map(convertDatabaseIntegration);
     },
   });
 
@@ -60,7 +69,10 @@ export const useIntegrations = () => {
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data;
+      
+      // Convert database types to frontend types
+      const { convertDatabaseUserIntegration } = await import('@/types/integration');
+      return data.map(convertDatabaseUserIntegration);
     },
     enabled: !!user?.id,
   });
@@ -95,9 +107,9 @@ export const useIntegrations = () => {
     onError: (error) => {
       toast({ 
         title: 'Error adding credential',
-        description: error.message,
         variant: 'destructive'
       });
+      console.error('Error adding credential:', error);
     },
   });
 
@@ -118,9 +130,9 @@ export const useIntegrations = () => {
     onError: (error) => {
       toast({ 
         title: 'Error deleting credential',
-        description: error.message,
         variant: 'destructive'
       });
+      console.error('Error deleting credential:', error);
     },
   });
 
