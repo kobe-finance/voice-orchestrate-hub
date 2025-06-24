@@ -1,47 +1,18 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Settings, Headphones, Zap, Mic, Volume2 } from 'lucide-react';
 import { PageLayout } from '@/components/layouts/PageLayout';
-import { PageLoading } from '@/components/ui/page-loading';
-import { PageError } from '@/components/ui/page-error';
-import { usePageState } from '@/hooks/usePageState';
 
 const VoiceProviderManagement = () => {
-  const { isLoading, error, setLoading, setError } = usePageState({ initialLoading: true });
-  const [providers, setProviders] = useState([
+  const [providers] = useState([
     { id: '1', name: 'ElevenLabs', status: 'connected', type: 'premium', description: 'High-quality AI voice synthesis' },
     { id: '2', name: 'Azure Speech', status: 'disconnected', type: 'standard', description: 'Microsoft\'s speech services' },
     { id: '3', name: 'Google Cloud', status: 'connected', type: 'standard', description: 'Google\'s text-to-speech API' },
   ]);
-
-  useEffect(() => {
-    // Simulate loading providers data
-    const loadProviders = async () => {
-      try {
-        setLoading(true);
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // In a real app, you would fetch data here
-        // const response = await fetchVoiceProviders();
-        // setProviders(response.data);
-        
-        setLoading(false);
-      } catch (err) {
-        setError({
-          message: 'Failed to load voice providers. Please check your connection and try again.',
-          code: 'PROVIDER_LOAD_ERROR',
-          retry: loadProviders
-        });
-      }
-    };
-
-    loadProviders();
-  }, [setLoading, setError]);
 
   const breadcrumbs = [
     { label: "Dashboard", href: "/dashboard" },
@@ -53,31 +24,6 @@ const VoiceProviderManagement = () => {
       Add Provider
     </Button>
   );
-
-  if (error) {
-    return (
-      <PageLayout
-        title="Voice Provider Management"
-        breadcrumbs={breadcrumbs}
-        actions={actions}
-      >
-        <PageError error={error} />
-      </PageLayout>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <PageLayout
-        title="Voice Provider Management"
-        description="Configure and manage voice synthesis providers for your AI agents."
-        breadcrumbs={breadcrumbs}
-        actions={actions}
-      >
-        <PageLoading type="skeleton" />
-      </PageLayout>
-    );
-  }
 
   return (
     <PageLayout
