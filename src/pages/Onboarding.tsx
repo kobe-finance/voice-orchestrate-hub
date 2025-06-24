@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
@@ -119,7 +118,6 @@ const Onboarding = () => {
       console.error('Error progressing onboarding:', error);
       toast({
         title: "Error saving progress",
-        description: "Please try again",
         variant: "destructive"
       });
     }
@@ -153,7 +151,6 @@ const Onboarding = () => {
       console.error('Error skipping step:', error);
       toast({
         title: "Error skipping step",
-        description: "Please try again",
         variant: "destructive"
       });
     }
