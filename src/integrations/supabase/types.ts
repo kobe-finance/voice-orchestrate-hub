@@ -9,6 +9,192 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      onboarding_backups: {
+        Row: {
+          backup_data: Json
+          backup_reason: string | null
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          backup_data: Json
+          backup_reason?: string | null
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          backup_data?: Json
+          backup_reason?: string | null
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      onboarding_business_profile: {
+        Row: {
+          business_name: string
+          business_size: Database["public"]["Enums"]["business_size"] | null
+          created_at: string
+          current_tools: Json | null
+          description: string | null
+          goals: Json | null
+          id: string
+          industry: string | null
+          phone_number: string | null
+          target_audience: Json | null
+          updated_at: string
+          user_id: string
+          website_url: string | null
+        }
+        Insert: {
+          business_name: string
+          business_size?: Database["public"]["Enums"]["business_size"] | null
+          created_at?: string
+          current_tools?: Json | null
+          description?: string | null
+          goals?: Json | null
+          id?: string
+          industry?: string | null
+          phone_number?: string | null
+          target_audience?: Json | null
+          updated_at?: string
+          user_id: string
+          website_url?: string | null
+        }
+        Update: {
+          business_name?: string
+          business_size?: Database["public"]["Enums"]["business_size"] | null
+          created_at?: string
+          current_tools?: Json | null
+          description?: string | null
+          goals?: Json | null
+          id?: string
+          industry?: string | null
+          phone_number?: string | null
+          target_audience?: Json | null
+          updated_at?: string
+          user_id?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
+      onboarding_demo_call: {
+        Row: {
+          call_recording_url: string | null
+          created_at: string
+          demo_completed: boolean | null
+          demo_feedback: Json | null
+          id: string
+          improvement_suggestions: string | null
+          satisfaction_rating: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          call_recording_url?: string | null
+          created_at?: string
+          demo_completed?: boolean | null
+          demo_feedback?: Json | null
+          id?: string
+          improvement_suggestions?: string | null
+          satisfaction_rating?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          call_recording_url?: string | null
+          created_at?: string
+          demo_completed?: boolean | null
+          demo_feedback?: Json | null
+          id?: string
+          improvement_suggestions?: string | null
+          satisfaction_rating?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      onboarding_integrations: {
+        Row: {
+          created_at: string
+          custom_requirements: Json | null
+          id: string
+          integration_configs: Json | null
+          priority_integrations: Json | null
+          selected_integrations: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          custom_requirements?: Json | null
+          id?: string
+          integration_configs?: Json | null
+          priority_integrations?: Json | null
+          selected_integrations?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          custom_requirements?: Json | null
+          id?: string
+          integration_configs?: Json | null
+          priority_integrations?: Json | null
+          selected_integrations?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      onboarding_voice_config: {
+        Row: {
+          agent_name: string | null
+          conversation_style: Json | null
+          created_at: string
+          id: string
+          language: string | null
+          personality_traits: Json | null
+          response_guidelines: Json | null
+          sample_conversations: Json | null
+          updated_at: string
+          user_id: string
+          voice_id: string | null
+          voice_provider: string | null
+        }
+        Insert: {
+          agent_name?: string | null
+          conversation_style?: Json | null
+          created_at?: string
+          id?: string
+          language?: string | null
+          personality_traits?: Json | null
+          response_guidelines?: Json | null
+          sample_conversations?: Json | null
+          updated_at?: string
+          user_id: string
+          voice_id?: string | null
+          voice_provider?: string | null
+        }
+        Update: {
+          agent_name?: string | null
+          conversation_style?: Json | null
+          created_at?: string
+          id?: string
+          language?: string | null
+          personality_traits?: Json | null
+          response_guidelines?: Json | null
+          sample_conversations?: Json | null
+          updated_at?: string
+          user_id?: string
+          voice_id?: string | null
+          voice_provider?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -39,15 +225,77 @@ export type Database = {
         }
         Relationships: []
       }
+      user_onboarding: {
+        Row: {
+          completed_at: string | null
+          completed_steps:
+            | Database["public"]["Enums"]["onboarding_step"][]
+            | null
+          created_at: string
+          current_step: Database["public"]["Enums"]["onboarding_step"] | null
+          id: string
+          is_completed: boolean
+          last_reminder_sent: string | null
+          reminder_dismissed_until: string | null
+          started_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          completed_steps?:
+            | Database["public"]["Enums"]["onboarding_step"][]
+            | null
+          created_at?: string
+          current_step?: Database["public"]["Enums"]["onboarding_step"] | null
+          id?: string
+          is_completed?: boolean
+          last_reminder_sent?: string | null
+          reminder_dismissed_until?: string | null
+          started_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          completed_steps?:
+            | Database["public"]["Enums"]["onboarding_step"][]
+            | null
+          created_at?: string
+          current_step?: Database["public"]["Enums"]["onboarding_step"] | null
+          id?: string
+          is_completed?: boolean
+          last_reminder_sent?: string | null
+          reminder_dismissed_until?: string | null
+          started_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_onboarding_status: {
+        Args: { user_uuid: string }
+        Returns: {
+          is_completed: boolean
+          current_step: string
+          completed_steps: string[]
+          needs_reminder: boolean
+        }[]
+      }
     }
     Enums: {
-      [_ in never]: never
+      business_size: "startup" | "small" | "medium" | "large" | "enterprise"
+      onboarding_step:
+        | "welcome"
+        | "business-profile"
+        | "voice-agent-config"
+        | "integration-setup"
+        | "demo-call"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -162,6 +410,15 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      business_size: ["startup", "small", "medium", "large", "enterprise"],
+      onboarding_step: [
+        "welcome",
+        "business-profile",
+        "voice-agent-config",
+        "integration-setup",
+        "demo-call",
+      ],
+    },
   },
 } as const
