@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,14 +11,7 @@ import { ConversationSearchFilters } from '@/components/conversations/Conversati
 import { TagsPanel } from '@/components/conversations/TagsPanel';
 import { mockConversations } from '@/data/conversation-data';
 import type { Conversation } from '@/types/conversation';
-import { 
-  Breadcrumb, 
-  BreadcrumbList, 
-  BreadcrumbItem, 
-  BreadcrumbLink, 
-  BreadcrumbSeparator, 
-  BreadcrumbPage 
-} from '@/components/ui/breadcrumb';
+import { PageLayout } from '@/components/layouts/PageLayout';
 
 const ConversationExplorer = () => {
   const [conversations, setConversations] = useState<Conversation[]>(mockConversations);
@@ -66,37 +60,30 @@ const ConversationExplorer = () => {
     );
   };
 
+  const breadcrumbs = [
+    { label: "Dashboard", href: "/dashboard" },
+    { label: "Conversation Explorer" }
+  ];
+
+  const actions = (
+    <>
+      <Button variant="outline" size="sm" leftIcon={<Download className="h-4 w-4" />}>
+        Export
+      </Button>
+      <Button variant="outline" size="sm" leftIcon={<Filter className="h-4 w-4" />}>
+        Advanced Filters
+      </Button>
+    </>
+  );
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
-      <div className="p-4 border-b bg-white">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Conversation Explorer</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-
-        <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary via-primary-600 to-accent-orange bg-clip-text text-transparent mt-4">
-          Conversation Explorer
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-1">Search, filter, and analyze voice conversations</p>
-
-        <div className="flex gap-2 mt-4">
-          <Button variant="outline" size="sm" leftIcon={<Download className="h-4 w-4" />}>
-            Export
-          </Button>
-          <Button variant="outline" size="sm" leftIcon={<Filter className="h-4 w-4" />}>
-            Advanced Filters
-          </Button>
-        </div>
-      </div>
-
-      <div className="flex flex-grow">
+    <PageLayout
+      title="Conversation Explorer"
+      description="Search, filter, and analyze voice conversations"
+      breadcrumbs={breadcrumbs}
+      actions={actions}
+    >
+      <div className="flex flex-grow h-[calc(100vh-12rem)]">
         <div className="w-80 border-r p-4">
           <div className="mb-4">
             <Input
@@ -138,7 +125,7 @@ const ConversationExplorer = () => {
           )}
         </div>
       </div>
-    </div>
+    </PageLayout>
   );
 };
 
