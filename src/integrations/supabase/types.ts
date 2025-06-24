@@ -48,6 +48,195 @@ export type Database = {
         }
         Relationships: []
       }
+      integration_audit_log: {
+        Row: {
+          action: string
+          created_at: string | null
+          details: Json | null
+          id: string
+          integration_id: string | null
+          ip_address: unknown | null
+          tenant_id: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          integration_id?: string | null
+          ip_address?: unknown | null
+          tenant_id?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          integration_id?: string | null
+          ip_address?: unknown | null
+          tenant_id?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integration_audit_log_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      integration_credentials: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          credential_name: string
+          credential_type: string
+          encrypted_credentials: Json
+          expires_at: string | null
+          id: string
+          integration_id: string
+          last_test_error: Json | null
+          last_test_status: string | null
+          last_tested_at: string | null
+          tenant_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          credential_name: string
+          credential_type: string
+          encrypted_credentials: Json
+          expires_at?: string | null
+          id?: string
+          integration_id: string
+          last_test_error?: Json | null
+          last_test_status?: string | null
+          last_tested_at?: string | null
+          tenant_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          credential_name?: string
+          credential_type?: string
+          encrypted_credentials?: Json
+          expires_at?: string | null
+          id?: string
+          integration_id?: string
+          last_test_error?: Json | null
+          last_test_status?: string | null
+          last_tested_at?: string | null
+          tenant_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integration_credentials_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      integration_test_logs: {
+        Row: {
+          credential_id: string
+          error_details: Json | null
+          id: string
+          response_time_ms: number | null
+          status: string
+          test_type: string
+          tested_at: string | null
+          tested_by: string | null
+        }
+        Insert: {
+          credential_id: string
+          error_details?: Json | null
+          id?: string
+          response_time_ms?: number | null
+          status: string
+          test_type: string
+          tested_at?: string | null
+          tested_by?: string | null
+        }
+        Update: {
+          credential_id?: string
+          error_details?: Json | null
+          id?: string
+          response_time_ms?: number | null
+          status?: string
+          test_type?: string
+          tested_at?: string | null
+          tested_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integration_test_logs_credential_id_fkey"
+            columns: ["credential_id"]
+            isOneToOne: false
+            referencedRelation: "integration_credentials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      integrations: {
+        Row: {
+          category: string
+          config_schema: Json | null
+          created_at: string | null
+          description: string | null
+          documentation_url: string | null
+          icon_url: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          required_scopes: Json | null
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          config_schema?: Json | null
+          created_at?: string | null
+          description?: string | null
+          documentation_url?: string | null
+          icon_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          required_scopes?: Json | null
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          config_schema?: Json | null
+          created_at?: string | null
+          description?: string | null
+          documentation_url?: string | null
+          icon_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          required_scopes?: Json | null
+          slug?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -77,6 +266,75 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      user_integrations: {
+        Row: {
+          config: Json | null
+          created_at: string | null
+          credential_id: string
+          error_count: number | null
+          id: string
+          installed_at: string | null
+          installed_by: string | null
+          integration_id: string
+          last_sync_at: string | null
+          metadata: Json | null
+          status: string
+          sync_status: string | null
+          tenant_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          config?: Json | null
+          created_at?: string | null
+          credential_id: string
+          error_count?: number | null
+          id?: string
+          installed_at?: string | null
+          installed_by?: string | null
+          integration_id: string
+          last_sync_at?: string | null
+          metadata?: Json | null
+          status?: string
+          sync_status?: string | null
+          tenant_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          config?: Json | null
+          created_at?: string | null
+          credential_id?: string
+          error_count?: number | null
+          id?: string
+          installed_at?: string | null
+          installed_by?: string | null
+          integration_id?: string
+          last_sync_at?: string | null
+          metadata?: Json | null
+          status?: string
+          sync_status?: string | null
+          tenant_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_integrations_credential_id_fkey"
+            columns: ["credential_id"]
+            isOneToOne: false
+            referencedRelation: "integration_credentials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_integrations_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
