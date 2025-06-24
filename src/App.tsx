@@ -95,11 +95,9 @@ function App() {
               {/* Onboarding route - protected but doesn't require completed onboarding */}
               <Route path="/onboarding" element={
                 <OnboardingGate>
-                  <TenantProvider>
-                    <Layout showHeader={true}>
-                      <Onboarding />
-                    </Layout>
-                  </TenantProvider>
+                  <HybridAuthWrapper>
+                    <AppLayout><Onboarding /></AppLayout>
+                  </HybridAuthWrapper>
                 </OnboardingGate>
               } />
               
@@ -111,6 +109,7 @@ function App() {
                   </HybridAuthWrapper>
                 </OnboardingGate>
               } />
+              
               
               <Route path="/voice-agents" element={
                 <OnboardingGate requireOnboarding={true}>
