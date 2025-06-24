@@ -16,7 +16,7 @@ const UserManagement = () => {
   ];
 
   const actions = (
-    <Button variant="gradient" leftIcon={<UserPlus className="h-4 w-4" />}>
+    <Button variant="gradient" size="sm" leftIcon={<UserPlus className="h-4 w-4" />}>
       Add User
     </Button>
   );

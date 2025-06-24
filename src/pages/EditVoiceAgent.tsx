@@ -102,7 +102,7 @@ const EditVoiceAgent = () => {
       <div className="flex items-center mb-6">
         <Button 
           variant="ghost" 
-          size="icon" 
+          size="icon-sm" 
           className="mr-2"
           onClick={() => navigate("/voice-agents")}
         >
@@ -123,11 +123,13 @@ const EditVoiceAgent = () => {
         <div className="mt-8 flex justify-end gap-4">
           <Button 
             variant="outline" 
+            size="sm"
             onClick={() => navigate("/voice-agents")}
           >
             Cancel
           </Button>
           <Button 
+            size="sm"
             onClick={handleSave}
           >
             <Save className="mr-2 h-4 w-4" /> Save Changes

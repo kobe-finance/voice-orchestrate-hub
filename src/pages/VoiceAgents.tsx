@@ -53,7 +53,7 @@ const VoiceAgents = () => {
   ];
 
   const actions = (
-    <Button variant="gradient" leftIcon={<Plus className="h-4 w-4" />}>
+    <Button variant="gradient" size="sm" leftIcon={<Plus className="h-4 w-4" />}>
       Create New Agent
     </Button>
   );
@@ -122,7 +122,7 @@ const VoiceAgents = () => {
                         </div>
                       </div>
                     </div>
-                    <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button variant="ghost" size="icon-sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
                       <Settings className="h-4 w-4" />
                     </Button>
                   </div>

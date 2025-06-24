@@ -15,13 +15,13 @@ const Analytics = () => {
 
   const actions = (
     <>
-      <Button variant="outline" leftIcon={<Filter className="h-4 w-4" />}>
+      <Button variant="outline" size="sm" leftIcon={<Filter className="h-4 w-4" />}>
         Filter
       </Button>
-      <Button variant="outline" leftIcon={<Calendar className="h-4 w-4" />}>
+      <Button variant="outline" size="sm" leftIcon={<Calendar className="h-4 w-4" />}>
         Date Range
       </Button>
-      <Button variant="gradient" leftIcon={<Download className="h-4 w-4" />}>
+      <Button variant="gradient" size="sm" leftIcon={<Download className="h-4 w-4" />}>
         Export Report
       </Button>
     </>

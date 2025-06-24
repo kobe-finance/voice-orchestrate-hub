@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -185,7 +184,7 @@ const ToolsPlugins = () => {
         </h1>  
         <p className="text-gray-600 dark:text-gray-400 mt-1">Manage and configure AI agent tools and integrations</p>
 
-        <Button className="flex items-center gap-2">
+        <Button size="sm" className="flex items-center gap-2">
           <Plus className="h-4 w-4" />
           Create Tool
         </Button>
@@ -278,11 +277,11 @@ const ToolsPlugins = () => {
                             setIsTestOpen(true);
                           }}
                         >
-                          <Play className="h-3 w-3" />
+                          <Play className="h-4 w-4" />
                           Test
                         </Button>
                         <Button size="sm" variant="outline" className="flex-1 flex items-center gap-1">
-                          <Settings className="h-3 w-3" />
+                          <Settings className="h-4 w-4" />
                           Edit
                         </Button>
                       </div>
@@ -348,8 +347,8 @@ const ToolsPlugins = () => {
                 />
                 
                 <div className="flex justify-end space-x-2">
-                  <Button variant="outline">Save Draft</Button>
-                  <Button>Create Tool</Button>
+                  <Button variant="outline" size="sm">Save Draft</Button>
+                  <Button size="sm">Create Tool</Button>
                 </div>
               </CardContent>
             </Card>
@@ -399,7 +398,7 @@ const ToolsPlugins = () => {
             <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-hidden">
               <div className="p-4 border-b flex items-center justify-between">
                 <h3 className="text-lg font-semibold">Test Tool: {selectedTool.name}</h3>
-                <Button variant="ghost" onClick={() => setIsTestOpen(false)}>×</Button>
+                <Button variant="ghost" size="sm" onClick={() => setIsTestOpen(false)}>×</Button>
               </div>
               <div className="p-4 overflow-y-auto">
                 <ToolTestInterface
