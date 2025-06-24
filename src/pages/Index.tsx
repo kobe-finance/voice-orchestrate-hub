@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Mic, ArrowRight, CheckCircle, Sparkles, Zap, Shield } from "lucide-react";
@@ -94,21 +93,11 @@ const Index: React.FC = () => {
           <div className="flex items-center gap-3">
             <ModeToggle />
             {user ? (
-              <>
-                <Link to="/dashboard">
-                  <Button variant="ghost" size="sm">Dashboard</Button>
-                </Link>
-                <UserMenu />
-              </>
+              <UserMenu />
             ) : (
-              <>
-                <Link to="/auth">
-                  <Button variant="ghost" size="sm">Sign In</Button>
-                </Link>
-                <Link to="/onboarding">
-                  <Button variant="gradient" size="sm">Get Started</Button>
-                </Link>
-              </>
+              <Link to="/auth">
+                <Button variant="ghost" size="sm">Sign In</Button>
+              </Link>
             )}
           </div>
         </div>
@@ -150,14 +139,14 @@ const Index: React.FC = () => {
               {isVoiceModalOpen ? "Listening..." : "Try Voice AI"}
             </Button>
             
-            <Link to="/onboarding">
+            <Link to="/auth">
               <Button 
                 variant="outline" 
                 size="lg"
                 rightIcon={<ArrowRight className="h-4 w-4" />}
                 className="min-w-[200px]"
               >
-                Create Account
+                Sign In
               </Button>
             </Link>
           </div>
@@ -282,13 +271,13 @@ const Index: React.FC = () => {
             >
               {isVoiceModalOpen ? "Listening..." : "Try Voice AI"}
             </Button>
-            <Link to="/onboarding">
+            <Link to="/auth">
               <Button 
                 variant="outline" 
                 size="xl"
                 rightIcon={<ArrowRight className="h-5 w-5" />}
               >
-                Create Account
+                Sign In
               </Button>
             </Link>
           </div>
