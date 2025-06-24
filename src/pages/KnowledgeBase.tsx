@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -248,18 +247,18 @@ const KnowledgeBase = () => {
         <Settings className="mr-2 h-4 w-4" />
         Organize
       </Button>
-      <Button asChild size="sm">
-        <label htmlFor="upload-file">
+      <div className="relative">
+        <Button size="sm" onClick={() => document.getElementById('upload-file')?.click()}>
           <Upload className="mr-2 h-4 w-4" />
           Upload Document
-          <input
-            type="file"
-            id="upload-file"
-            className="hidden"
-            onChange={handleFileUpload}
-          />
-        </label>
-      </Button>
+        </Button>
+        <input
+          type="file"
+          id="upload-file"
+          className="hidden"
+          onChange={handleFileUpload}
+        />
+      </div>
     </>
   );
 
