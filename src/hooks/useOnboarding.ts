@@ -188,9 +188,6 @@ export const useOnboarding = () => {
           completed_steps: newCompletedSteps,
           is_completed: newCompletedSteps.length >= 5, // All 5 steps completed
           completed_at: newCompletedSteps.length >= 5 ? new Date().toISOString() : null,
-        }, { 
-          onConflict: 'user_id',
-          ignoreDuplicates: false 
         });
       
       if (error) throw error;
