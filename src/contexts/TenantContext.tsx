@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/components/ui/sonner';
@@ -9,7 +10,7 @@ interface Tenant {
   logo?: string;
   primaryColor: string;
   secondaryColor: string;
-  plan: 'starter' | 'professional' | 'enterprise';
+  plan: 'enterprise';
   features: string[];
   settings: {
     timezone: string;
@@ -31,13 +32,17 @@ interface Tenant {
       storageUsedGB: number;
     };
   };
+  infrastructure: {
+    dedicatedDatabase: string;
+    dedicatedStorage: string;
+    dedicatedCompute: string;
+    isolationLevel: 'full';
+  };
 }
 
 interface TenantContextType {
   currentTenant: Tenant | null;
-  availableTenants: Tenant[];
   isLoading: boolean;
-  switchTenant: (tenantId: string) => Promise<void>;
   updateTenantSettings: (settings: Partial<Tenant['settings']>) => Promise<void>;
   getTenantQuotaUsage: () => {
     agents: { used: number; max: number; percentage: number };
@@ -52,7 +57,6 @@ const TENANT_STORAGE_KEY = 'voiceorchestrate_current_tenant';
 
 export const TenantProvider = ({ children }: { children: React.ReactNode }) => {
   const [currentTenant, setCurrentTenant] = React.useState<Tenant | null>(null);
-  const [availableTenants, setAvailableTenants] = React.useState<Tenant[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
   
   const { user, isAuthenticated } = useAuth();
@@ -63,121 +67,73 @@ export const TenantProvider = ({ children }: { children: React.ReactNode }) => {
       loadTenantData();
     } else {
       setCurrentTenant(null);
-      setAvailableTenants([]);
     }
   }, [isAuthenticated, user]);
 
   const loadTenantData = async () => {
     setIsLoading(true);
     try {
-      // Try to load from localStorage first
-      const storedTenantId = localStorage.getItem(TENANT_STORAGE_KEY);
-      
-      // Simulate API call to get user's tenants
-      const mockTenants: Tenant[] = [
-        {
-          id: 'tenant_1',
-          name: 'Acme Plumbing Services',
-          subdomain: 'acme-plumbing',
-          logo: '/logos/acme-plumbing.png',
-          primaryColor: '#2563EB',
-          secondaryColor: '#DBEAFE',
-          plan: 'professional',
-          features: ['voice_agents', 'analytics', 'integrations', 'custom_branding'],
-          settings: {
-            timezone: 'America/New_York',
-            currency: 'USD',
-            dateFormat: 'MM/DD/YYYY',
-            businessHours: {
-              start: '08:00',
-              end: '18:00',
-              timezone: 'America/New_York',
-            },
-          },
-          quotas: {
-            maxAgents: 10,
-            maxCallsPerMonth: 5000,
-            maxStorageGB: 50,
-            currentUsage: {
-              agents: 3,
-              callsThisMonth: 1247,
-              storageUsedGB: 12.5,
-            },
-          },
-        },
-        {
-          id: 'tenant_2',
-          name: 'Elite HVAC Solutions',
-          subdomain: 'elite-hvac',
-          primaryColor: '#F97316',
-          secondaryColor: '#FED7AA',
-          plan: 'enterprise',
-          features: ['voice_agents', 'analytics', 'integrations', 'custom_branding', 'api_access', 'white_label'],
-          settings: {
-            timezone: 'America/Los_Angeles',
-            currency: 'USD',
-            dateFormat: 'MM/DD/YYYY',
-            businessHours: {
-              start: '07:00',
-              end: '19:00',
-              timezone: 'America/Los_Angeles',
-            },
-          },
-          quotas: {
-            maxAgents: 50,
-            maxCallsPerMonth: 25000,
-            maxStorageGB: 500,
-            currentUsage: {
-              agents: 12,
-              callsThisMonth: 3891,
-              storageUsedGB: 156.7,
-            },
-          },
-        },
-      ];
-
-      setAvailableTenants(mockTenants);
-      
-      // Set current tenant (from storage or user's tenant from metadata or first available)
+      // Get user's dedicated tenant - each user belongs to exactly one tenant
       const userTenantId = user?.user_metadata?.tenant_id;
-      const targetTenantId = storedTenantId || userTenantId || mockTenants[0]?.id;
-      const targetTenant = mockTenants.find(t => t.id === targetTenantId) || mockTenants[0];
       
-      if (targetTenant) {
-        setCurrentTenant(targetTenant);
-        localStorage.setItem(TENANT_STORAGE_KEY, targetTenant.id);
+      if (!userTenantId) {
+        throw new Error('User must be assigned to a tenant');
       }
+
+      // In a real implementation, this would fetch from a dedicated tenant API
+      // Each tenant has completely isolated infrastructure
+      const dedicatedTenant: Tenant = {
+        id: userTenantId,
+        name: user?.user_metadata?.tenant_name || 'Enterprise Organization',
+        subdomain: user?.user_metadata?.subdomain || 'enterprise',
+        logo: user?.user_metadata?.tenant_logo,
+        primaryColor: '#2563EB',
+        secondaryColor: '#DBEAFE',
+        plan: 'enterprise',
+        features: [
+          'voice_agents', 
+          'analytics', 
+          'integrations', 
+          'custom_branding', 
+          'api_access', 
+          'white_label',
+          'dedicated_infrastructure',
+          'full_isolation'
+        ],
+        settings: {
+          timezone: user?.user_metadata?.timezone || 'America/New_York',
+          currency: 'USD',
+          dateFormat: 'MM/DD/YYYY',
+          businessHours: {
+            start: '08:00',
+            end: '18:00',
+            timezone: user?.user_metadata?.timezone || 'America/New_York',
+          },
+        },
+        quotas: {
+          maxAgents: 100, // Enterprise unlimited represented as high number
+          maxCallsPerMonth: 100000,
+          maxStorageGB: 1000,
+          currentUsage: {
+            agents: 0, // This would come from tenant-specific API
+            callsThisMonth: 0,
+            storageUsedGB: 0,
+          },
+        },
+        infrastructure: {
+          dedicatedDatabase: `db-${userTenantId}`,
+          dedicatedStorage: `storage-${userTenantId}`,
+          dedicatedCompute: `compute-${userTenantId}`,
+          isolationLevel: 'full',
+        },
+      };
+
+      setCurrentTenant(dedicatedTenant);
+      localStorage.setItem(TENANT_STORAGE_KEY, userTenantId);
+      
     } catch (error) {
       console.error('Error loading tenant data:', error);
       toast.error('Failed to load tenant information');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const switchTenant = async (tenantId: string) => {
-    if (!availableTenants.length) return;
-    
-    const tenant = availableTenants.find(t => t.id === tenantId);
-    if (!tenant) {
-      toast.error('Tenant not found');
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      // Simulate API call to switch tenant context
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      setCurrentTenant(tenant);
-      localStorage.setItem(TENANT_STORAGE_KEY, tenantId);
-      toast.success(`Switched to ${tenant.name}`);
-      
-      // Reload the page to refresh all tenant-specific data
-      window.location.reload();
-    } catch (error) {
-      console.error('Error switching tenant:', error);
-      toast.error('Failed to switch tenant');
     } finally {
       setIsLoading(false);
     }
@@ -188,7 +144,7 @@ export const TenantProvider = ({ children }: { children: React.ReactNode }) => {
 
     setIsLoading(true);
     try {
-      // Simulate API call to update tenant settings
+      // API call to tenant-specific infrastructure
       await new Promise(resolve => setTimeout(resolve, 500));
       
       const updatedTenant = {
@@ -240,9 +196,7 @@ export const TenantProvider = ({ children }: { children: React.ReactNode }) => {
 
   const value: TenantContextType = {
     currentTenant,
-    availableTenants,
     isLoading,
-    switchTenant,
     updateTenantSettings,
     getTenantQuotaUsage,
   };

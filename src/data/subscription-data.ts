@@ -1,47 +1,12 @@
 
 import { BillingHistory, PaymentMethod, SubscriptionPlan, UsageMetric, UserSubscription } from '@/types/subscription';
 
-// Subscription plans
+// Enterprise-only subscription plans with full isolation
 export const subscriptionPlans: SubscriptionPlan[] = [
-  {
-    id: 'basic-monthly',
-    name: 'Basic',
-    description: 'For individuals and small teams',
-    price: 29,
-    billingPeriod: 'monthly',
-    features: [
-      { name: 'Up to 3 voice agents', included: true },
-      { name: '1,000 minutes per month', included: true },
-      { name: 'Standard voice models', included: true },
-      { name: 'Basic analytics', included: true },
-      { name: 'Email support', included: true },
-      { name: 'Custom actions', included: false },
-      { name: 'Advanced analytics', included: false },
-      { name: 'Custom voice models', included: false },
-    ],
-  },
-  {
-    id: 'pro-monthly',
-    name: 'Professional',
-    description: 'For growing businesses',
-    price: 99,
-    billingPeriod: 'monthly',
-    features: [
-      { name: 'Up to 10 voice agents', included: true },
-      { name: '5,000 minutes per month', included: true },
-      { name: 'Premium voice models', included: true },
-      { name: 'Advanced analytics', included: true },
-      { name: 'Priority support', included: true },
-      { name: 'Custom actions', included: true },
-      { name: 'API access', included: true },
-      { name: 'Custom voice models', included: false },
-    ],
-    popular: true,
-  },
   {
     id: 'enterprise-monthly',
     name: 'Enterprise',
-    description: 'For large organizations',
+    description: 'Full isolation with dedicated infrastructure',
     price: 299,
     billingPeriod: 'monthly',
     features: [
@@ -53,47 +18,17 @@ export const subscriptionPlans: SubscriptionPlan[] = [
       { name: 'Custom actions', included: true },
       { name: 'API access', included: true },
       { name: 'Custom voice models', included: true },
-    ],
-  },
-  {
-    id: 'basic-annual',
-    name: 'Basic',
-    description: 'For individuals and small teams',
-    price: 290,
-    billingPeriod: 'annual',
-    features: [
-      { name: 'Up to 3 voice agents', included: true },
-      { name: '1,000 minutes per month', included: true },
-      { name: 'Standard voice models', included: true },
-      { name: 'Basic analytics', included: true },
-      { name: 'Email support', included: true },
-      { name: 'Custom actions', included: false },
-      { name: 'Advanced analytics', included: false },
-      { name: 'Custom voice models', included: false },
-    ],
-  },
-  {
-    id: 'pro-annual',
-    name: 'Professional',
-    description: 'For growing businesses',
-    price: 990,
-    billingPeriod: 'annual',
-    features: [
-      { name: 'Up to 10 voice agents', included: true },
-      { name: '5,000 minutes per month', included: true },
-      { name: 'Premium voice models', included: true },
-      { name: 'Advanced analytics', included: true },
-      { name: 'Priority support', included: true },
-      { name: 'Custom actions', included: true },
-      { name: 'API access', included: true },
-      { name: 'Custom voice models', included: false },
+      { name: 'Dedicated infrastructure', included: true },
+      { name: 'Zero-trust architecture', included: true },
+      { name: 'Custom subdomain', included: true },
+      { name: 'White-label options', included: true },
     ],
     popular: true,
   },
   {
     id: 'enterprise-annual',
     name: 'Enterprise',
-    description: 'For large organizations',
+    description: 'Full isolation with dedicated infrastructure (Annual)',
     price: 2990,
     billingPeriod: 'annual',
     features: [
@@ -105,96 +40,101 @@ export const subscriptionPlans: SubscriptionPlan[] = [
       { name: 'Custom actions', included: true },
       { name: 'API access', included: true },
       { name: 'Custom voice models', included: true },
+      { name: 'Dedicated infrastructure', included: true },
+      { name: 'Zero-trust architecture', included: true },
+      { name: 'Custom subdomain', included: true },
+      { name: 'White-label options', included: true },
+      { name: '2 months free', included: true },
     ],
   },
 ];
 
-// Current subscription for demo
+// Current subscription for enterprise customer
 export const currentSubscription: UserSubscription = {
-  id: 'sub_12345',
+  id: 'sub_enterprise_12345',
   userId: 'user_1',
-  planId: 'pro-monthly',
+  planId: 'enterprise-monthly',
   status: 'active',
   currentPeriodStart: '2025-05-01T00:00:00Z',
   currentPeriodEnd: '2025-06-01T00:00:00Z',
   cancelAtPeriodEnd: false,
 };
 
-// Usage metrics
+// Enterprise usage metrics
 export const usageMetrics: UsageMetric[] = [
   {
     id: 'minutes',
     name: 'Call Minutes',
-    currentUsage: 2458,
-    limit: 5000,
+    currentUsage: 8450,
+    limit: 20000,
     unit: 'minutes',
   },
   {
     id: 'agents',
     name: 'Voice Agents',
-    currentUsage: 6,
-    limit: 10,
+    currentUsage: 12,
+    limit: 999, // Representing unlimited as high number
     unit: 'agents',
   },
   {
     id: 'storage',
     name: 'Document Storage',
-    currentUsage: 4.7,
-    limit: 10,
+    currentUsage: 47.3,
+    limit: 1000,
     unit: 'GB',
   },
   {
     id: 'api',
     name: 'API Calls',
-    currentUsage: 45670,
-    limit: 100000,
+    currentUsage: 156780,
+    limit: 1000000, // High limit for enterprise
     unit: 'calls',
   },
 ];
 
-// Billing history
+// Enterprise billing history
 export const billingHistory: BillingHistory[] = [
   {
-    id: 'inv_12345',
+    id: 'inv_ent_12345',
     date: '2025-05-01T00:00:00Z',
-    amount: 99,
+    amount: 299,
     status: 'paid',
-    invoiceUrl: 'https://example.com/invoice_may2025.pdf',
+    invoiceUrl: 'https://example.com/invoice_enterprise_may2025.pdf',
   },
   {
-    id: 'inv_12344',
+    id: 'inv_ent_12344',
     date: '2025-04-01T00:00:00Z',
-    amount: 99,
+    amount: 299,
     status: 'paid',
-    invoiceUrl: 'https://example.com/invoice_apr2025.pdf',
+    invoiceUrl: 'https://example.com/invoice_enterprise_apr2025.pdf',
   },
   {
-    id: 'inv_12343',
+    id: 'inv_ent_12343',
     date: '2025-03-01T00:00:00Z',
-    amount: 99,
+    amount: 299,
     status: 'paid',
-    invoiceUrl: 'https://example.com/invoice_mar2025.pdf',
+    invoiceUrl: 'https://example.com/invoice_enterprise_mar2025.pdf',
   },
   {
-    id: 'inv_12342',
+    id: 'inv_ent_12342',
     date: '2025-02-01T00:00:00Z',
-    amount: 29,
+    amount: 299,
     status: 'paid',
-    invoiceUrl: 'https://example.com/invoice_feb2025.pdf',
+    invoiceUrl: 'https://example.com/invoice_enterprise_feb2025.pdf',
   },
   {
-    id: 'inv_12341',
+    id: 'inv_ent_12341',
     date: '2025-01-01T00:00:00Z',
-    amount: 29,
+    amount: 299,
     status: 'paid',
-    invoiceUrl: 'https://example.com/invoice_jan2025.pdf',
+    invoiceUrl: 'https://example.com/invoice_enterprise_jan2025.pdf',
   },
 ];
 
-// Payment methods
+// Enterprise payment methods
 export const paymentMethods: PaymentMethod[] = [
   {
-    id: 'pm_12345',
+    id: 'pm_ent_12345',
     type: 'card',
     lastFour: '4242',
     expiryDate: '04/2028',
@@ -202,17 +142,9 @@ export const paymentMethods: PaymentMethod[] = [
     isDefault: true,
   },
   {
-    id: 'pm_12344',
-    type: 'card',
-    lastFour: '1234',
-    expiryDate: '09/2026',
-    cardBrand: 'Mastercard',
-    isDefault: false,
-  },
-  {
-    id: 'pm_12343',
-    type: 'paypal',
-    name: 'personal@example.com',
+    id: 'pm_ent_12344',
+    type: 'bank',
+    name: 'Corporate Account ****1234',
     isDefault: false,
   },
 ];
