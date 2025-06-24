@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { ModernForm, FormItem, FormActions } from "@/components/ui/form";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Mail, Clock } from "lucide-react";
+import { ArrowLeft, Mail, Clock, CheckCircle } from "lucide-react";
 import { useAppStore } from "@/stores/useAppStore";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -27,6 +27,8 @@ const ForgotPassword = () => {
   const { isLoading, setLoading } = useAppStore();
   const [lastRequestTime, setLastRequestTime] = useState<number | null>(null);
   const [remainingCooldown, setRemainingCooldown] = useState(0);
+  const [emailSent, setEmailSent] = useState(false);
+  const [sentEmail, setSentEmail] = useState("");
   
   const form = useForm<ForgotPasswordFormData>({
     resolver: zodResolver(forgotPasswordSchema),
@@ -63,6 +65,16 @@ const ForgotPassword = () => {
     }
   }, [remainingCooldown]);
 
+  // Auto redirect after email sent
+  React.useEffect(() => {
+    if (emailSent) {
+      const timer = setTimeout(() => {
+        navigate("/auth");
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [emailSent, navigate]);
+
   const onSubmit = async (values: ForgotPasswordFormData) => {
     // Check rate limiting
     if (!checkRateLimit()) {
@@ -97,14 +109,11 @@ const ForgotPassword = () => {
 
       // Set rate limiting timestamp
       setLastRequestTime(Date.now());
+      setSentEmail(values.email);
+      setEmailSent(true);
       
       console.log("Password reset email sent successfully");
       toast.success("Password reset instructions have been sent to your email");
-      
-      // Redirect to login page after 3 seconds
-      setTimeout(() => {
-        navigate("/auth");
-      }, 3000);
       
     } catch (error) {
       console.error("Password reset failed:", error);
@@ -115,6 +124,69 @@ const ForgotPassword = () => {
   };
 
   const isRateLimited = remainingCooldown > 0;
+
+  if (emailSent) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+        >
+          <Card variant="elevated" className="w-full max-w-md">
+            <div className="p-6">
+              <motion.div
+                initial={{ scale: 0.9 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 0.3, delay: 0.1 }}
+                className="text-center mb-6"
+              >
+                <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
+                </div>
+                <h1 className="text-2xl font-bold tracking-tight text-green-700 dark:text-green-300">Email Sent!</h1>
+                <p className="text-gray-600 dark:text-gray-400 mt-2">
+                  We've sent password reset instructions to:
+                </p>
+                <p className="font-medium text-gray-800 dark:text-gray-200 mt-1">
+                  {sentEmail}
+                </p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-3">
+                  Please check your email and follow the link to reset your password.
+                </p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+                  Redirecting to login in 5 seconds...
+                </p>
+              </motion.div>
+
+              <div className="space-y-3">
+                <Button
+                  variant="default"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => navigate("/auth")}
+                >
+                  Go to Login Now
+                </Button>
+                
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => {
+                    setEmailSent(false);
+                    form.reset();
+                  }}
+                >
+                  Send Another Email
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 px-4">

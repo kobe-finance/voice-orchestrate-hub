@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CheckCircle, AlertCircle, Lock } from "lucide-react";
+import { CheckCircle, AlertCircle, Lock, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/sonner";
 
@@ -32,6 +32,7 @@ const ResetPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isValidToken, setIsValidToken] = useState<boolean | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [samePasswordError, setSamePasswordError] = useState(false);
 
   const form = useForm<PasswordResetFormData>({
     resolver: zodResolver(passwordResetSchema),
@@ -91,6 +92,7 @@ const ResetPassword = () => {
 
   const onSubmit = async (values: PasswordResetFormData) => {
     setIsLoading(true);
+    setSamePasswordError(false);
     
     try {
       const { error } = await supabase.auth.updateUser({
@@ -98,6 +100,13 @@ const ResetPassword = () => {
       });
       
       if (error) {
+        // Check if it's a "same password" error
+        if (error.message?.includes('same password') || error.message?.includes('should be different')) {
+          setSamePasswordError(true);
+          toast.error('New password must be different from your current password.');
+          return;
+        }
+        
         toast.error('Failed to update password. Please try again.');
         console.error('Password update error:', error);
         return;
@@ -248,6 +257,15 @@ const ResetPassword = () => {
               
               {!isSuccess && (
                 <CardContent className="space-y-6">
+                  {samePasswordError && (
+                    <Alert className="border-orange-200 bg-orange-50 dark:bg-orange-900/20">
+                      <AlertTriangle className="h-4 w-4 text-orange-600" />
+                      <AlertDescription className="text-orange-700 dark:text-orange-300">
+                        Your new password must be different from your current password. Please choose a password you haven't used recently.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  
                   <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                       <FormField
