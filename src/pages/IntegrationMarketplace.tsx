@@ -129,8 +129,7 @@ const IntegrationMarketplace = () => {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>Integration Marketplace</BreadcrumbPage>
-            </BreadcrumbItem>
+              <BreadcrumbPage>Integration Marketplace</BreadcrumbPage</BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
 
