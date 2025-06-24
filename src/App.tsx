@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -21,7 +22,6 @@ import BillingSubscription from './pages/BillingSubscription';
 import IntegrationMarketplace from './pages/IntegrationMarketplace';
 import ConversationFlowBuilder from './pages/ConversationFlowBuilder';
 import BusinessHours from './pages/BusinessHours';
-import Onboarding from './pages/Onboarding';
 import AgentTemplateGallery from "@/pages/AgentTemplateGallery";
 import ToolsPlugins from './pages/ToolsPlugins';
 import RAGConfiguration from './pages/RAGConfiguration';
@@ -37,7 +37,7 @@ import CustomerDatabase from './pages/CustomerDatabase';
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import KnowledgeBase from './pages/KnowledgeBase';
 import EmailConfirmation from './pages/EmailConfirmation';
-import { OnboardingGate } from "@/components/onboarding/OnboardingGate";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -64,15 +64,17 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   );
 };
 
-// Hybrid Auth Wrapper for protected routes
-const HybridAuthWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <HybridAuthProvider>
-    <TenantProvider>
-      <WebSocketProvider>
-        {children}
-      </WebSocketProvider>
-    </TenantProvider>
-  </HybridAuthProvider>
+// Protected wrapper for authenticated routes
+const ProtectedWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <ProtectedRoute>
+    <HybridAuthProvider>
+      <TenantProvider>
+        <WebSocketProvider>
+          {children}
+        </WebSocketProvider>
+      </TenantProvider>
+    </HybridAuthProvider>
+  </ProtectedRoute>
 );
 
 function App() {
@@ -92,155 +94,99 @@ function App() {
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/email-confirmation" element={<EmailConfirmation />} />
               
-              {/* Onboarding route - protected but doesn't require completed onboarding */}
-              <Route path="/onboarding" element={
-                <OnboardingGate>
-                  <HybridAuthWrapper>
-                    <AppLayout><Onboarding /></AppLayout>
-                  </HybridAuthWrapper>
-                </OnboardingGate>
-              } />
-              
-              {/* Protected routes with hybrid auth and onboarding requirement */}
+              {/* Protected routes */}
               <Route path="/dashboard" element={
-                <OnboardingGate requireOnboarding={true}>
-                  <HybridAuthWrapper>
-                    <AppLayout><Dashboard /></AppLayout>
-                  </HybridAuthWrapper>
-                </OnboardingGate>
+                <ProtectedWrapper>
+                  <AppLayout><Dashboard /></AppLayout>
+                </ProtectedWrapper>
               } />
-              
               
               <Route path="/voice-agents" element={
-                <OnboardingGate requireOnboarding={true}>
-                  <HybridAuthWrapper><AppLayout><VoiceAgents /></AppLayout></HybridAuthWrapper>
-                </OnboardingGate>
+                <ProtectedWrapper><AppLayout><VoiceAgents /></AppLayout></ProtectedWrapper>
               } />
               
               <Route path="/voice-agents/edit/:id" element={
-                <OnboardingGate requireOnboarding={true}>
-                  <HybridAuthWrapper><AppLayout><EditVoiceAgent /></AppLayout></HybridAuthWrapper>
-                </OnboardingGate>
+                <ProtectedWrapper><AppLayout><EditVoiceAgent /></AppLayout></ProtectedWrapper>
               } />
               
               <Route path="/create-voice-agent" element={
-                <OnboardingGate requireOnboarding={true}>
-                  <HybridAuthWrapper><AppLayout><CreateVoiceAgent /></AppLayout></HybridAuthWrapper>
-                </OnboardingGate>
+                <ProtectedWrapper><AppLayout><CreateVoiceAgent /></AppLayout></ProtectedWrapper>
               } />
               
               <Route path="/call-management" element={
-                <OnboardingGate requireOnboarding={true}>
-                  <HybridAuthWrapper><AppLayout><CallManagement /></AppLayout></HybridAuthWrapper>
-                </OnboardingGate>
+                <ProtectedWrapper><AppLayout><CallManagement /></AppLayout></ProtectedWrapper>
               } />
               
               <Route path="/conversation-explorer" element={
-                <OnboardingGate requireOnboarding={true}>
-                  <HybridAuthWrapper><AppLayout><ConversationExplorer /></AppLayout></HybridAuthWrapper>
-                </OnboardingGate>
+                <ProtectedWrapper><AppLayout><ConversationExplorer /></AppLayout></ProtectedWrapper>
               } />
               
               <Route path="/knowledge-base" element={
-                <OnboardingGate requireOnboarding={true}>
-                  <HybridAuthWrapper><AppLayout><KnowledgeBase /></AppLayout></HybridAuthWrapper>
-                </OnboardingGate>
+                <ProtectedWrapper><AppLayout><KnowledgeBase /></AppLayout></ProtectedWrapper>
               } />
               
               <Route path="/document-management" element={
-                <OnboardingGate requireOnboarding={true}>
-                  <HybridAuthWrapper><AppLayout><KnowledgeBase /></AppLayout></HybridAuthWrapper>
-                </OnboardingGate>
+                <ProtectedWrapper><AppLayout><KnowledgeBase /></AppLayout></ProtectedWrapper>
               } />
               
               <Route path="/rag-configuration" element={
-                <OnboardingGate requireOnboarding={true}>
-                  <HybridAuthWrapper><AppLayout><KnowledgeBase /></AppLayout></HybridAuthWrapper>
-                </OnboardingGate>
+                <ProtectedWrapper><AppLayout><KnowledgeBase /></AppLayout></ProtectedWrapper>
               } />
               
               <Route path="/knowledge-organization" element={
-                <OnboardingGate requireOnboarding={true}>
-                  <HybridAuthWrapper><AppLayout><KnowledgeBase /></AppLayout></HybridAuthWrapper>
-                </OnboardingGate>
+                <ProtectedWrapper><AppLayout><KnowledgeBase /></AppLayout></ProtectedWrapper>
               } />
               
               <Route path="/analytics" element={
-                <OnboardingGate requireOnboarding={true}>
-                  <HybridAuthWrapper><AppLayout><Analytics /></AppLayout></HybridAuthWrapper>
-                </OnboardingGate>
+                <ProtectedWrapper><AppLayout><Analytics /></AppLayout></ProtectedWrapper>
               } />
               
               <Route path="/user-management" element={
-                <OnboardingGate requireOnboarding={true}>
-                  <HybridAuthWrapper><AppLayout><UserManagement /></AppLayout></HybridAuthWrapper>
-                </OnboardingGate>
+                <ProtectedWrapper><AppLayout><UserManagement /></AppLayout></ProtectedWrapper>
               } />
               
               <Route path="/billing-subscription" element={
-                <OnboardingGate requireOnboarding={true}>
-                  <HybridAuthWrapper><AppLayout><BillingSubscription /></AppLayout></HybridAuthWrapper>
-                </OnboardingGate>
+                <ProtectedWrapper><AppLayout><BillingSubscription /></AppLayout></ProtectedWrapper>
               } />
               
               <Route path="/integration-marketplace" element={
-                <OnboardingGate requireOnboarding={true}>
-                  <HybridAuthWrapper><AppLayout><IntegrationMarketplace /></AppLayout></HybridAuthWrapper>
-                </OnboardingGate>
+                <ProtectedWrapper><AppLayout><IntegrationMarketplace /></AppLayout></ProtectedWrapper>
               } />
               
               <Route path="/conversation-flow" element={
-                <OnboardingGate requireOnboarding={true}>
-                  <HybridAuthWrapper><AppLayout><ConversationFlowBuilder /></AppLayout></HybridAuthWrapper>
-                </OnboardingGate>
+                <ProtectedWrapper><AppLayout><ConversationFlowBuilder /></AppLayout></ProtectedWrapper>
               } />
               
               <Route path="/business-hours" element={
-                <OnboardingGate requireOnboarding={true}>
-                  <HybridAuthWrapper><AppLayout><BusinessHours /></AppLayout></HybridAuthWrapper>
-                </OnboardingGate>
+                <ProtectedWrapper><AppLayout><BusinessHours /></AppLayout></ProtectedWrapper>
               } />
               
               <Route path="/agent-template-gallery" element={
-                <OnboardingGate requireOnboarding={true}>
-                  <HybridAuthWrapper><AppLayout><AgentTemplateGallery /></AppLayout></HybridAuthWrapper>
-                </OnboardingGate>
+                <ProtectedWrapper><AppLayout><AgentTemplateGallery /></AppLayout></ProtectedWrapper>
               } />
               
               <Route path="/tools-plugins" element={
-                <OnboardingGate requireOnboarding={true}>
-                  <HybridAuthWrapper><AppLayout><ToolsPlugins /></AppLayout></HybridAuthWrapper>
-                </OnboardingGate>
+                <ProtectedWrapper><AppLayout><ToolsPlugins /></AppLayout></ProtectedWrapper>
               } />
               
               <Route path="/api-key-management" element={
-                <OnboardingGate requireOnboarding={true}>
-                  <HybridAuthWrapper><AppLayout><APIKeyManagement /></AppLayout></HybridAuthWrapper>
-                </OnboardingGate>
+                <ProtectedWrapper><AppLayout><APIKeyManagement /></AppLayout></ProtectedWrapper>
               } />
               
               <Route path="/voice-provider-management" element={
-                <OnboardingGate requireOnboarding={true}>
-                  <HybridAuthWrapper><AppLayout><VoiceProviderManagement /></AppLayout></HybridAuthWrapper>
-                </OnboardingGate>
+                <ProtectedWrapper><AppLayout><VoiceProviderManagement /></AppLayout></ProtectedWrapper>
               } />
               
               <Route path="/voice-selection" element={
-                <OnboardingGate requireOnboarding={true}>
-                  <HybridAuthWrapper><AppLayout><VoiceSelection /></AppLayout></HybridAuthWrapper>
-                </OnboardingGate>
+                <ProtectedWrapper><AppLayout><VoiceSelection /></AppLayout></ProtectedWrapper>
               } />
               
               <Route path="/appointments" element={
-                <OnboardingGate requireOnboarding={true}>
-                  <HybridAuthWrapper><AppLayout><AppointmentScheduling /></AppLayout></HybridAuthWrapper>
-                </OnboardingGate>
+                <ProtectedWrapper><AppLayout><AppointmentScheduling /></AppLayout></ProtectedWrapper>
               } />
               
               <Route path="/customers" element={
-                <OnboardingGate requireOnboarding={true}>
-                  <HybridAuthWrapper><AppLayout><CustomerDatabase /></AppLayout></HybridAuthWrapper>
-                </OnboardingGate>
+                <ProtectedWrapper><AppLayout><CustomerDatabase /></AppLayout></ProtectedWrapper>
               } />
             </Routes>
           </AuthProvider>
