@@ -34,7 +34,7 @@ export const usePageState = (options: UsePageStateOptions = {}) => {
     captureError(errorObj.message, { pageError: true }, 'medium');
     
     options.onError?.(errorObj);
-  }, [captureError, options]);
+  }, [captureError, options.onError]);
 
   const clearError = useCallback(() => {
     setError(null);
