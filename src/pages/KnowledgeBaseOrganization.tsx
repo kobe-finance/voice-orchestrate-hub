@@ -82,7 +82,7 @@ const KnowledgeBaseOrganization = () => {
     { id: '4', name: 'draft', color: 'yellow', documentCount: 5 },
     { id: '5', name: 'reviewed', color: 'green', documentCount: 18 },
     { id: '6', name: 'outdated', color: 'red', documentCount: 2 }
-  ];
+  ]);
 
   const filteredCategories = categories.filter(category =>
     category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
