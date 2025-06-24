@@ -49,7 +49,7 @@ interface Document {
   chunks: number;
 }
 
-// Simple DocumentProcessor component since the import was failing
+// Simple DocumentProcessor component
 const DocumentProcessor: React.FC<{
   jobs: ProcessingJob[];
   onRetry: (jobId: string) => void;

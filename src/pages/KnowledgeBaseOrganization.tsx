@@ -1,314 +1,97 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { 
-  ArrowLeft, 
+  Folder, 
+  FileText, 
+  Tag, 
   Search, 
-  Filter,
-  Save,
-  ListTree,
-  Tag,
-  CircleDot
-} from "lucide-react";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CategoryTree } from "@/components/rag/CategoryTree";
-import { DocumentsGrid } from "@/components/rag/DocumentsGrid";
-import { DocumentFilters } from "@/components/rag/DocumentFilters"; 
-import { RelatedDocuments } from "@/components/rag/RelatedDocuments";
-import { SearchInput } from "@/components/ui/search-input";
-import { DocumentType, CategoryType } from "@/types/document";
-import { PageLayout } from "@/components/layouts/PageLayout";
+  Plus,
+  MoreVertical,
+  Edit,
+  Trash2,
+  FolderOpen,
+  ArrowLeft
+} from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { PageLayout } from '@/components/layouts/PageLayout';
+import { useNavigate } from 'react-router-dom';
+
+interface Category {
+  id: string;
+  name: string;
+  description: string;
+  documentCount: number;
+  color: string;
+}
+
+interface Tag {
+  id: string;
+  name: string;
+  color: string;
+  documentCount: number;
+}
 
 const KnowledgeBaseOrganization = () => {
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState("categories");
-  const [selectedCategory, setSelectedCategory] = useState<CategoryType | null>(null);
-  const [selectedDocuments, setSelectedDocuments] = useState<DocumentType[]>([]);
-  const [isDragging, setIsDragging] = useState(false);
-  const [documents, setDocuments] = useState<DocumentType[]>([]);
-  const [categories, setCategories] = useState<CategoryType[]>([]);
-  const [filter, setFilter] = useState({
-    status: "all",
-    priority: "all"
-  });
-
-  // Initial data load
-  useEffect(() => {
-    // Simulated data fetching
-    const mockCategories: CategoryType[] = [
-      {
-        id: "cat1",
-        name: "Product Documentation",
-        parentId: null,
-        priority: "high",
-        children: [
-          {
-            id: "cat1-1",
-            name: "User Guides",
-            parentId: "cat1",
-            priority: "medium",
-            children: []
-          },
-          {
-            id: "cat1-2",
-            name: "Technical Specifications",
-            parentId: "cat1",
-            priority: "high",
-            children: []
-          }
-        ]
-      },
-      {
-        id: "cat2",
-        name: "Legal Documents",
-        parentId: null,
-        priority: "medium",
-        children: []
-      },
-      {
-        id: "cat3",
-        name: "Support Resources",
-        parentId: null,
-        priority: "low",
-        children: [
-          {
-            id: "cat3-1",
-            name: "Troubleshooting",
-            parentId: "cat3",
-            priority: "medium",
-            children: []
-          }
-        ]
-      }
-    ];
-
-    // Mock documents
-    const mockDocuments: DocumentType[] = [
-      {
-        id: "1",
-        name: "Product Manual.pdf",
-        type: "pdf",
-        size: "2.4 MB",
-        uploadedBy: "John Doe",
-        uploadDate: "2023-06-15",
-        tags: ["manual", "product"],
-        status: "approved",
-        category: "cat1-2", // Technical Specifications
-        priority: "high",
-        expirationDate: "2025-06-15",
-        versions: [
-          { id: "v1", date: "2023-06-15", notes: "Initial upload" },
-          { id: "v2", date: "2023-07-02", notes: "Updated pricing section" },
-        ],
-        content: "This is a sample product manual with instructions...",
-      },
-      {
-        id: "2",
-        name: "Customer FAQ.docx",
-        type: "docx",
-        size: "1.1 MB",
-        uploadedBy: "Jane Smith",
-        uploadDate: "2023-05-20",
-        tags: ["faq", "customer-service"],
-        status: "pending",
-        category: "cat3-1", // Troubleshooting
-        priority: "medium",
-        expirationDate: "2024-05-20",
-        versions: [
-          { id: "v1", date: "2023-05-20", notes: "Initial upload" },
-        ],
-        content: "Frequently asked questions about our services...",
-      },
-      {
-        id: "3",
-        name: "Technical Specification.txt",
-        type: "txt",
-        size: "0.3 MB",
-        uploadedBy: "Mike Johnson",
-        uploadDate: "2023-07-10",
-        tags: ["technical", "specs"],
-        status: "approved",
-        category: "cat1-2", // Technical Specifications
-        priority: "high",
-        expirationDate: "2024-12-31",
-        versions: [
-          { id: "v1", date: "2023-07-10", notes: "Initial upload" },
-        ],
-        content: "Technical specifications for product XYZ...",
-      },
-      {
-        id: "4",
-        name: "Terms of Service.pdf",
-        type: "pdf",
-        size: "0.8 MB",
-        uploadedBy: "Legal Team",
-        uploadDate: "2023-04-05",
-        tags: ["legal", "terms"],
-        status: "approved",
-        category: "cat2", // Legal Documents
-        priority: "medium",
-        expirationDate: "2024-04-05",
-        versions: [
-          { id: "v1", date: "2023-04-05", notes: "Initial upload" },
-        ],
-        content: "Terms of service agreement for our platform...",
-      },
-    ];
-
-    setCategories(mockCategories);
-    setDocuments(mockDocuments);
-  }, []);
-
-  const handleCreateCategory = (parentId: string | null) => {
-    const newCategory: CategoryType = {
-      id: `cat-${Date.now()}`,
-      name: "New Category",
-      parentId,
-      priority: "medium",
-      children: []
-    };
-
-    if (parentId === null) {
-      // Add to root
-      setCategories([...categories, newCategory]);
-    } else {
-      // Add as child to existing category
-      const updatedCategories = categories.map(category => {
-        if (category.id === parentId) {
-          return {
-            ...category,
-            children: [...category.children, newCategory]
-          };
-        } else if (category.children.some(child => child.id === parentId)) {
-          return {
-            ...category,
-            children: category.children.map(child => 
-              child.id === parentId 
-                ? { ...child, children: [...child.children, newCategory] }
-                : child
-            )
-          };
-        }
-        return category;
-      });
-      setCategories(updatedCategories);
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  const [categories] = useState<Category[]>([
+    {
+      id: '1',
+      name: 'Product Documentation',
+      description: 'User guides, manuals, and product specifications',
+      documentCount: 15,
+      color: 'blue'
+    },
+    {
+      id: '2',
+      name: 'Technical Support',
+      description: 'Troubleshooting guides and FAQ documents',
+      documentCount: 8,
+      color: 'green'
+    },
+    {
+      id: '3',
+      name: 'API Documentation',
+      description: 'REST API guides and integration documentation',
+      documentCount: 12,
+      color: 'purple'
+    },
+    {
+      id: '4',
+      name: 'Training Materials',
+      description: 'Employee training and onboarding documents',
+      documentCount: 6,
+      color: 'orange'
     }
-    
-    toast.success("Category created successfully");
-  };
+  ]);
 
-  const handleDeleteCategory = (categoryId: string) => {
-    // Check if category has documents
-    const hasDocuments = documents.some(doc => doc.category === categoryId);
-    
-    if (hasDocuments) {
-      toast.error("Cannot delete category with documents");
-      return;
-    }
-    
-    const updatedCategories = categories
-      .filter(category => category.id !== categoryId)
-      .map(category => ({
-        ...category,
-        children: category.children.filter(child => child.id !== categoryId)
-      }));
-    
-    setCategories(updatedCategories);
-    toast.success("Category deleted successfully");
-    
-    if (selectedCategory?.id === categoryId) {
-      setSelectedCategory(null);
-    }
-  };
+  const [tags] = useState<Tag[]>([
+    { id: '1', name: 'urgent', color: 'red', documentCount: 3 },
+    { id: '2', name: 'customer-facing', color: 'blue', documentCount: 12 },
+    { id: '3', name: 'internal', color: 'gray', documentCount: 8 },
+    { id: '4', name: 'draft', color: 'yellow', documentCount: 5 },
+    { id: '5', name: 'reviewed', color: 'green', documentCount: 18 },
+    { id: '6', name: 'outdated', color: 'red', documentCount: 2 }
+  ];
 
-  const handleUpdateCategory = (categoryId: string, data: Partial<CategoryType>) => {
-    const updatedCategories = categories.map(category => {
-      if (category.id === categoryId) {
-        return { ...category, ...data };
-      } else if (category.children.some(child => child.id === categoryId)) {
-        return {
-          ...category,
-          children: category.children.map(child => 
-            child.id === categoryId 
-              ? { ...child, ...data }
-              : child
-          )
-        };
-      }
-      return category;
-    });
-    
-    setCategories(updatedCategories);
-    toast.success("Category updated successfully");
-  };
+  const filteredCategories = categories.filter(category =>
+    category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    category.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-  const handleMoveDocuments = (targetCategoryId: string) => {
-    if (selectedDocuments.length === 0) {
-      toast.error("No documents selected");
-      return;
-    }
-    
-    const updatedDocuments = documents.map(doc => 
-      selectedDocuments.some(selectedDoc => selectedDoc.id === doc.id)
-        ? { ...doc, category: targetCategoryId }
-        : doc
-    );
-    
-    setDocuments(updatedDocuments);
-    setSelectedDocuments([]);
-    
-    toast.success(`${selectedDocuments.length} document(s) moved successfully`);
-  };
-
-  const handleBulkTag = (tags: string[]) => {
-    if (selectedDocuments.length === 0) {
-      toast.error("No documents selected");
-      return;
-    }
-    
-    const updatedDocuments = documents.map(doc => 
-      selectedDocuments.some(selectedDoc => selectedDoc.id === doc.id)
-        ? { ...doc, tags: [...new Set([...doc.tags, ...tags])] }
-        : doc
-    );
-    
-    setDocuments(updatedDocuments);
-    toast.success(`Tags added to ${selectedDocuments.length} document(s)`);
-  };
-
-  const handlePriorityChange = (categoryId: string, priority: string) => {
-    handleUpdateCategory(categoryId, { priority: priority as "high" | "medium" | "low" });
-  };
-
-  // Filter documents based on search query, selected category, and filters
-  const filteredDocuments = documents.filter(doc => {
-    // Filter by search
-    if (searchQuery && 
-        !doc.name.toLowerCase().includes(searchQuery.toLowerCase()) && 
-        !doc.tags.join(" ").toLowerCase().includes(searchQuery.toLowerCase())) {
-      return false;
-    }
-    
-    // Filter by category
-    if (selectedCategory && doc.category !== selectedCategory.id) {
-      return false;
-    }
-    
-    // Filter by status
-    if (filter.status !== "all" && doc.status !== filter.status) {
-      return false;
-    }
-    
-    // Filter by priority
-    if (filter.priority !== "all" && doc.priority !== filter.priority) {
-      return false;
-    }
-    
-    return true;
-  });
+  const filteredTags = tags.filter(tag =>
+    tag.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const breadcrumbs = [
     { label: "Dashboard", href: "/dashboard" },
@@ -318,13 +101,13 @@ const KnowledgeBaseOrganization = () => {
 
   const actions = (
     <>
-      <Button variant="outline" size="sm">
-        <Filter className="mr-2 h-4 w-4" />
-        Advanced Filters
+      <Button variant="outline" size="sm" onClick={() => navigate('/knowledge-base')}>
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        Back to Knowledge Base
       </Button>
       <Button size="sm">
-        <Save className="mr-2 h-4 w-4" />
-        Save Changes
+        <Plus className="mr-2 h-4 w-4" />
+        Create Category
       </Button>
     </>
   );
@@ -332,136 +115,186 @@ const KnowledgeBaseOrganization = () => {
   return (
     <PageLayout
       title="Knowledge Base Organization"
-      description="Organize and categorize your knowledge base content"
+      description="Organize your documents with categories and tags"
       breadcrumbs={breadcrumbs}
       actions={actions}
     >
       <div className="space-y-6">
-        <Tabs 
-          defaultValue="categories" 
-          value={activeTab} 
-          onValueChange={setActiveTab}
-          className="w-full"
-        >
-          <TabsList className="mb-4">
-            <TabsTrigger value="categories">
-              <ListTree className="h-4 w-4 mr-2" />
-              Categories
-            </TabsTrigger>
-            <TabsTrigger value="tags">
-              <Tag className="h-4 w-4 mr-2" />
-              Tags
-            </TabsTrigger>
-            <TabsTrigger value="related">
-              <CircleDot className="h-4 w-4 mr-2" />
-              Related Content
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="categories" className="mt-0">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Category Tree */}
-              <div className="md:col-span-1">
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-medium">Categories</h3>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => handleCreateCategory(null)}
-                      >
-                        Add Category
-                      </Button>
-                    </div>
-                    <CategoryTree 
-                      categories={categories}
-                      selectedCategory={selectedCategory}
-                      onSelectCategory={setSelectedCategory}
-                      onCreateCategory={handleCreateCategory}
-                      onDeleteCategory={handleDeleteCategory}
-                      onUpdateCategory={handleUpdateCategory}
-                      onPriorityChange={handlePriorityChange}
-                    />
-                  </CardContent>
-                </Card>
+        <div className="flex items-center gap-4">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search categories and tags..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-8"
+            />
+          </div>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2">
+          {/* Categories Section */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Folder className="h-5 w-5" />
+                    Categories
+                  </CardTitle>
+                  <CardDescription>
+                    Organize documents by topic or department
+                  </CardDescription>
+                </div>
+                <Button variant="outline" size="sm">
+                  <Plus className="h-4 w-4" />
+                </Button>
               </div>
-              
-              {/* Documents Grid */}
-              <div className="md:col-span-2">
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-4">
-                        <h3 className="text-lg font-medium">
-                          {selectedCategory ? selectedCategory.name : 'All Documents'}
-                        </h3>
-                        {selectedCategory && (
-                          <span className="text-sm text-muted-foreground">
-                            {filteredDocuments.length} documents
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <DocumentFilters 
-                          filter={filter}
-                          onFilterChange={setFilter}
-                        />
-                        <SearchInput 
-                          placeholder="Search documents..."
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          icon={<Search size={16} />}
-                          className="w-60"
-                        />
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {filteredCategories.map((category) => (
+                  <div
+                    key={category.id}
+                    className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
+                  >
+                    <div className="flex items-center gap-3 flex-1">
+                      <div className={`w-3 h-3 rounded-full bg-${category.color}-500`} />
+                      <div className="flex-1">
+                        <h4 className="font-medium">{category.name}</h4>
+                        <p className="text-sm text-muted-foreground">
+                          {category.description}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {category.documentCount} documents
+                        </p>
                       </div>
                     </div>
-                    
-                    <DocumentsGrid
-                      documents={filteredDocuments}
-                      selectedDocuments={selectedDocuments}
-                      onSelectDocuments={setSelectedDocuments}
-                      categories={categories}
-                      onMoveDocuments={handleMoveDocuments}
-                      onBulkTag={handleBulkTag}
-                    />
-                  </CardContent>
-                </Card>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem>
+                          <FolderOpen className="mr-2 h-4 w-4" />
+                          View Documents
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <Edit className="mr-2 h-4 w-4" />
+                          Edit Category
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive">
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Delete Category
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Tags Section */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Tag className="h-5 w-5" />
+                    Tags
+                  </CardTitle>
+                  <CardDescription>
+                    Label documents for easy filtering and search
+                  </CardDescription>
+                </div>
+                <Button variant="outline" size="sm">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {filteredTags.map((tag) => (
+                  <div
+                    key={tag.id}
+                    className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
+                  >
+                    <div className="flex items-center gap-3 flex-1">
+                      <Badge variant="secondary" className={`bg-${tag.color}-100 text-${tag.color}-800`}>
+                        {tag.name}
+                      </Badge>
+                      <span className="text-sm text-muted-foreground">
+                        {tag.documentCount} documents
+                      </span>
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem>
+                          <FileText className="mr-2 h-4 w-4" />
+                          View Documents
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <Edit className="mr-2 h-4 w-4" />
+                          Edit Tag
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive">
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Delete Tag
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Quick Stats */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Organization Summary</CardTitle>
+            <CardDescription>
+              Overview of your knowledge base organization
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-primary">
+                  {categories.length}
+                </div>
+                <div className="text-sm text-muted-foreground">Categories</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-primary">
+                  {tags.length}
+                </div>
+                <div className="text-sm text-muted-foreground">Tags</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-primary">
+                  {categories.reduce((sum, cat) => sum + cat.documentCount, 0)}
+                </div>
+                <div className="text-sm text-muted-foreground">Total Documents</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-primary">
+                  {Math.round(categories.reduce((sum, cat) => sum + cat.documentCount, 0) / categories.length)}
+                </div>
+                <div className="text-sm text-muted-foreground">Avg per Category</div>
               </div>
             </div>
-          </TabsContent>
-          
-          <TabsContent value="tags" className="mt-0">
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="text-lg font-medium mb-4">Tag Management</h3>
-                <p className="text-muted-foreground mb-4">
-                  Organize your knowledge base with tags for better retrieval.
-                </p>
-                
-                {/* Tag Management UI will be implemented here */}
-                <div className="text-center py-8 text-muted-foreground">
-                  <p>Tag management features coming soon</p>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="related" className="mt-0">
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="text-lg font-medium mb-4">Related Content</h3>
-                <p className="text-muted-foreground mb-4">
-                  Manage related content links between documents in your knowledge base.
-                </p>
-                
-                <RelatedDocuments 
-                  documents={documents}
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+          </CardContent>
+        </Card>
       </div>
     </PageLayout>
   );
