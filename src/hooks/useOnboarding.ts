@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -183,8 +184,8 @@ export const useOnboarding = () => {
       const { error } = await supabase
         .from('user_onboarding')
         .update({
-          current_step: step,
-          completed_steps: newCompletedSteps,
+          current_step: step as any,
+          completed_steps: newCompletedSteps as any,
           is_completed: newCompletedSteps.length >= 5, // All 5 steps completed
           completed_at: newCompletedSteps.length >= 5 ? new Date().toISOString() : null,
         })
