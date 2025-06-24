@@ -29,6 +29,7 @@ import KnowledgeBaseOrganization from './pages/KnowledgeBaseOrganization';
 import Index from './pages/Index';
 import Auth from './pages/Auth';
 import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import APIKeyManagement from './pages/APIKeyManagement';
 import VoiceProviderManagement from './pages/VoiceProviderManagement';
 import VoiceSelection from './pages/VoiceSelection';
@@ -93,6 +94,7 @@ function App() {
               <Route path="/auth" element={<Auth />} />
               <Route path="/login" element={<Auth />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/email-confirmation" element={<EmailConfirmation />} />
               
               {/* Protected routes */}

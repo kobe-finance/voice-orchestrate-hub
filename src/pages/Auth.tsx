@@ -16,6 +16,7 @@ import { toast } from "@/components/ui/sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Mail, AlertCircle, CheckCircle } from "lucide-react";
 import { PasswordResetHandler } from "@/components/auth/PasswordResetHandler";
+import { supabase } from "@/integrations/supabase/client";
 
 // Enhanced email validation function
 const isValidEmail = (email: string): boolean => {
