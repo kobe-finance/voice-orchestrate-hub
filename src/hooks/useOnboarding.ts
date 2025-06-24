@@ -64,7 +64,17 @@ export const useOnboarding = () => {
         .rpc('get_user_onboarding_status', { user_uuid: user.id });
       
       if (error) throw error;
-      return data?.[0] as OnboardingStatus || null;
+      
+      // Transform snake_case to camelCase
+      const result = data?.[0];
+      if (!result) return null;
+      
+      return {
+        isCompleted: result.is_completed,
+        currentStep: result.current_step,
+        completedSteps: result.completed_steps,
+        needsReminder: result.needs_reminder,
+      } as OnboardingStatus;
     },
     enabled: !!user?.id && isAuthenticated,
   });
@@ -148,11 +158,11 @@ export const useOnboarding = () => {
       
       const { error } = await supabase
         .from('user_onboarding')
-        .upsert({
+        .insert({
           user_id: user.id,
           current_step: 'welcome',
           started_at: new Date().toISOString(),
-        }, { onConflict: 'user_id' });
+        });
       
       if (error) throw error;
     },
@@ -295,13 +305,18 @@ export const useOnboarding = () => {
     mutationFn: async () => {
       if (!user?.id) throw new Error('User not authenticated');
       
-      // Collect all current onboarding data
+      // Collect all current onboarding data and convert to JSON-safe format
       const backupData = {
         businessProfile,
         voiceConfig,
         integrations,
         demoCall,
-        onboardingStatus,
+        onboardingStatus: onboardingStatus ? {
+          isCompleted: onboardingStatus.isCompleted,
+          currentStep: onboardingStatus.currentStep,
+          completedSteps: onboardingStatus.completedSteps,
+          needsReminder: onboardingStatus.needsReminder,
+        } : null,
       };
       
       const { error } = await supabase
