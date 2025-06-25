@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,6 +15,9 @@ import type {
 export const useIntegrations = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+
+  // Get tenant_id from user metadata
+  const tenantId = user?.user_metadata?.tenant_id;
 
   // Get all available integrations
   const { data: availableIntegrations, isLoading: loadingIntegrations } = useQuery({
@@ -35,28 +39,28 @@ export const useIntegrations = () => {
 
   // Get user's credentials with real-time updates
   const { data: userCredentials, isLoading: loadingCredentials } = useQuery({
-    queryKey: ['integration-credentials', user?.id],
+    queryKey: ['integration-credentials', tenantId],
     queryFn: async () => {
-      if (!user?.id) return [];
+      if (!tenantId) return [];
       
       const { data, error } = await supabase
         .from('integration_credentials')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('tenant_id', tenantId)
         .order('created_at', { ascending: false });
       
       if (error) throw error;
       return data as IntegrationCredential[];
     },
-    enabled: !!user?.id,
+    enabled: !!tenantId,
     refetchInterval: false, // Disable polling since we have real-time subscriptions
   });
 
   // Get user's installed integrations with real-time updates
   const { data: userIntegrations, isLoading: loadingUserIntegrations } = useQuery({
-    queryKey: ['user-integrations', user?.id],
+    queryKey: ['user-integrations', tenantId],
     queryFn: async () => {
-      if (!user?.id) return [];
+      if (!tenantId) return [];
       
       const { data, error } = await supabase
         .from('user_integrations')
@@ -65,7 +69,7 @@ export const useIntegrations = () => {
           integration:integrations(*),
           credential:integration_credentials(*)
         `)
-        .eq('user_id', user.id)
+        .eq('tenant_id', tenantId)
         .order('created_at', { ascending: false });
       
       if (error) throw error;
@@ -74,7 +78,7 @@ export const useIntegrations = () => {
       const { convertDatabaseUserIntegration } = await import('@/types/integration');
       return data.map(convertDatabaseUserIntegration);
     },
-    enabled: !!user?.id,
+    enabled: !!tenantId,
     refetchInterval: false, // Disable polling since we have real-time subscriptions
   });
 
@@ -86,12 +90,13 @@ export const useIntegrations = () => {
       credentials: Record<string, string>;
       credential_type: string;
     }) => {
-      if (!user?.id) throw new Error('User not authenticated');
+      if (!user?.id || !tenantId) throw new Error('User not authenticated or no tenant');
 
       const { error } = await supabase
         .from('integration_credentials')
         .insert({
           user_id: user.id,
+          tenant_id: tenantId, // Added missing tenant_id
           integration_id: data.integration_id,
           credential_name: data.credential_name,
           encrypted_credentials: data.credentials,
@@ -106,13 +111,14 @@ export const useIntegrations = () => {
       await queryClient.cancelQueries({ queryKey: ['integration-credentials'] });
 
       // Snapshot previous value
-      const previousCredentials = queryClient.getQueryData(['integration-credentials', user?.id]);
+      const previousCredentials = queryClient.getQueryData(['integration-credentials', tenantId]);
 
       // Optimistically update to the new value
-      queryClient.setQueryData(['integration-credentials', user?.id], (old: IntegrationCredential[] = []) => [
+      queryClient.setQueryData(['integration-credentials', tenantId], (old: IntegrationCredential[] = []) => [
         {
           id: 'temp-' + Date.now(),
           user_id: user?.id || '',
+          tenant_id: tenantId || '',
           integration_id: newCredential.integration_id,
           credential_name: newCredential.credential_name,
           encrypted_credentials: newCredential.credentials,
@@ -124,7 +130,6 @@ export const useIntegrations = () => {
           last_test_error: null,
           expires_at: null,
           created_by: user?.id || '',
-          tenant_id: null,
         } as IntegrationCredential,
         ...old
       ]);
@@ -134,7 +139,7 @@ export const useIntegrations = () => {
     onError: (err, newCredential, context) => {
       // Rollback on error
       if (context?.previousCredentials) {
-        queryClient.setQueryData(['integration-credentials', user?.id], context.previousCredentials);
+        queryClient.setQueryData(['integration-credentials', tenantId], context.previousCredentials);
       }
       toast({ 
         title: 'Error adding credential',
@@ -185,9 +190,9 @@ export const useIntegrations = () => {
       // Optimistically update status to 'testing'
       await queryClient.cancelQueries({ queryKey: ['integration-credentials'] });
       
-      const previousCredentials = queryClient.getQueryData(['integration-credentials', user?.id]);
+      const previousCredentials = queryClient.getQueryData(['integration-credentials', tenantId]);
       
-      queryClient.setQueryData(['integration-credentials', user?.id], (old: IntegrationCredential[] = []) =>
+      queryClient.setQueryData(['integration-credentials', tenantId], (old: IntegrationCredential[] = []) =>
         old.map(cred =>
           cred.id === credentialId
             ? { ...cred, last_test_status: 'testing' as const }
@@ -200,7 +205,7 @@ export const useIntegrations = () => {
     onError: (err, credentialId, context) => {
       // Rollback on error
       if (context?.previousCredentials) {
-        queryClient.setQueryData(['integration-credentials', user?.id], context.previousCredentials);
+        queryClient.setQueryData(['integration-credentials', tenantId], context.previousCredentials);
       }
       toast({ 
         title: 'Error testing connection',
@@ -228,17 +233,18 @@ export const useIntegrations = () => {
       // Optimistically add installing integration
       await queryClient.cancelQueries({ queryKey: ['user-integrations'] });
       
-      const previousIntegrations = queryClient.getQueryData(['user-integrations', user?.id]);
+      const previousIntegrations = queryClient.getQueryData(['user-integrations', tenantId]);
       
       // Find the integration and credential details
       const integration = availableIntegrations?.find(i => i.id === integrationId);
       const credential = userCredentials?.find(c => c.id === credentialId);
       
       if (integration && credential) {
-        queryClient.setQueryData(['user-integrations', user?.id], (old: any[] = []) => [
+        queryClient.setQueryData(['user-integrations', tenantId], (old: any[] = []) => [
           {
             id: 'temp-install-' + Date.now(),
             user_id: user?.id,
+            tenant_id: tenantId,
             integration_id: integrationId,
             credential_id: credentialId,
             status: 'installing',
@@ -251,7 +257,6 @@ export const useIntegrations = () => {
             metadata: null,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
-            tenant_id: null,
             integration,
             credential,
           },
@@ -264,7 +269,7 @@ export const useIntegrations = () => {
     onError: (err, variables, context) => {
       // Rollback on error
       if (context?.previousIntegrations) {
-        queryClient.setQueryData(['user-integrations', user?.id], context.previousIntegrations);
+        queryClient.setQueryData(['user-integrations', tenantId], context.previousIntegrations);
       }
       toast({ 
         title: 'Error installing integration',

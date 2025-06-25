@@ -66,6 +66,7 @@ describe('useAuth', () => {
         lastName: 'Doe',
         email: 'john@example.com',
         password: 'password123',
+        companyName: 'Test Company', // Added required field
       });
     });
 

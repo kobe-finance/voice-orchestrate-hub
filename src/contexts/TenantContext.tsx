@@ -91,8 +91,19 @@ export const TenantProvider = ({ children }: { children: React.ReactNode }) => {
         setUserRole(memberData.role);
       }
 
-      setCurrentTenant(orgData);
-      console.log('Tenant data loaded:', orgData);
+      // Convert the database organization to our interface type
+      const organization: Organization = {
+        id: orgData.id,
+        name: orgData.name,
+        slug: orgData.slug,
+        subscription_tier: orgData.subscription_tier || 'free',
+        settings: (orgData.settings as Record<string, any>) || {},
+        created_at: orgData.created_at,
+        updated_at: orgData.updated_at,
+      };
+
+      setCurrentTenant(organization);
+      console.log('Tenant data loaded:', organization);
       
     } catch (error) {
       console.error('Error loading tenant data:', error);
