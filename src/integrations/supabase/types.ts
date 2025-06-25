@@ -474,7 +474,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_organizations: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          organization_id: string
+          role: string
+        }[]
+      }
+      user_belongs_to_organization: {
+        Args: { org_id: string }
+        Returns: boolean
+      }
+      user_can_manage_organization: {
+        Args: { org_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
