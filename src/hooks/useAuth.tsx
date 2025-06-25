@@ -177,22 +177,50 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const register = async (data: RegisterData) => {
+    console.log('🚀 Registration started for:', data.email);
     setIsLoading(true);
-    console.log('Registration attempt for:', data.email, 'Company:', data.companyName);
     
     try {
-      // Input validation
-      if (!data.email || !data.password || !data.firstName || !data.lastName || !data.companyName) {
-        throw new Error('All fields are required');
+      // Enhanced input validation with detailed logging
+      console.log('✅ Step 1: Validating input data...');
+      if (!data.email?.trim()) {
+        throw new Error('Email is required');
+      }
+      if (!data.password?.trim()) {
+        throw new Error('Password is required');
+      }
+      if (!data.firstName?.trim()) {
+        throw new Error('First name is required');
+      }
+      if (!data.lastName?.trim()) {
+        throw new Error('Last name is required');
+      }
+      if (!data.companyName?.trim()) {
+        throw new Error('Company name is required');
       }
 
       if (data.password.length < 6) {
         throw new Error('Password must be at least 6 characters long');
       }
 
-      // 1. First create the organization
+      console.log('✅ Step 2: Input validation passed');
+
+      // Test database connection
+      console.log('🔍 Step 3: Testing database connection...');
+      const { data: testConnection, error: connectionError } = await supabase
+        .from('organizations')
+        .select('count')
+        .limit(1);
+      
+      if (connectionError) {
+        console.error('❌ Database connection failed:', connectionError);
+        throw new Error(`Database connection failed: ${connectionError.message}`);
+      }
+      console.log('✅ Step 3: Database connection successful');
+
+      // 1. Create the organization
       const orgSlug = generateSlug(data.companyName);
-      console.log('Creating organization with slug:', orgSlug);
+      console.log('🏢 Step 4: Creating organization with slug:', orgSlug);
       
       const { data: orgData, error: orgError } = await supabase
         .from('organizations')
@@ -204,22 +232,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .single();
 
       if (orgError) {
-        console.error('Organization creation error:', orgError);
+        console.error('❌ Organization creation failed:', orgError);
         if (orgError.code === '23505') { // Unique constraint violation
           throw new Error(`An organization with this name already exists. Please choose a different company name.`);
         }
         throw new Error(`Failed to create organization: ${orgError.message}`);
       }
 
-      if (!orgData) {
-        throw new Error('Organization creation returned no data');
+      if (!orgData?.id) {
+        console.error('❌ Organization creation returned no data');
+        throw new Error('Organization creation failed - no data returned');
       }
 
-      console.log('Organization created successfully:', orgData);
+      console.log('✅ Step 4: Organization created successfully:', orgData.id);
 
       // 2. Create user with organization tenant_id
       const redirectUrl = `${window.location.origin}/email-confirmation`;
-      console.log('Creating user with redirect URL:', redirectUrl);
+      console.log('👤 Step 5: Creating user with redirect URL:', redirectUrl);
       
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: data.email.toLowerCase().trim(),
@@ -236,10 +265,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (authError) {
-        console.error('User registration error:', authError);
+        console.error('❌ User creation failed:', authError);
         
         // Clean up organization if user creation failed
-        console.log('Cleaning up organization due to user creation failure');
+        console.log('🧹 Cleaning up organization due to user creation failure');
         await supabase
           .from('organizations')
           .delete()
@@ -257,18 +286,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
 
-      if (!authData.user) {
+      if (!authData.user?.id) {
+        console.error('❌ User creation returned no user data');
         // Clean up organization
         await supabase
           .from('organizations')
           .delete()
           .eq('id', orgData.id);
-        throw new Error('User registration returned no data');
+        throw new Error('User registration failed - no user data returned');
       }
 
-      console.log('User registration successful:', authData.user.email);
+      console.log('✅ Step 5: User created successfully:', authData.user.id);
       
       // 3. Create organization membership
+      console.log('🤝 Step 6: Creating organization membership...');
       const { error: membershipError } = await supabase
         .from('organization_members')
         .insert({
@@ -278,35 +309,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
 
       if (membershipError) {
-        console.error('Membership creation error:', membershipError);
-        // Note: Don't throw here as user is already created
+        console.error('❌ Membership creation failed:', membershipError);
         console.warn('User created but membership creation failed - this may need manual cleanup');
       } else {
-        console.log('Organization membership created successfully');
+        console.log('✅ Step 6: Organization membership created successfully');
       }
 
-      // 4. SECURITY: Always sign out after registration to force email confirmation
+      // 4. Sign out for email confirmation (security requirement)
       if (authData.session) {
-        console.log('Signing out user to force email confirmation');
+        console.log('🔐 Step 7: Signing out user to force email confirmation');
         await supabase.auth.signOut();
       }
       
-      console.log('Registration completed successfully');
+      console.log('🎉 Registration completed successfully for:', data.email);
       toast.success('Registration successful! Please check your email for verification.');
       
     } catch (error) {
-      console.error('Registration failed:', error);
+      console.error('💥 Registration failed with error:', error);
       
       // Show user-friendly error message
       if (error instanceof Error) {
         toast.error(error.message);
+        console.error('Error details:', {
+          name: error.name,
+          message: error.message,
+          stack: error.stack
+        });
       } else {
         toast.error('Registration failed. Please try again.');
+        console.error('Unknown error type:', error);
       }
       
       throw error;
     } finally {
       setIsLoading(false);
+      console.log('🏁 Registration process completed (success or failure)');
     }
   };
 

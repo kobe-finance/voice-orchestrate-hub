@@ -192,7 +192,7 @@ const Auth = () => {
   };
 
   const onRegisterSubmit = async (values: RegisterFormData) => {
-    console.log('Registration form submitted with values:', {
+    console.log('📝 Registration form submitted with values:', {
       firstName: values.firstName,
       lastName: values.lastName,
       companyName: values.companyName,
@@ -207,7 +207,12 @@ const Auth = () => {
         return;
       }
 
-      console.log('Starting registration process...');
+      if (!values.acceptTerms) {
+        toast.error('You must accept the terms and conditions to continue.');
+        return;
+      }
+
+      console.log('🚀 Starting registration process...');
       
       await register({
         firstName: values.firstName.trim(),
@@ -217,7 +222,7 @@ const Auth = () => {
         password: values.password,
       });
       
-      console.log('Registration completed successfully');
+      console.log('✅ Registration completed successfully');
       
       // Show success state
       setRegisteredEmail(values.email);
@@ -230,7 +235,7 @@ const Auth = () => {
       }, 3000);
       
     } catch (error) {
-      console.error('Registration form error:', error);
+      console.error('💥 Registration form error:', error);
       
       // Enhanced error handling for specific cases
       if (error instanceof Error) {
@@ -244,6 +249,8 @@ const Auth = () => {
           loginForm.setValue("email", values.email);
         } else if (error.message.includes('organization') && error.message.includes('exists')) {
           toast.error('An organization with this name already exists. Please choose a different company name.');
+        } else if (error.message.includes('Database connection failed')) {
+          toast.error('Unable to connect to the database. Please try again in a moment.');
         } else {
           toast.error(error.message || 'Registration failed. Please try again.');
         }
