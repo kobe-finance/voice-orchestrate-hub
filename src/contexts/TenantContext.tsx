@@ -1,204 +1,118 @@
 
 import React from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/sonner';
 
-interface Tenant {
+interface Organization {
   id: string;
   name: string;
-  subdomain: string;
-  logo?: string;
-  primaryColor: string;
-  secondaryColor: string;
-  plan: 'enterprise';
-  features: string[];
-  settings: {
-    timezone: string;
-    currency: string;
-    dateFormat: string;
-    businessHours: {
-      start: string;
-      end: string;
-      timezone: string;
-    };
-  };
-  quotas: {
-    maxAgents: number;
-    maxCallsPerMonth: number;
-    maxStorageGB: number;
-    currentUsage: {
-      agents: number;
-      callsThisMonth: number;
-      storageUsedGB: number;
-    };
-  };
-  infrastructure: {
-    dedicatedDatabase: string;
-    dedicatedStorage: string;
-    dedicatedCompute: string;
-    isolationLevel: 'full';
-  };
+  slug: string;
+  subscription_tier: string;
+  settings: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+}
+
+interface OrganizationMember {
+  id: string;
+  user_id: string;
+  organization_id: string;
+  role: string;
+  joined_at: string;
+  is_active: boolean;
 }
 
 interface TenantContextType {
-  currentTenant: Tenant | null;
+  currentTenant: Organization | null;
+  userRole: string | null;
   isLoading: boolean;
-  updateTenantSettings: (settings: Partial<Tenant['settings']>) => Promise<void>;
-  getTenantQuotaUsage: () => {
-    agents: { used: number; max: number; percentage: number };
-    calls: { used: number; max: number; percentage: number };
-    storage: { used: number; max: number; percentage: number };
-  };
+  error: string | null;
+  refetchTenant: () => Promise<void>;
 }
 
 const TenantContext = React.createContext<TenantContextType | undefined>(undefined);
 
-const TENANT_STORAGE_KEY = 'voiceorchestrate_current_tenant';
-
 export const TenantProvider = ({ children }: { children: React.ReactNode }) => {
-  const [currentTenant, setCurrentTenant] = React.useState<Tenant | null>(null);
+  const [currentTenant, setCurrentTenant] = React.useState<Organization | null>(null);
+  const [userRole, setUserRole] = React.useState<string | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
   
   const { user, isAuthenticated } = useAuth();
 
-  // Load tenant data when user authenticates
+  // Load tenant data when user authenticates or tenant_id changes
   React.useEffect(() => {
-    if (isAuthenticated && user) {
-      loadTenantData();
+    if (isAuthenticated && user?.user_metadata?.tenant_id) {
+      fetchTenantData();
     } else {
       setCurrentTenant(null);
+      setUserRole(null);
+      setError(null);
     }
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user?.user_metadata?.tenant_id]);
 
-  const loadTenantData = async () => {
+  const fetchTenantData = async () => {
+    if (!user?.user_metadata?.tenant_id) {
+      setError('No tenant assigned to user');
+      return;
+    }
+
     setIsLoading(true);
+    setError(null);
+
     try {
-      // Get user's dedicated tenant - each user belongs to exactly one tenant
-      const userTenantId = user?.user_metadata?.tenant_id;
-      
-      if (!userTenantId) {
-        throw new Error('User must be assigned to a tenant');
+      // Fetch organization data
+      const { data: orgData, error: orgError } = await supabase
+        .from('organizations')
+        .select('*')
+        .eq('id', user.user_metadata.tenant_id)
+        .single();
+
+      if (orgError) {
+        console.error('Error fetching organization:', orgError);
+        setError('Failed to load organization data');
+        return;
       }
 
-      // In a real implementation, this would fetch from a dedicated tenant API
-      // Each tenant has completely isolated infrastructure
-      const dedicatedTenant: Tenant = {
-        id: userTenantId,
-        name: user?.user_metadata?.tenant_name || 'Enterprise Organization',
-        subdomain: user?.user_metadata?.subdomain || 'enterprise',
-        logo: user?.user_metadata?.tenant_logo,
-        primaryColor: '#2563EB',
-        secondaryColor: '#DBEAFE',
-        plan: 'enterprise',
-        features: [
-          'voice_agents', 
-          'analytics', 
-          'integrations', 
-          'custom_branding', 
-          'api_access', 
-          'white_label',
-          'dedicated_infrastructure',
-          'full_isolation'
-        ],
-        settings: {
-          timezone: user?.user_metadata?.timezone || 'America/New_York',
-          currency: 'USD',
-          dateFormat: 'MM/DD/YYYY',
-          businessHours: {
-            start: '08:00',
-            end: '18:00',
-            timezone: user?.user_metadata?.timezone || 'America/New_York',
-          },
-        },
-        quotas: {
-          maxAgents: 100, // Enterprise unlimited represented as high number
-          maxCallsPerMonth: 100000,
-          maxStorageGB: 1000,
-          currentUsage: {
-            agents: 0, // This would come from tenant-specific API
-            callsThisMonth: 0,
-            storageUsedGB: 0,
-          },
-        },
-        infrastructure: {
-          dedicatedDatabase: `db-${userTenantId}`,
-          dedicatedStorage: `storage-${userTenantId}`,
-          dedicatedCompute: `compute-${userTenantId}`,
-          isolationLevel: 'full',
-        },
-      };
+      // Fetch user's role in the organization
+      const { data: memberData, error: memberError } = await supabase
+        .from('organization_members')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('organization_id', user.user_metadata.tenant_id)
+        .eq('is_active', true)
+        .single();
 
-      setCurrentTenant(dedicatedTenant);
-      localStorage.setItem(TENANT_STORAGE_KEY, userTenantId);
+      if (memberError) {
+        console.error('Error fetching membership:', memberError);
+        setUserRole('member'); // Default role if not found
+      } else {
+        setUserRole(memberData.role);
+      }
+
+      setCurrentTenant(orgData);
+      console.log('Tenant data loaded:', orgData);
       
     } catch (error) {
       console.error('Error loading tenant data:', error);
-      toast.error('Failed to load tenant information');
+      setError('Failed to load tenant information');
+      toast.error('Failed to load organization information');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const updateTenantSettings = async (settings: Partial<Tenant['settings']>) => {
-    if (!currentTenant) return;
-
-    setIsLoading(true);
-    try {
-      // API call to tenant-specific infrastructure
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const updatedTenant = {
-        ...currentTenant,
-        settings: {
-          ...currentTenant.settings,
-          ...settings,
-        },
-      };
-      
-      setCurrentTenant(updatedTenant);
-      toast.success('Settings updated successfully');
-    } catch (error) {
-      console.error('Error updating tenant settings:', error);
-      toast.error('Failed to update settings');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const getTenantQuotaUsage = () => {
-    if (!currentTenant) {
-      return {
-        agents: { used: 0, max: 0, percentage: 0 },
-        calls: { used: 0, max: 0, percentage: 0 },
-        storage: { used: 0, max: 0, percentage: 0 },
-      };
-    }
-
-    const { quotas } = currentTenant;
-    return {
-      agents: {
-        used: quotas.currentUsage.agents,
-        max: quotas.maxAgents,
-        percentage: Math.round((quotas.currentUsage.agents / quotas.maxAgents) * 100),
-      },
-      calls: {
-        used: quotas.currentUsage.callsThisMonth,
-        max: quotas.maxCallsPerMonth,
-        percentage: Math.round((quotas.currentUsage.callsThisMonth / quotas.maxCallsPerMonth) * 100),
-      },
-      storage: {
-        used: quotas.currentUsage.storageUsedGB,
-        max: quotas.maxStorageGB,
-        percentage: Math.round((quotas.currentUsage.storageUsedGB / quotas.maxStorageGB) * 100),
-      },
-    };
+  const refetchTenant = async () => {
+    await fetchTenantData();
   };
 
   const value: TenantContextType = {
     currentTenant,
+    userRole,
     isLoading,
-    updateTenantSettings,
-    getTenantQuotaUsage,
+    error,
+    refetchTenant,
   };
 
   return <TenantContext.Provider value={value}>{children}</TenantContext.Provider>;

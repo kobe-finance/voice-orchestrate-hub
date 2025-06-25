@@ -105,7 +105,7 @@ export type Database = {
           last_test_error: Json | null
           last_test_status: string | null
           last_tested_at: string | null
-          tenant_id: string | null
+          tenant_id: string
           updated_at: string | null
           user_id: string
         }
@@ -121,7 +121,7 @@ export type Database = {
           last_test_error?: Json | null
           last_test_status?: string | null
           last_tested_at?: string | null
-          tenant_id?: string | null
+          tenant_id: string
           updated_at?: string | null
           user_id: string
         }
@@ -137,7 +137,7 @@ export type Database = {
           last_test_error?: Json | null
           last_test_status?: string | null
           last_tested_at?: string | null
-          tenant_id?: string | null
+          tenant_id?: string
           updated_at?: string | null
           user_id?: string
         }
@@ -237,6 +237,118 @@ export type Database = {
         }
         Relationships: []
       }
+      invitations: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          created_by: string | null
+          email: string
+          expires_at: string
+          id: string
+          organization_id: string
+          role: string
+          token: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          email: string
+          expires_at: string
+          id?: string
+          organization_id: string
+          role?: string
+          token: string
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string
+          expires_at?: string
+          id?: string
+          organization_id?: string
+          role?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invitations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organization_members: {
+        Row: {
+          id: string
+          invited_by: string | null
+          is_active: boolean
+          joined_at: string
+          organization_id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          invited_by?: string | null
+          is_active?: boolean
+          joined_at?: string
+          organization_id: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          invited_by?: string | null
+          is_active?: boolean
+          joined_at?: string
+          organization_id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_members_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          settings: Json | null
+          slug: string
+          subscription_tier: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          settings?: Json | null
+          slug: string
+          subscription_tier?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          settings?: Json | null
+          slug?: string
+          subscription_tier?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -281,7 +393,7 @@ export type Database = {
           metadata: Json | null
           status: string
           sync_status: string | null
-          tenant_id: string | null
+          tenant_id: string
           updated_at: string | null
           user_id: string
         }
@@ -298,7 +410,7 @@ export type Database = {
           metadata?: Json | null
           status?: string
           sync_status?: string | null
-          tenant_id?: string | null
+          tenant_id: string
           updated_at?: string | null
           user_id: string
         }
@@ -315,7 +427,7 @@ export type Database = {
           metadata?: Json | null
           status?: string
           sync_status?: string | null
-          tenant_id?: string | null
+          tenant_id?: string
           updated_at?: string | null
           user_id?: string
         }

@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -37,6 +36,16 @@ const isValidEmail = (email: string): boolean => {
   return true;
 };
 
+// Generate slug from company name
+const generateSlug = (name: string): string => {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+    .replace(/\s+/g, '-') // Replace spaces with hyphens
+    .replace(/-+/g, '-') // Replace multiple hyphens with single
+    .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+};
+
 // Enhanced form schemas with better validation
 const loginSchema = z.object({
   email: z.string()
@@ -60,6 +69,10 @@ const registerSchema = z.object({
     .min(2, "Last name must be at least 2 characters")
     .max(50, "Last name must be less than 50 characters")
     .regex(/^[a-zA-Z\s'-]+$/, "Last name can only contain letters, spaces, apostrophes, and hyphens"),
+  companyName: z.string()
+    .min(1, "Company name is required")
+    .min(2, "Company name must be at least 2 characters")
+    .max(100, "Company name must be less than 100 characters"),
   email: z.string()
     .min(1, "Email is required")
     .email("Please enter a valid email address")
@@ -138,6 +151,7 @@ const Auth = () => {
     defaultValues: {
       firstName: "",
       lastName: "",
+      companyName: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -188,6 +202,7 @@ const Auth = () => {
       await register({
         firstName: values.firstName.trim(),
         lastName: values.lastName.trim(),
+        companyName: values.companyName.trim(),
         email: values.email.toLowerCase().trim(),
         password: values.password,
       });
@@ -373,7 +388,6 @@ const Auth = () => {
                   
                   <AnimatePresence mode="wait">
                     <TabsContent value="login" className="space-y-6">
-                      {/* Show success message for confirmed emails */}
                       <AnimatePresence>
                         {locationMessage && (
                           <motion.div
@@ -392,7 +406,6 @@ const Auth = () => {
                         )}
                       </AnimatePresence>
 
-                      {/* Email Confirmation Error Alert */}
                       <AnimatePresence>
                         {emailConfirmationError.show && (
                           <motion.div
@@ -608,6 +621,27 @@ const Auth = () => {
                                           <Input 
                                             placeholder="Doe"
                                             autoComplete="family-name"
+                                            className="h-12 text-base"
+                                            {...field} 
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                </motion.div>
+                                
+                                <motion.div variants={fieldVariants}>
+                                  <FormField
+                                    control={registerForm.control}
+                                    name="companyName"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel className="text-base">Company Name</FormLabel>
+                                        <FormControl>
+                                          <Input 
+                                            placeholder="ACME Corporation"
+                                            autoComplete="organization"
                                             className="h-12 text-base"
                                             {...field} 
                                           />

@@ -44,37 +44,44 @@ serve(async (req) => {
       throw new Error('Invalid authentication')
     }
 
+    // Get user's tenant_id
+    const tenantId = user.user_metadata?.tenant_id;
+    if (!tenantId) {
+      throw new Error('User has no tenant assigned');
+    }
+
     const request: ManageRequest = await req.json()
 
     if (request.action === 'install') {
-      // Verify credential belongs to user
+      // Verify credential belongs to user's tenant
       const { data: credential, error: credentialError } = await supabase
         .from('integration_credentials')
         .select('*, integration:integrations(*)')
         .eq('id', request.credential_id)
-        .eq('user_id', user.id)
+        .eq('tenant_id', tenantId)
         .single()
 
       if (credentialError || !credential) {
         throw new Error('Credential not found or unauthorized')
       }
 
-      // Check if integration is already installed
+      // Check if integration is already installed for this tenant
       const { data: existingInstallation } = await supabase
         .from('user_integrations')
         .select('id')
-        .eq('user_id', user.id)
+        .eq('tenant_id', tenantId)
         .eq('integration_id', request.integration_id)
         .single()
 
       if (existingInstallation) {
-        throw new Error('Integration already installed')
+        throw new Error('Integration already installed for this organization')
       }
 
       // Create user integration
       const { data: userIntegration, error: installError } = await supabase
         .from('user_integrations')
         .insert({
+          tenant_id: tenantId,
           user_id: user.id,
           integration_id: request.integration_id,
           credential_id: request.credential_id,
@@ -91,7 +98,7 @@ serve(async (req) => {
 
       // Perform integration-specific setup
       try {
-        await setupIntegration(credential.integration.slug, credential.encrypted_credentials, user.id)
+        await setupIntegration(credential.integration.slug, credential.encrypted_credentials, tenantId)
         
         // Update status to active
         await supabase
@@ -121,6 +128,7 @@ serve(async (req) => {
       await supabase
         .from('integration_audit_log')
         .insert({
+          tenant_id: tenantId,
           user_id: user.id,
           integration_id: request.integration_id,
           action: 'install',
@@ -137,12 +145,12 @@ serve(async (req) => {
       )
 
     } else if (request.action === 'uninstall') {
-      // Verify user integration belongs to user
+      // Verify user integration belongs to user's tenant
       const { data: userIntegration, error: userIntegrationError } = await supabase
         .from('user_integrations')
         .select('*, integration:integrations(*)')
         .eq('id', request.user_integration_id)
-        .eq('user_id', user.id)
+        .eq('tenant_id', tenantId)
         .single()
 
       if (userIntegrationError || !userIntegration) {
@@ -151,7 +159,7 @@ serve(async (req) => {
 
       // Perform integration-specific cleanup
       try {
-        await cleanupIntegration(userIntegration.integration.slug, user.id)
+        await cleanupIntegration(userIntegration.integration.slug, tenantId)
       } catch (cleanupError) {
         console.warn('Cleanup failed:', cleanupError)
         // Continue with uninstall even if cleanup fails
@@ -171,6 +179,7 @@ serve(async (req) => {
       await supabase
         .from('integration_audit_log')
         .insert({
+          tenant_id: tenantId,
           user_id: user.id,
           integration_id: userIntegration.integration_id,
           action: 'uninstall',
@@ -203,7 +212,7 @@ serve(async (req) => {
 })
 
 // Integration-specific setup functions
-async function setupIntegration(integrationSlug: string, credentials: any, userId: string) {
+async function setupIntegration(integrationSlug: string, credentials: any, tenantId: string) {
   switch (integrationSlug) {
     case 'openai':
     case 'claude':
@@ -214,27 +223,27 @@ async function setupIntegration(integrationSlug: string, credentials: any, userI
     case 'llama':
     case 'elevenlabs':
       // LLM and Voice providers typically don't require special setup
-      console.log(`Setting up ${integrationSlug} for user ${userId}`)
+      console.log(`Setting up ${integrationSlug} for tenant ${tenantId}`)
       break
 
     case 'salesforce':
       // Could initialize webhook subscriptions, etc.
-      console.log(`Setting up Salesforce integration for user ${userId}`)
+      console.log(`Setting up Salesforce integration for tenant ${tenantId}`)
       break
 
     case 'hubspot':
       // Could initialize webhook subscriptions, etc.
-      console.log(`Setting up HubSpot integration for user ${userId}`)
+      console.log(`Setting up HubSpot integration for tenant ${tenantId}`)
       break
 
     case 'twilio':
       // Could configure webhooks, phone numbers, etc.
-      console.log(`Setting up Twilio integration for user ${userId}`)
+      console.log(`Setting up Twilio integration for tenant ${tenantId}`)
       break
 
     case 'vonage':
       // Could configure webhooks, applications, etc.
-      console.log(`Setting up Vonage integration for user ${userId}`)
+      console.log(`Setting up Vonage integration for tenant ${tenantId}`)
       break
 
     default:
@@ -242,14 +251,14 @@ async function setupIntegration(integrationSlug: string, credentials: any, userI
   }
 }
 
-async function cleanupIntegration(integrationSlug: string, userId: string) {
+async function cleanupIntegration(integrationSlug: string, tenantId: string) {
   switch (integrationSlug) {
     case 'salesforce':
     case 'hubspot':
     case 'twilio':
     case 'vonage':
       // Could remove webhooks, subscriptions, etc.
-      console.log(`Cleaning up ${integrationSlug} for user ${userId}`)
+      console.log(`Cleaning up ${integrationSlug} for tenant ${tenantId}`)
       break
 
     default:
