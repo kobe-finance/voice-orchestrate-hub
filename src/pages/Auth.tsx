@@ -192,6 +192,14 @@ const Auth = () => {
   };
 
   const onRegisterSubmit = async (values: RegisterFormData) => {
+    console.log('Registration form submitted with values:', {
+      firstName: values.firstName,
+      lastName: values.lastName,
+      companyName: values.companyName,
+      email: values.email,
+      acceptTerms: values.acceptTerms
+    });
+
     try {
       // Additional client-side validation
       if (!isValidEmail(values.email)) {
@@ -199,6 +207,8 @@ const Auth = () => {
         return;
       }
 
+      console.log('Starting registration process...');
+      
       await register({
         firstName: values.firstName.trim(),
         lastName: values.lastName.trim(),
@@ -206,6 +216,8 @@ const Auth = () => {
         email: values.email.toLowerCase().trim(),
         password: values.password,
       });
+      
+      console.log('Registration completed successfully');
       
       // Show success state
       setRegisteredEmail(values.email);
@@ -218,19 +230,27 @@ const Auth = () => {
       }, 3000);
       
     } catch (error) {
+      console.error('Registration form error:', error);
+      
       // Enhanced error handling for specific cases
       if (error instanceof Error) {
+        console.log('Error message:', error.message);
+        
         if (error.message.includes('Email address') && error.message.includes('invalid')) {
           toast.error('The email address format is not accepted. Please use a standard email format like user@domain.com');
-        } else if (error.message.includes('User already registered')) {
+        } else if (error.message.includes('User already registered') || error.message.includes('already exists')) {
           toast.error('An account with this email already exists. Please sign in instead.');
           setActiveTab("login");
           loginForm.setValue("email", values.email);
+        } else if (error.message.includes('organization') && error.message.includes('exists')) {
+          toast.error('An organization with this name already exists. Please choose a different company name.');
         } else {
           toast.error(error.message || 'Registration failed. Please try again.');
         }
+      } else {
+        console.log('Non-Error object thrown:', error);
+        toast.error('Registration failed. Please try again.');
       }
-      console.error('Registration failed:', error);
     }
   };
 
@@ -748,6 +768,11 @@ const Auth = () => {
                                   >
                                     {isLoading ? "Creating account..." : "Create account"}
                                   </Button>
+                                  {/* Debug info - remove in production */}
+                                  <div className="text-xs text-muted-foreground mt-2">
+                                    Form valid: {registerForm.formState.isValid ? 'Yes' : 'No'} | 
+                                    Loading: {isLoading ? 'Yes' : 'No'}
+                                  </div>
                                 </motion.div>
                               </form>
                             </Form>

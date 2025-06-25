@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { useNavigate } from 'react-router-dom';
@@ -182,6 +181,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log('Registration attempt for:', data.email, 'Company:', data.companyName);
     
     try {
+      // Input validation
+      if (!data.email || !data.password || !data.firstName || !data.lastName || !data.companyName) {
+        throw new Error('All fields are required');
+      }
+
+      if (data.password.length < 6) {
+        throw new Error('Password must be at least 6 characters long');
+      }
+
       // 1. First create the organization
       const orgSlug = generateSlug(data.companyName);
       console.log('Creating organization with slug:', orgSlug);
@@ -189,7 +197,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data: orgData, error: orgError } = await supabase
         .from('organizations')
         .insert({
-          name: data.companyName,
+          name: data.companyName.trim(),
           slug: orgSlug
         })
         .select()
@@ -197,22 +205,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (orgError) {
         console.error('Organization creation error:', orgError);
+        if (orgError.code === '23505') { // Unique constraint violation
+          throw new Error(`An organization with this name already exists. Please choose a different company name.`);
+        }
         throw new Error(`Failed to create organization: ${orgError.message}`);
       }
 
-      console.log('Organization created:', orgData);
+      if (!orgData) {
+        throw new Error('Organization creation returned no data');
+      }
+
+      console.log('Organization created successfully:', orgData);
 
       // 2. Create user with organization tenant_id
       const redirectUrl = `${window.location.origin}/email-confirmation`;
+      console.log('Creating user with redirect URL:', redirectUrl);
       
       const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: data.email,
+        email: data.email.toLowerCase().trim(),
         password: data.password,
         options: {
           emailRedirectTo: redirectUrl,
           data: {
-            first_name: data.firstName,
-            last_name: data.lastName,
+            first_name: data.firstName.trim(),
+            last_name: data.lastName.trim(),
             tenant_id: orgData.id,
             role: 'owner'
           }
@@ -223,6 +239,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.error('User registration error:', authError);
         
         // Clean up organization if user creation failed
+        console.log('Cleaning up organization due to user creation failure');
         await supabase
           .from('organizations')
           .delete()
@@ -230,42 +247,63 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         // Handle specific error cases
         if (authError.message.includes('User already registered')) {
-          toast.error('An account with this email already exists. Please sign in instead.');
+          throw new Error('An account with this email already exists. Please sign in instead.');
         } else if (authError.message.includes('Password should be at least')) {
-          toast.error('Password must be at least 6 characters long.');
+          throw new Error('Password must be at least 6 characters long.');
+        } else if (authError.message.includes('Invalid email')) {
+          throw new Error('Please enter a valid email address.');
         } else {
-          toast.error(authError.message || 'Registration failed. Please try again.');
+          throw new Error(authError.message || 'Registration failed. Please try again.');
         }
-        throw authError;
       }
 
-      if (authData.user) {
-        console.log('User registration successful:', authData.user.email);
-        
-        // 3. Create organization membership
-        const { error: membershipError } = await supabase
-          .from('organization_members')
-          .insert({
-            user_id: authData.user.id,
-            organization_id: orgData.id,
-            role: 'owner'
-          });
-
-        if (membershipError) {
-          console.error('Membership creation error:', membershipError);
-          // Note: Don't throw here as user is already created
-          console.warn('User created but membership creation failed');
-        }
-
-        // 4. SECURITY: Always sign out after registration to force email confirmation
-        if (authData.session) {
-          await supabase.auth.signOut();
-        }
-        
-        toast.success('Registration successful! Please check your email for verification.');
+      if (!authData.user) {
+        // Clean up organization
+        await supabase
+          .from('organizations')
+          .delete()
+          .eq('id', orgData.id);
+        throw new Error('User registration returned no data');
       }
+
+      console.log('User registration successful:', authData.user.email);
+      
+      // 3. Create organization membership
+      const { error: membershipError } = await supabase
+        .from('organization_members')
+        .insert({
+          user_id: authData.user.id,
+          organization_id: orgData.id,
+          role: 'owner'
+        });
+
+      if (membershipError) {
+        console.error('Membership creation error:', membershipError);
+        // Note: Don't throw here as user is already created
+        console.warn('User created but membership creation failed - this may need manual cleanup');
+      } else {
+        console.log('Organization membership created successfully');
+      }
+
+      // 4. SECURITY: Always sign out after registration to force email confirmation
+      if (authData.session) {
+        console.log('Signing out user to force email confirmation');
+        await supabase.auth.signOut();
+      }
+      
+      console.log('Registration completed successfully');
+      toast.success('Registration successful! Please check your email for verification.');
+      
     } catch (error) {
       console.error('Registration failed:', error);
+      
+      // Show user-friendly error message
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error('Registration failed. Please try again.');
+      }
+      
       throw error;
     } finally {
       setIsLoading(false);
