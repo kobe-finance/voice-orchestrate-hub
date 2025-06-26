@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { useNavigate } from 'react-router-dom';
@@ -25,16 +26,6 @@ interface AuthContextType {
   logout: () => Promise<void>;
   refreshToken: () => Promise<void>;
 }
-
-// Generate slug from company name
-const generateSlug = (name: string): string => {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
-    .replace(/\s+/g, '-') // Replace spaces with hyphens
-    .replace(/-+/g, '-') // Replace multiple hyphens with single
-    .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
-};
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -181,7 +172,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     
     try {
-      // Enhanced input validation with detailed logging
+      // Enhanced input validation
       console.log('✅ Step 1: Validating input data...');
       if (!data.email?.trim()) {
         throw new Error('Email is required');
@@ -205,22 +196,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       console.log('✅ Step 2: Input validation passed');
 
-      // Test database connection
-      console.log('🔍 Step 3: Testing database connection...');
-      const { data: testConnection, error: connectionError } = await supabase
-        .from('organizations')
-        .select('count')
-        .limit(1);
-      
-      if (connectionError) {
-        console.error('❌ Database connection failed:', connectionError);
-        throw new Error(`Database connection failed: ${connectionError.message}`);
-      }
-      console.log('✅ Step 3: Database connection successful');
-
-      // 1. Create the user FIRST to get proper authentication context
+      // Single API call - the database trigger handles everything else automatically
       const redirectUrl = `${window.location.origin}/email-confirmation`;
-      console.log('👤 Step 4: Creating user with redirect URL:', redirectUrl);
+      console.log('👤 Step 3: Creating user account with automatic organization setup...');
       
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: data.email.toLowerCase().trim(),
@@ -230,13 +208,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           data: {
             first_name: data.firstName.trim(),
             last_name: data.lastName.trim(),
+            company_name: data.companyName.trim(), // Database trigger will use this
             role: 'owner'
           }
         }
       });
 
       if (authError) {
-        console.error('❌ User creation failed:', authError);
+        console.error('❌ Registration failed:', authError);
         
         // Handle specific error cases
         if (authError.message.includes('User already registered')) {
@@ -255,81 +234,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error('User registration failed - no user data returned');
       }
 
-      console.log('✅ Step 4: User created successfully:', authData.user.id);
-
-      // 2. Create the organization with the user's session context
-      const orgSlug = generateSlug(data.companyName);
-      console.log('🏢 Step 5: Creating organization with slug:', orgSlug);
+      console.log('✅ Step 3: User and organization created successfully!');
+      console.log('🎉 Registration completed successfully for:', data.email);
       
-      // Wait a moment for the session to be established
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const { data: orgData, error: orgError } = await supabase
-        .from('organizations')
-        .insert({
-          name: data.companyName.trim(),
-          slug: orgSlug
-        })
-        .select()
-        .single();
-
-      if (orgError) {
-        console.error('❌ Organization creation failed:', orgError);
-        if (orgError.code === '23505') { // Unique constraint violation
-          throw new Error(`An organization with this name already exists. Please choose a different company name.`);
-        }
-        throw new Error(`Failed to create organization: ${orgError.message}`);
-      }
-
-      if (!orgData?.id) {
-        console.error('❌ Organization creation returned no data');
-        throw new Error('Organization creation failed - no data returned');
-      }
-
-      console.log('✅ Step 5: Organization created successfully:', orgData.id);
-      
-      // 3. Create organization membership
-      console.log('🤝 Step 6: Creating organization membership...');
-      const { error: membershipError } = await supabase
-        .from('organization_members')
-        .insert({
-          user_id: authData.user.id,
-          organization_id: orgData.id,
-          role: 'owner'
-        });
-
-      if (membershipError) {
-        console.error('❌ Membership creation failed:', membershipError);
-        console.warn('User created but membership creation failed - this may need manual cleanup');
-      } else {
-        console.log('✅ Step 6: Organization membership created successfully');
-      }
-
-      // 4. Update user metadata with organization info
-      console.log('🔄 Step 7: Updating user metadata with organization info...');
-      const { error: updateError } = await supabase.auth.updateUser({
-        data: {
-          tenant_id: orgData.id,
-          first_name: data.firstName.trim(),
-          last_name: data.lastName.trim(),
-          role: 'owner'
-        }
-      });
-
-      if (updateError) {
-        console.warn('⚠️ User metadata update failed:', updateError);
-        // Not critical - continue with registration
-      } else {
-        console.log('✅ Step 7: User metadata updated successfully');
-      }
-
-      // 5. Sign out for email confirmation (security requirement)
+      // Sign out for email confirmation (security requirement)
       if (authData.session) {
-        console.log('🔐 Step 8: Signing out user to force email confirmation');
+        console.log('🔐 Step 4: Signing out user to force email confirmation');
         await supabase.auth.signOut();
       }
       
-      console.log('🎉 Registration completed successfully for:', data.email);
       toast.success('Registration successful! Please check your email for verification.');
       
     } catch (error) {
@@ -351,7 +264,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       throw error;
     } finally {
       setIsLoading(false);
-      console.log('🏁 Registration process completed (success or failure)');
+      console.log('🏁 Registration process completed');
     }
   };
 

@@ -379,6 +379,30 @@ export type Database = {
         }
         Relationships: []
       }
+      registration_logs: {
+        Row: {
+          action: string
+          created_at: string | null
+          details: Json | null
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       tenants: {
         Row: {
           created_at: string
@@ -480,6 +504,10 @@ export type Database = {
           organization_id: string
           role: string
         }[]
+      }
+      test_registration_trigger: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       user_belongs_to_organization: {
         Args: { org_id: string }
