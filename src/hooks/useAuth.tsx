@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { useNavigate } from 'react-router-dom';
@@ -136,6 +135,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log('Login attempt for:', email);
     
     try {
+      // Import security hook
+      const { useAuthSecurity } = await import('./useAuthSecurity');
+      const { isRateLimited, recordAttempt } = useAuthSecurity();
+      
+      // Check rate limiting
+      const rateLimitCheck = isRateLimited('login', email);
+      if (rateLimitCheck.isLimited) {
+        console.error('❌ Login rate limited');
+        throw new Error(rateLimitCheck.message || 'Too many login attempts. Please try again later.');
+      }
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -143,6 +153,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) {
         console.error('Login error:', error);
+        recordAttempt('login', email, false);
         
         // Handle specific error cases
         if (error.message.includes('Invalid login credentials')) {
@@ -157,6 +168,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (data.user && data.session) {
         console.log('Login successful:', data.user.email);
+        recordAttempt('login', email, true); // Clear rate limiting on success
         toast.success('Welcome back! Login successful.');
       }
     } catch (error) {
@@ -172,29 +184,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     
     try {
-      // Enhanced input validation
-      console.log('✅ Step 1: Validating input data...');
-      if (!data.email?.trim()) {
-        throw new Error('Email is required');
+      // Import validation hooks
+      const { useAuthValidation } = await import('./useAuthValidation');
+      const { useAuthSecurity } = await import('./useAuthSecurity');
+      
+      const { validateRegistrationData } = useAuthValidation();
+      const { isRateLimited, recordAttempt } = useAuthSecurity();
+      
+      // Check rate limiting first
+      const rateLimitCheck = isRateLimited('register', data.email);
+      if (rateLimitCheck.isLimited) {
+        console.error('❌ Registration rate limited');
+        throw new Error(rateLimitCheck.message || 'Too many registration attempts. Please try again later.');
       }
-      if (!data.password?.trim()) {
-        throw new Error('Password is required');
+      
+      console.log('✅ Step 1: Rate limit check passed');
+      
+      // Enhanced server-side validation
+      console.log('🔍 Step 2: Validating registration data...');
+      const validation = await validateRegistrationData({
+        email: data.email.toLowerCase().trim(),
+        password: data.password,
+        firstName: data.firstName.trim(),
+        lastName: data.lastName.trim(),
+        companyName: data.companyName.trim()
+      });
+      
+      if (!validation.isValid) {
+        console.error('❌ Validation failed:', validation.error);
+        recordAttempt('register', data.email, false);
+        throw new Error(validation.error);
       }
-      if (!data.firstName?.trim()) {
-        throw new Error('First name is required');
-      }
-      if (!data.lastName?.trim()) {
-        throw new Error('Last name is required');
-      }
-      if (!data.companyName?.trim()) {
-        throw new Error('Company name is required');
-      }
-
-      if (data.password.length < 6) {
-        throw new Error('Password must be at least 6 characters long');
-      }
-
-      console.log('✅ Step 2: Input validation passed');
+      
+      console.log('✅ Step 2: Validation passed');
 
       // Single API call - the database trigger handles everything else automatically
       const redirectUrl = `${window.location.origin}/email-confirmation`;
@@ -208,7 +230,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           data: {
             first_name: data.firstName.trim(),
             last_name: data.lastName.trim(),
-            company_name: data.companyName.trim(), // Database trigger will use this
+            company_name: data.companyName.trim(),
             role: 'owner'
           }
         }
@@ -216,6 +238,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (authError) {
         console.error('❌ Registration failed:', authError);
+        recordAttempt('register', data.email, false);
         
         // Handle specific error cases
         if (authError.message.includes('User already registered')) {
@@ -224,6 +247,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           throw new Error('Password must be at least 6 characters long.');
         } else if (authError.message.includes('Invalid email')) {
           throw new Error('Please enter a valid email address.');
+        } else if (authError.message.includes('Email address is invalid')) {
+          throw new Error('Please enter a valid email address.');
         } else {
           throw new Error(authError.message || 'Registration failed. Please try again.');
         }
@@ -231,11 +256,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (!authData.user?.id) {
         console.error('❌ User creation returned no user data');
+        recordAttempt('register', data.email, false);
         throw new Error('User registration failed - no user data returned');
       }
 
       console.log('✅ Step 3: User and organization created successfully!');
       console.log('🎉 Registration completed successfully for:', data.email);
+      
+      // Record successful attempt
+      recordAttempt('register', data.email, true);
       
       // Sign out for email confirmation (security requirement)
       if (authData.session) {

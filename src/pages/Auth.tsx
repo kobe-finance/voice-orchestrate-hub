@@ -78,9 +78,9 @@ const registerSchema = z.object({
     .email("Please enter a valid email address")
     .refine(isValidEmail, "Please enter a properly formatted email address (e.g., user@domain.com)"),
   password: z.string()
-    .min(6, "Password must be at least 6 characters")
+    .min(8, "Password must be at least 8 characters")
     .max(128, "Password must be less than 128 characters")
-    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, "Password must contain at least one uppercase letter, one lowercase letter, and one number"),
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>])/, "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"),
   confirmPassword: z.string(),
   acceptTerms: z.boolean().refine((val) => val === true, {
     message: "You must accept the terms and conditions",
