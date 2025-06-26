@@ -37,17 +37,25 @@ export const useAuthValidation = () => {
         }
       }
       
-      // Check if email exists in the user list - properly handle the response type
+      // Check if email exists in the user list - use explicit type checking
       if (data?.users && Array.isArray(data.users)) {
-        // Type the user object explicitly to avoid TypeScript inference issues
-        const existingUser = data.users.find((user: any) => {
-          return user && 
-                 typeof user.email === 'string' && 
-                 user.email.toLowerCase() === email.toLowerCase();
-        });
+        // Find user with matching email using explicit type checking
+        let existingUser = null;
+        for (const user of data.users) {
+          if (user && 
+              typeof user === 'object' && 
+              'email' in user && 
+              typeof user.email === 'string' && 
+              user.email.toLowerCase() === email.toLowerCase()) {
+            existingUser = user;
+            break;
+          }
+        }
         
         if (existingUser) {
-          if (existingUser.email_confirmed_at) {
+          // Type assertion after we've confirmed the structure
+          const typedUser = existingUser as { email: string; email_confirmed_at?: string };
+          if (typedUser.email_confirmed_at) {
             return { 
               isValid: false, 
               error: 'An account with this email already exists. Please sign in instead.' 
