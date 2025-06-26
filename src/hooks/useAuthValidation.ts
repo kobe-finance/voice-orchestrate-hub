@@ -37,11 +37,14 @@ export const useAuthValidation = () => {
         }
       }
       
-      // Check if email exists in the user list - add proper type checking
-      if (data && data.users && Array.isArray(data.users)) {
-        const existingUser = data.users.find(user => 
-          user && user.email && user.email.toLowerCase() === email.toLowerCase()
-        );
+      // Check if email exists in the user list - properly handle the response type
+      if (data?.users && Array.isArray(data.users)) {
+        // Type the user object explicitly to avoid TypeScript inference issues
+        const existingUser = data.users.find((user: any) => {
+          return user && 
+                 typeof user.email === 'string' && 
+                 user.email.toLowerCase() === email.toLowerCase();
+        });
         
         if (existingUser) {
           if (existingUser.email_confirmed_at) {
