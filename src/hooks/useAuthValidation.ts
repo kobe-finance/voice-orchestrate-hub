@@ -1,5 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { SupabaseAdminService } from '@/services/supabase-admin.service';
 
 export interface ValidationResult {
   isValid: boolean;
@@ -9,11 +10,32 @@ export interface ValidationResult {
 export const useAuthValidation = () => {
   const validateEmailUniqueness = async (email: string): Promise<ValidationResult> => {
     try {
-      // Check if user already exists in auth.users
-      const { data, error } = await supabase.auth.admin.listUsers();
+      // First try the new type-safe service approach
+      const userInfo = await SupabaseAdminService.getUserByEmail(email);
       
-      if (error) {
-        // Fallback: try to sign in to check if user exists
+      if (userInfo) {
+        if (userInfo.isConfirmed) {
+          return { 
+            isValid: false, 
+            error: 'An account with this email already exists. Please sign in instead.' 
+          };
+        } else {
+          return { 
+            isValid: false, 
+            error: 'An account with this email already exists but is not yet verified. Please check your email for the verification link.' 
+          };
+        }
+      }
+      
+      // If service approach worked and no user found, email is available
+      return { isValid: true };
+      
+    } catch (error) {
+      console.error('Email validation error with service approach:', error);
+      
+      // Fallback to original approach for backward compatibility
+      try {
+        console.log('Falling back to direct sign-in attempt for email validation');
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email,
           password: 'dummy-password-for-check'
@@ -35,47 +57,13 @@ export const useAuthValidation = () => {
             error: 'An account with this email already exists. Please sign in instead.' 
           };
         }
+      } catch (fallbackError) {
+        console.error('Fallback email validation also failed:', fallbackError);
+        return { 
+          isValid: false, 
+          error: 'Unable to validate email. Please try again.' 
+        };
       }
-      
-      // Check if email exists in the user list - use explicit type checking
-      if (data?.users && Array.isArray(data.users)) {
-        // Find user with matching email using explicit type checking
-        let existingUser = null;
-        for (const user of data.users) {
-          if (user && 
-              typeof user === 'object' && 
-              'email' in user && 
-              typeof user.email === 'string' && 
-              user.email.toLowerCase() === email.toLowerCase()) {
-            existingUser = user;
-            break;
-          }
-        }
-        
-        if (existingUser) {
-          // Type assertion after we've confirmed the structure
-          const typedUser = existingUser as { email: string; email_confirmed_at?: string };
-          if (typedUser.email_confirmed_at) {
-            return { 
-              isValid: false, 
-              error: 'An account with this email already exists. Please sign in instead.' 
-            };
-          } else {
-            return { 
-              isValid: false, 
-              error: 'An account with this email already exists but is not yet verified. Please check your email for the verification link.' 
-            };
-          }
-        }
-      }
-      
-      return { isValid: true };
-    } catch (error) {
-      console.error('Email validation error:', error);
-      return { 
-        isValid: false, 
-        error: 'Unable to validate email. Please try again.' 
-      };
     }
   };
 
