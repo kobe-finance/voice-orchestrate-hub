@@ -26,12 +26,14 @@ const EmailConfirmation = () => {
         const token = searchParams.get('token');
         const type = searchParams.get('type');
         const redirect_to = searchParams.get('redirect_to');
+        const email = searchParams.get('email');
 
         setDebugInfo({
           token_hash: token_hash ? token_hash.substring(0, 10) + '...' : null,
           token: token ? token.substring(0, 10) + '...' : null,
           type,
           redirect_to,
+          email,
           full_url: window.location.href
         });
 
@@ -62,10 +64,18 @@ const EmailConfirmation = () => {
             type: type as any
           });
         } else if (token) {
-          // Use token for older format
+          // Use token for older format - requires email
+          if (!email) {
+            console.error('❌ Email parameter required for token verification');
+            setStatus('error');
+            setMessage('Invalid confirmation link. Email parameter is missing.');
+            return;
+          }
+          
           verificationResult = await supabase.auth.verifyOtp({
             token,
-            type: type as any
+            type: type as any,
+            email
           });
         }
 
