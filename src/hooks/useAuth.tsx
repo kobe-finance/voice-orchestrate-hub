@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { useNavigate } from 'react-router-dom';
@@ -218,11 +219,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       console.log('✅ Step 3: Database connection successful');
 
-      // 1. Create the organization
+      // 1. Create the organization with explicit anonymous context
       const orgSlug = generateSlug(data.companyName);
       console.log('🏢 Step 4: Creating organization with slug:', orgSlug);
       
-      const { data: orgData, error: orgError } = await supabase
+      // CRITICAL FIX: Ensure we're making an anonymous request by temporarily clearing session
+      const currentSession = await supabase.auth.getSession();
+      console.log('Current session state before org creation:', currentSession.data.session ? 'has session' : 'no session');
+      
+      // Create a fresh anonymous client instance for this operation
+      const { createClient } = await import('@supabase/supabase-js');
+      const anonClient = createClient(
+        "https://cdhihqaylfgoztunvkab.supabase.co",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkaGlocWF5bGZnb3p0dW52a2FiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAyNDYwNDMsImV4cCI6MjA2NTgyMjA0M30.DddaHYS36l6jc17-_l_JoLKJ9BoCuzVZDGgv9pb20Us"
+      );
+      
+      const { data: orgData, error: orgError } = await anonClient
         .from('organizations')
         .insert({
           name: data.companyName.trim(),
@@ -269,7 +281,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         // Clean up organization if user creation failed
         console.log('🧹 Cleaning up organization due to user creation failure');
-        await supabase
+        await anonClient
           .from('organizations')
           .delete()
           .eq('id', orgData.id);
@@ -289,7 +301,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!authData.user?.id) {
         console.error('❌ User creation returned no user data');
         // Clean up organization
-        await supabase
+        await anonClient
           .from('organizations')
           .delete()
           .eq('id', orgData.id);
@@ -298,9 +310,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       console.log('✅ Step 5: User created successfully:', authData.user.id);
       
-      // 3. Create organization membership
+      // 3. Create organization membership using anonymous client
       console.log('🤝 Step 6: Creating organization membership...');
-      const { error: membershipError } = await supabase
+      const { error: membershipError } = await anonClient
         .from('organization_members')
         .insert({
           user_id: authData.user.id,
