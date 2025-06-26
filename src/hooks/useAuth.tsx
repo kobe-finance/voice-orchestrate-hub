@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { useNavigate } from 'react-router-dom';
@@ -219,22 +218,53 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       console.log('✅ Step 3: Database connection successful');
 
-      // 1. Create the organization with explicit anonymous context
+      // 1. Create the user FIRST to get proper authentication context
+      const redirectUrl = `${window.location.origin}/email-confirmation`;
+      console.log('👤 Step 4: Creating user with redirect URL:', redirectUrl);
+      
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: data.email.toLowerCase().trim(),
+        password: data.password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            first_name: data.firstName.trim(),
+            last_name: data.lastName.trim(),
+            role: 'owner'
+          }
+        }
+      });
+
+      if (authError) {
+        console.error('❌ User creation failed:', authError);
+        
+        // Handle specific error cases
+        if (authError.message.includes('User already registered')) {
+          throw new Error('An account with this email already exists. Please sign in instead.');
+        } else if (authError.message.includes('Password should be at least')) {
+          throw new Error('Password must be at least 6 characters long.');
+        } else if (authError.message.includes('Invalid email')) {
+          throw new Error('Please enter a valid email address.');
+        } else {
+          throw new Error(authError.message || 'Registration failed. Please try again.');
+        }
+      }
+
+      if (!authData.user?.id) {
+        console.error('❌ User creation returned no user data');
+        throw new Error('User registration failed - no user data returned');
+      }
+
+      console.log('✅ Step 4: User created successfully:', authData.user.id);
+
+      // 2. Create the organization with the user's session context
       const orgSlug = generateSlug(data.companyName);
-      console.log('🏢 Step 4: Creating organization with slug:', orgSlug);
+      console.log('🏢 Step 5: Creating organization with slug:', orgSlug);
       
-      // CRITICAL FIX: Ensure we're making an anonymous request by temporarily clearing session
-      const currentSession = await supabase.auth.getSession();
-      console.log('Current session state before org creation:', currentSession.data.session ? 'has session' : 'no session');
+      // Wait a moment for the session to be established
+      await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Create a fresh anonymous client instance for this operation
-      const { createClient } = await import('@supabase/supabase-js');
-      const anonClient = createClient(
-        "https://cdhihqaylfgoztunvkab.supabase.co",
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkaGlocWF5bGZnb3p0dW52a2FiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAyNDYwNDMsImV4cCI6MjA2NTgyMjA0M30.DddaHYS36l6jc17-_l_JoLKJ9BoCuzVZDGgv9pb20Us"
-      );
-      
-      const { data: orgData, error: orgError } = await anonClient
+      const { data: orgData, error: orgError } = await supabase
         .from('organizations')
         .insert({
           name: data.companyName.trim(),
@@ -256,63 +286,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error('Organization creation failed - no data returned');
       }
 
-      console.log('✅ Step 4: Organization created successfully:', orgData.id);
-
-      // 2. Create user with organization tenant_id
-      const redirectUrl = `${window.location.origin}/email-confirmation`;
-      console.log('👤 Step 5: Creating user with redirect URL:', redirectUrl);
+      console.log('✅ Step 5: Organization created successfully:', orgData.id);
       
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: data.email.toLowerCase().trim(),
-        password: data.password,
-        options: {
-          emailRedirectTo: redirectUrl,
-          data: {
-            first_name: data.firstName.trim(),
-            last_name: data.lastName.trim(),
-            tenant_id: orgData.id,
-            role: 'owner'
-          }
-        }
-      });
-
-      if (authError) {
-        console.error('❌ User creation failed:', authError);
-        
-        // Clean up organization if user creation failed
-        console.log('🧹 Cleaning up organization due to user creation failure');
-        await anonClient
-          .from('organizations')
-          .delete()
-          .eq('id', orgData.id);
-        
-        // Handle specific error cases
-        if (authError.message.includes('User already registered')) {
-          throw new Error('An account with this email already exists. Please sign in instead.');
-        } else if (authError.message.includes('Password should be at least')) {
-          throw new Error('Password must be at least 6 characters long.');
-        } else if (authError.message.includes('Invalid email')) {
-          throw new Error('Please enter a valid email address.');
-        } else {
-          throw new Error(authError.message || 'Registration failed. Please try again.');
-        }
-      }
-
-      if (!authData.user?.id) {
-        console.error('❌ User creation returned no user data');
-        // Clean up organization
-        await anonClient
-          .from('organizations')
-          .delete()
-          .eq('id', orgData.id);
-        throw new Error('User registration failed - no user data returned');
-      }
-
-      console.log('✅ Step 5: User created successfully:', authData.user.id);
-      
-      // 3. Create organization membership using anonymous client
+      // 3. Create organization membership
       console.log('🤝 Step 6: Creating organization membership...');
-      const { error: membershipError } = await anonClient
+      const { error: membershipError } = await supabase
         .from('organization_members')
         .insert({
           user_id: authData.user.id,
@@ -327,9 +305,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.log('✅ Step 6: Organization membership created successfully');
       }
 
-      // 4. Sign out for email confirmation (security requirement)
+      // 4. Update user metadata with organization info
+      console.log('🔄 Step 7: Updating user metadata with organization info...');
+      const { error: updateError } = await supabase.auth.updateUser({
+        data: {
+          tenant_id: orgData.id,
+          first_name: data.firstName.trim(),
+          last_name: data.lastName.trim(),
+          role: 'owner'
+        }
+      });
+
+      if (updateError) {
+        console.warn('⚠️ User metadata update failed:', updateError);
+        // Not critical - continue with registration
+      } else {
+        console.log('✅ Step 7: User metadata updated successfully');
+      }
+
+      // 5. Sign out for email confirmation (security requirement)
       if (authData.session) {
-        console.log('🔐 Step 7: Signing out user to force email confirmation');
+        console.log('🔐 Step 8: Signing out user to force email confirmation');
         await supabase.auth.signOut();
       }
       
