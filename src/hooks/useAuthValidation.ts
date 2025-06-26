@@ -37,20 +37,24 @@ export const useAuthValidation = () => {
         }
       }
       
-      // Check if email exists in the user list
-      const existingUser = data?.users?.find(user => user.email?.toLowerCase() === email.toLowerCase());
-      
-      if (existingUser) {
-        if (existingUser.email_confirmed_at) {
-          return { 
-            isValid: false, 
-            error: 'An account with this email already exists. Please sign in instead.' 
-          };
-        } else {
-          return { 
-            isValid: false, 
-            error: 'An account with this email already exists but is not yet verified. Please check your email for the verification link.' 
-          };
+      // Check if email exists in the user list - add proper type checking
+      if (data && data.users && Array.isArray(data.users)) {
+        const existingUser = data.users.find(user => 
+          user && user.email && user.email.toLowerCase() === email.toLowerCase()
+        );
+        
+        if (existingUser) {
+          if (existingUser.email_confirmed_at) {
+            return { 
+              isValid: false, 
+              error: 'An account with this email already exists. Please sign in instead.' 
+            };
+          } else {
+            return { 
+              isValid: false, 
+              error: 'An account with this email already exists but is not yet verified. Please check your email for the verification link.' 
+            };
+          }
         }
       }
       
