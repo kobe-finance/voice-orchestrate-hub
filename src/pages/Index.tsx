@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { VoiceModal } from "@/components/voice/VoiceModal";
@@ -71,7 +70,9 @@ const Index = () => {
               className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 text-lg"
               onClick={() => window.location.href = '/auth'}
             >
-              <>Start Building <ArrowRight className="ml-2 h-5 w-5" /></>
+              <span className="inline-flex items-center">
+                Start Building <ArrowRight className="ml-2 h-5 w-5" />
+              </span>
             </Button>
             <Button 
               variant="outline" 
@@ -79,10 +80,10 @@ const Index = () => {
               onClick={() => setIsVoiceModalOpen(true)}
               className="px-8 py-3 text-lg"
             >
-              <>
+              <span className="inline-flex items-center">
                 <Mic className="mr-2 h-5 w-5" />
                 Try Demo
-              </>
+              </span>
             </Button>
           </div>
         </motion.div>
@@ -161,7 +162,9 @@ const Index = () => {
             className="bg-accent-orange hover:bg-accent-orange/90 text-white px-8 py-3 text-lg"
             onClick={() => window.location.href = '/auth'}
           >
-            <>Get Started Free <ArrowRight className="ml-2 h-5 w-5" /></>
+            <span className="inline-flex items-center">
+              Get Started Free <ArrowRight className="ml-2 h-5 w-5" />
+            </span>
           </Button>
         </motion.div>
       </main>
