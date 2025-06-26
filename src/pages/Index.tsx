@@ -68,11 +68,9 @@ const Index = () => {
             <Button 
               size="lg" 
               className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 text-lg"
-              asChild
+              onClick={() => window.location.href = '/auth'}
             >
-              <a href="/auth">
-                Start Building <ArrowRight className="ml-2 h-5 w-5" />
-              </a>
+              Start Building <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
             <Button 
               variant="outline" 
@@ -158,11 +156,9 @@ const Index = () => {
           <Button 
             size="lg" 
             className="bg-accent-orange hover:bg-accent-orange/90 text-white px-8 py-3 text-lg"
-            asChild
+            onClick={() => window.location.href = '/auth'}
           >
-            <a href="/auth">
-              Get Started Free <ArrowRight className="ml-2 h-5 w-5" />
-            </a>
+            Get Started Free <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
         </motion.div>
       </main>
