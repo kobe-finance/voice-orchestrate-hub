@@ -13,48 +13,98 @@ const EmailConfirmation = () => {
   const [searchParams] = useSearchParams();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('');
+  const [debugInfo, setDebugInfo] = useState<any>(null);
 
   useEffect(() => {
     const handleEmailConfirmation = async () => {
       try {
-        // Get the token from URL parameters
+        console.log('🔍 Email confirmation started');
+        console.log('📋 URL params:', Object.fromEntries(searchParams.entries()));
+
+        // Get all possible token parameters
         const token_hash = searchParams.get('token_hash');
+        const token = searchParams.get('token');
         const type = searchParams.get('type');
+        const redirect_to = searchParams.get('redirect_to');
 
-        if (!token_hash || type !== 'email') {
-          setStatus('error');
-          setMessage('Invalid confirmation link. Please try again or request a new confirmation email.');
-          return;
-        }
-
-        // Verify the email confirmation token
-        const { data, error } = await supabase.auth.verifyOtp({
-          token_hash,
-          type: 'email'
+        setDebugInfo({
+          token_hash: token_hash ? token_hash.substring(0, 10) + '...' : null,
+          token: token ? token.substring(0, 10) + '...' : null,
+          type,
+          redirect_to,
+          full_url: window.location.href
         });
 
-        if (error) {
-          console.error('Email confirmation error:', error);
+        // Check if we have required parameters
+        if (!token_hash && !token) {
+          console.error('❌ No token found in URL');
           setStatus('error');
-          setMessage('Email confirmation failed. The link may have expired or already been used.');
+          setMessage('No confirmation token found in the URL. Please check the link in your email.');
           return;
         }
 
-        if (data.user) {
-          // SECURITY: Sign out the user immediately after confirmation
-          // This forces them to log in explicitly with their password
+        if (!type) {
+          console.error('❌ No type parameter found');
+          setStatus('error');
+          setMessage('Invalid confirmation link format. Please use the exact link from your email.');
+          return;
+        }
+
+        console.log('✅ Token validation passed, attempting verification...');
+
+        // Try to verify the token
+        let verificationResult;
+
+        if (token_hash) {
+          // Use token_hash for newer format
+          verificationResult = await supabase.auth.verifyOtp({
+            token_hash,
+            type: type as any
+          });
+        } else if (token) {
+          // Use token for older format
+          verificationResult = await supabase.auth.verifyOtp({
+            token,
+            type: type as any
+          });
+        }
+
+        console.log('📧 Verification result:', verificationResult);
+
+        if (verificationResult?.error) {
+          console.error('❌ Email confirmation error:', verificationResult.error);
+          
+          // Handle specific error cases
+          if (verificationResult.error.message.includes('expired')) {
+            setStatus('error');
+            setMessage('The confirmation link has expired. Please request a new one.');
+          } else if (verificationResult.error.message.includes('invalid') || verificationResult.error.message.includes('not found')) {
+            setStatus('error');
+            setMessage('Invalid confirmation link. The link may have already been used or is malformed.');
+          } else {
+            setStatus('error');
+            setMessage(`Email confirmation failed: ${verificationResult.error.message}`);
+          }
+          return;
+        }
+
+        if (verificationResult?.data?.user) {
+          console.log('✅ Email confirmation successful for user:', verificationResult.data.user.email);
+          
+          // Sign out the user immediately for security (force password login)
           await supabase.auth.signOut();
           
           setStatus('success');
           setMessage('Your email has been successfully confirmed! You can now sign in to your account.');
         } else {
+          console.error('❌ No user data returned from verification');
           setStatus('error');
-          setMessage('Email confirmation failed. Please try again.');
+          setMessage('Email confirmation failed. Please try again or contact support.');
         }
       } catch (error) {
-        console.error('Email confirmation error:', error);
+        console.error('💥 Email confirmation error:', error);
         setStatus('error');
-        setMessage('An unexpected error occurred. Please try again.');
+        setMessage('An unexpected error occurred during email confirmation. Please try again.');
       }
     };
 
@@ -70,13 +120,48 @@ const EmailConfirmation = () => {
     });
   };
 
-  const handleRequestNewLink = () => {
-    navigate('/auth', { 
-      state: { 
-        tab: 'register',
-        message: 'Please register again or contact support if you continue to have issues.'
-      } 
-    });
+  const handleRequestNewLink = async () => {
+    // Try to extract email from the redirect URL or ask user to register again
+    const email = searchParams.get('email');
+    
+    if (email) {
+      try {
+        console.log('🔄 Requesting new confirmation for:', email);
+        
+        // Resend confirmation email
+        const { error } = await supabase.auth.resend({
+          type: 'signup',
+          email: email
+        });
+
+        if (error) {
+          console.error('❌ Resend failed:', error);
+          navigate('/auth', { 
+            state: { 
+              tab: 'register',
+              message: 'Failed to resend confirmation. Please register again or contact support.'
+            } 
+          });
+        } else {
+          setMessage('New confirmation email sent! Please check your inbox.');
+        }
+      } catch (error) {
+        console.error('💥 Resend error:', error);
+        navigate('/auth', { 
+          state: { 
+            tab: 'register',
+            message: 'Please register again or contact support if you continue to have issues.'
+          } 
+        });
+      }
+    } else {
+      navigate('/auth', { 
+        state: { 
+          tab: 'register',
+          message: 'Please register again to receive a new confirmation email.'
+        } 
+      });
+    }
   };
 
   return (
@@ -85,7 +170,7 @@ const EmailConfirmation = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="w-full max-w-md"
+        className="w-full max-w-md space-y-6"
       >
         <Card className="shadow-xl border-0">
           <CardHeader className="text-center space-y-2">
@@ -137,7 +222,7 @@ const EmailConfirmation = () => {
                   onClick={handleGoToLogin}
                   className="w-full"
                 >
-                  Sign In to Your Account
+                  Continue to Sign In
                 </Button>
               )}
               
@@ -165,6 +250,16 @@ const EmailConfirmation = () => {
                 </div>
               )}
             </div>
+
+            {/* Debug information for development */}
+            {debugInfo && process.env.NODE_ENV === 'development' && (
+              <details className="mt-4">
+                <summary className="text-xs text-muted-foreground cursor-pointer">Debug Info</summary>
+                <pre className="text-xs text-muted-foreground mt-2 p-2 bg-gray-100 rounded overflow-auto">
+                  {JSON.stringify(debugInfo, null, 2)}
+                </pre>
+              </details>
+            )}
 
             <div className="pt-4 border-t">
               <p className="text-xs text-muted-foreground text-center">

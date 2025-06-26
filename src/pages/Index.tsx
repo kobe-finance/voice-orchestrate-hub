@@ -1,358 +1,176 @@
-import React, { useState, useCallback } from "react";
-import { Link } from "react-router-dom";
-import { Mic, ArrowRight, CheckCircle, Sparkles, Zap, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { VoiceModal } from "@/components/voice/VoiceModal";
-import { UserMenu } from "@/components/auth/UserMenu";
 import { ModeToggle } from "@/components/theme/ModeToggle";
-import { useAuth } from "@/hooks/useAuth";
-import { cn } from "@/lib/utils";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
+import { DatabaseDebug } from "@/components/ui/database-debug";
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Mic, Users, BarChart3, Zap, ArrowRight, CheckCircle } from "lucide-react";
 
-// Navigation Menu Styles
-const ListItem = React.forwardRef<
-  React.ElementRef<"a">,
-  React.ComponentPropsWithoutRef<"a"> & { 
-    title: string
-    icon?: React.ReactNode
-  }
->(({ className, title, children, icon, ...props }, ref) => {
-  return (
-    <li>
-      <Link
-        to={props.href || "#"}
-        className={cn(
-          "block select-none space-y-1 rounded-lg p-4 leading-none no-underline outline-none transition-all hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground group",
-          className
-        )}
-        {...props}
-      >
-        <div className="flex items-center gap-2 text-sm font-medium leading-none mb-1">
-          {icon && <span className="text-primary">{icon}</span>}
-          {title}
-        </div>
-        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground group-hover:text-accent-foreground/80">
-          {children}
-        </p>
-      </Link>
-    </li>
-  );
-});
-ListItem.displayName = "ListItem";
+const Index = () => {
+  const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
+  const [showDebug, setShowDebug] = useState(false);
 
-const Index: React.FC = () => {
   console.log('Index component rendering');
-  
-  const { user } = useAuth();
-  const [isVoiceModalOpen, setIsVoiceModalOpen] = useState<boolean>(false);
-
-  const handleOpenVoiceModal = useCallback(() => {
-    console.log('Opening voice modal');
-    setIsVoiceModalOpen(true);
-  }, []);
-
-  const handleCloseVoiceModal = useCallback(() => {
-    console.log('Closing voice modal');
-    setIsVoiceModalOpen(false);
-  }, []);
-
-  console.log('Index component state:', { isVoiceModalOpen });
+  console.log('Index component state:', {
+    isVoiceModalOpen
+  });
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
-      {/* Header Navigation */}
-      <header className="w-full border-b border-gray-200/50 dark:border-gray-800/50 sticky top-0 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md z-50">
-        <div className="container mx-auto px-4 flex h-16 items-center justify-between">
-          <div className="flex items-center gap-8">
-            <Link to="/" className="font-bold text-xl tracking-tight">
-              VoiceOrchestrate<span className="text-gradient-accent">™</span>
-            </Link>
-            
-            {/* Simplified Navigation */}
-            <nav className="hidden md:flex items-center gap-6">
-              <Link to="/features" className="text-sm font-medium hover:text-primary transition-colors">
-                Features
-              </Link>
-              <Link to="/solutions" className="text-sm font-medium hover:text-primary transition-colors">
-                Solutions
-              </Link>
-              <Link to="/pricing" className="text-sm font-medium hover:text-primary transition-colors">
-                Pricing
-              </Link>
-            </nav>
+    <div className="min-h-screen bg-background text-foreground">
+      <header className="border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
+        <div className="container flex h-14 items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <h1 className="text-lg font-semibold">
+              VoiceOrchestrate<span className="text-accent-orange">™</span>
+            </h1>
           </div>
-
-          <div className="flex items-center gap-3">
+          <div className="flex items-center space-x-4">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowDebug(!showDebug)}
+              size="sm"
+            >
+              {showDebug ? 'Hide' : 'Show'} Debug
+            </Button>
+            <Button asChild>
+              <a href="/auth">Get Started</a>
+            </Button>
             <ModeToggle />
-            {user ? (
-              <UserMenu />
-            ) : (
-              <Link to="/auth">
-                <Button variant="ghost" size="sm">Sign In</Button>
-              </Link>
-            )}
           </div>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="flex-1 flex flex-col items-center justify-center py-24 px-4 text-center relative overflow-hidden">
-        {/* Background Elements */}
-        <div className="absolute inset-0 bg-grid-pattern opacity-5" />
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-pulse-soft" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent-orange/5 rounded-full blur-3xl animate-pulse-soft" style={{ animationDelay: '1s' }} />
-        
-        <div className="max-w-4xl mx-auto relative z-10 space-y-6">
-          <div className="mb-6 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">
-            <Sparkles className="h-4 w-4" />
-            <span>Now with advanced voice AI</span>
+      {showDebug && (
+        <div className="container py-8">
+          <DatabaseDebug />
+        </div>
+      )}
+
+      <main className="container mx-auto px-4 py-16">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center space-y-8 max-w-4xl mx-auto"
+        >
+          <div className="space-y-4">
+            <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
+              Build Intelligent 
+              <span className="text-accent-orange"> Voice Agents</span>
+            </h1>
+            <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto">
+              Create conversational AI that understands context, responds naturally, and delivers exceptional user experiences.
+            </p>
           </div>
-          
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6 leading-[1.1] bg-gradient-to-r from-primary via-primary-600 to-accent-orange bg-clip-text text-transparent">
-            Talk to Your AI Assistant{" "}
-            <span className="text-gradient bg-gradient-to-r from-primary via-primary-600 to-accent-orange bg-clip-text text-transparent">
-              Naturally
-            </span>
-          </h1>
-          
-          <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed">
-            Experience the future of voice AI with natural, fluid conversations that understand context and deliver results instantly.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Button 
-              variant="gradient"
               size="lg" 
-              onClick={handleOpenVoiceModal}
-              disabled={isVoiceModalOpen}
-              leftIcon={<Mic className="h-5 w-5" />}
-              className="min-w-[200px]"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 text-lg"
+              asChild
             >
-              {isVoiceModalOpen ? "Listening..." : "Try Voice AI"}
+              <a href="/auth">
+                Start Building <ArrowRight className="ml-2 h-5 w-5" />
+              </a>
             </Button>
-            
-            <Link to="/auth">
-              <Button 
-                variant="outline" 
-                size="lg"
-                rightIcon={<ArrowRight className="h-4 w-4" />}
-                className="min-w-[200px]"
-              >
-                Sign In
-              </Button>
-            </Link>
-          </div>
-          
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            No credit card required • Start talking in seconds
-          </p>
-        </div>
-      </section>
-
-      {/* How It Works Section */}
-      <section className="py-24 px-4 bg-gradient-to-b from-white to-gray-50 dark:from-gray-950 dark:to-gray-900">
-        <div className="container mx-auto max-w-6xl space-y-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-primary via-primary-600 to-accent-orange bg-clip-text text-transparent">How It Works</h2>
-            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              Get started with AI conversations in three simple steps
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: <Mic className="h-8 w-8" />,
-                title: "Click & Speak",
-                description: "Simply click the \"Try Voice AI\" button and start speaking naturally to our intelligent assistant."
-              },
-              {
-                icon: <Sparkles className="h-8 w-8" />,
-                title: "AI Responds",
-                description: "Our advanced AI understands context and responds intelligently to your queries in real-time."
-              },
-              {
-                icon: <CheckCircle className="h-8 w-8" />,
-                title: "Get Results",
-                description: "Receive instant answers, accomplish tasks, or have natural conversations without typing a word."
-              }
-            ].map((step, index) => (
-              <Card key={index} variant="interactive" className="text-center group">
-                <div className="p-8">
-                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6 mx-auto text-primary group-hover:bg-primary/20 transition-colors">
-                    {step.icon}
-                  </div>
-                  <h3 className="text-xl font-semibold mb-3">{step.title}</h3>
-                  <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                    {step.description}
-                  </p>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Benefits Section */}
-      <section className="py-24 px-4">
-        <div className="container mx-auto max-w-6xl space-y-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-primary via-primary-600 to-accent-orange bg-clip-text text-transparent">Why Choose VoiceOrchestrate</h2>
-            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              Built for the future of human-AI interaction
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-6">
-            {[
-              {
-                title: "Natural Conversations",
-                description: "Our voice AI understands context, remembers previous interactions, and responds in a human-like manner.",
-                icon: <Sparkles className="h-6 w-6" />
-              },
-              {
-                title: "No App Required",
-                description: "Works directly in your browser - no downloads, installations, or account creation required to start talking.",
-                icon: <Zap className="h-6 w-6" />
-              },
-              {
-                title: "Enterprise Security",
-                description: "Bank-level encryption and privacy controls ensure your conversations remain secure and confidential.",
-                icon: <Shield className="h-6 w-6" />
-              },
-              {
-                title: "Customizable",
-                description: "Create custom voice agents tailored to your specific business needs and use cases.",
-                icon: <CheckCircle className="h-6 w-6" />
-              }
-            ].map((benefit, index) => (
-              <Card key={index} variant="elevated" className="group hover:border-primary/30">
-                <div className="p-8">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary/20 transition-colors flex-shrink-0">
-                      {benefit.icon}
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-semibold mb-3">{benefit.title}</h3>
-                      <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                        {benefit.description}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-24 px-4 bg-gradient-to-br from-primary/5 via-primary/10 to-accent-orange/5">
-        <div className="container mx-auto max-w-3xl text-center space-y-6">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-primary via-primary-600 to-accent-orange bg-clip-text text-transparent">Ready to Experience the Future?</h2>
-          <p className="text-lg text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
-            Start talking with our AI assistant today or sign up for a full-featured account.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
-              variant="gradient"
-              size="xl" 
-              onClick={handleOpenVoiceModal}
-              disabled={isVoiceModalOpen}
-              leftIcon={<Mic className="h-5 w-5" />}
+              variant="outline" 
+              size="lg" 
+              onClick={() => setIsVoiceModalOpen(true)}
+              className="px-8 py-3 text-lg"
             >
-              {isVoiceModalOpen ? "Listening..." : "Try Voice AI"}
+              <Mic className="mr-2 h-5 w-5" />
+              Try Demo
             </Button>
-            <Link to="/auth">
-              <Button 
-                variant="outline" 
-                size="xl"
-                rightIcon={<ArrowRight className="h-5 w-5" />}
-              >
-                Sign In
-              </Button>
-            </Link>
           </div>
-        </div>
-      </section>
+        </motion.div>
 
-      {/* Footer */}
-      <footer className="border-t border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-gray-950/50 backdrop-blur-sm">
-        <div className="container mx-auto py-12 px-4 space-y-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="mt-24 grid grid-cols-1 md:grid-cols-3 gap-8"
+        >
+          <Card className="border-border/50 bg-card/50 hover:bg-card/80 transition-colors">
+            <CardHeader>
+              <Users className="h-12 w-12 text-primary mb-4" />
+              <CardTitle>Natural Conversations</CardTitle>
+              <CardDescription>
+                Build voice agents that understand context and respond like humans
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card className="border-border/50 bg-card/50 hover:bg-card/80 transition-colors">
+            <CardHeader>
+              <BarChart3 className="h-12 w-12 text-primary mb-4" />
+              <CardTitle>Advanced Analytics</CardTitle>
+              <CardDescription>
+                Get deep insights into conversation patterns and user behavior
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card className="border-border/50 bg-card/50 hover:bg-card/80 transition-colors">
+            <CardHeader>
+              <Zap className="h-12 w-12 text-primary mb-4" />
+              <CardTitle>Seamless Integration</CardTitle>
+              <CardDescription>
+                Connect with your existing tools and workflows effortlessly
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="mt-24 max-w-2xl mx-auto text-center"
+        >
+          <h2 className="text-3xl font-bold mb-8">Why Choose VoiceOrchestrate?</h2>
+          <div className="space-y-4 text-left">
             {[
-              {
-                title: "Product",
-                links: [
-                  { name: "Features", href: "/features" },
-                  { name: "Pricing", href: "/pricing" },
-                  { name: "Integrations", href: "/integrations" },
-                  { name: "Case Studies", href: "/customers" }
-                ]
-              },
-              {
-                title: "Resources",
-                links: [
-                  { name: "Documentation", href: "/docs" },
-                  { name: "Guides", href: "/guides" },
-                  { name: "API Reference", href: "/api" },
-                  { name: "Blog", href: "/blog" }
-                ]
-              },
-              {
-                title: "Company",
-                links: [
-                  { name: "About Us", href: "/about" },
-                  { name: "Careers", href: "/careers" },
-                  { name: "Contact", href: "/contact" },
-                  { name: "Partners", href: "/partners" }
-                ]
-              },
-              {
-                title: "Legal",
-                links: [
-                  { name: "Privacy Policy", href: "/privacy" },
-                  { name: "Terms of Service", href: "/terms" },
-                  { name: "Security", href: "/security" },
-                  { name: "Compliance", href: "/compliance" }
-                ]
-              }
-            ].map((section, index) => (
-              <div key={index}>
-                <h3 className="font-semibold mb-4 text-foreground">{section.title}</h3>
-                <ul className="space-y-3">
-                  {section.links.map((link, linkIndex) => (
-                    <li key={linkIndex}>
-                      <Link 
-                        to={link.href} 
-                        className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary transition-colors"
-                      >
-                        {link.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+              "Deploy voice agents in minutes, not months",
+              "Scale from prototype to production seamlessly",
+              "Enterprise-grade security and compliance",
+              "24/7 monitoring and support"
+            ].map((benefit, index) => (
+              <div key={index} className="flex items-center space-x-3">
+                <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                <span className="text-muted-foreground">{benefit}</span>
               </div>
             ))}
           </div>
-          <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-800 text-center">
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              © {new Date().getFullYear()} VoiceOrchestrate™. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </footer>
+        </motion.div>
 
-      {/* Voice Modal */}
-      <VoiceModal isOpen={isVoiceModalOpen} onClose={handleCloseVoiceModal} />
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.6 }}
+          className="mt-24 text-center bg-card/30 rounded-lg p-12 border border-border/50"
+        >
+          <h2 className="text-3xl font-bold mb-4">Ready to Transform Your Customer Experience?</h2>
+          <p className="text-xl text-muted-foreground mb-8">
+            Join thousands of companies building the future of voice AI
+          </p>
+          <Button 
+            size="lg" 
+            className="bg-accent-orange hover:bg-accent-orange/90 text-white px-8 py-3 text-lg"
+            asChild
+          >
+            <a href="/auth">
+              Get Started Free <ArrowRight className="ml-2 h-5 w-5" />
+            </a>
+          </Button>
+        </motion.div>
+      </main>
+
+      <VoiceModal 
+        isOpen={isVoiceModalOpen} 
+        onClose={() => setIsVoiceModalOpen(false)} 
+      />
     </div>
   );
 };
