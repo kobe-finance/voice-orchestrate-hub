@@ -215,7 +215,7 @@ const Auth = () => {
 
       console.log('🚀 Starting registration process...');
       
-      await register({
+      const result = await register({
         firstName: values.firstName.trim(),
         lastName: values.lastName.trim(),
         companyName: values.companyName.trim(),
@@ -223,17 +223,47 @@ const Auth = () => {
         password: values.password,
       });
       
-      console.log('✅ Registration completed successfully');
+      console.log('✅ Registration result:', result);
       
-      // Show success state
-      setRegisteredEmail(values.email);
-      setRegistrationSuccess(true);
-      registerForm.reset();
-      
-      // Switch to login tab after a moment
-      setTimeout(() => {
-        setActiveTab("login");
-      }, 3000);
+      // Handle different registration outcomes
+      if (result.requiresEmailConfirmation) {
+        console.log('📧 Email confirmation required');
+        setRegisteredEmail(values.email);
+        setRegistrationSuccess(true);
+        registerForm.reset();
+        
+        toast.success('Registration successful! Please check your email for a confirmation link.', {
+          duration: 6000
+        });
+      } else if (result.requiresOrgSetup) {
+        console.log('⚠️ Registration succeeded but organization setup needs attention');
+        setRegisteredEmail(values.email);
+        setRegistrationSuccess(true);
+        registerForm.reset();
+        
+        toast.warning(result.error || 'Account created but organization setup needs attention. You can continue using the app.', {
+          duration: 8000
+        });
+        
+        // Switch to login tab after a moment
+        setTimeout(() => {
+          setActiveTab("login");
+        }, 3000);
+      } else if (result.organization) {
+        console.log('🎉 Full registration completed successfully');
+        setRegisteredEmail(values.email);
+        setRegistrationSuccess(true);
+        registerForm.reset();
+        
+        toast.success('Registration completed successfully! Welcome to VoiceOrchestrate!', {
+          duration: 4000
+        });
+        
+        // Switch to login tab after a moment
+        setTimeout(() => {
+          setActiveTab("login");
+        }, 3000);
+      }
       
     } catch (error) {
       console.error('💥 Registration form error:', error);
@@ -248,10 +278,8 @@ const Auth = () => {
           toast.error('An account with this email already exists. Please sign in instead.');
           setActiveTab("login");
           loginForm.setValue("email", values.email);
-        } else if (error.message.includes('organization') && error.message.includes('exists')) {
-          toast.error('An organization with this name already exists. Please choose a different company name.');
-        } else if (error.message.includes('Database connection failed')) {
-          toast.error('Unable to connect to the database. Please try again in a moment.');
+        } else if (error.message.includes('Password')) {
+          toast.error('Password does not meet requirements. Please ensure it contains uppercase, lowercase, number, and special character.');
         } else {
           toast.error(error.message || 'Registration failed. Please try again.');
         }

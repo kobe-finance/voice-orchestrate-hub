@@ -498,6 +498,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_organization_for_user: {
+        Args: { p_user_id: string; p_email: string; p_company_name: string }
+        Returns: string
+      }
+      ensure_user_has_organization: {
+        Args: { p_user_id: string }
+        Returns: string
+      }
       get_user_organizations: {
         Args: Record<PropertyKey, never>
         Returns: {

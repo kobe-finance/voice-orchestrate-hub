@@ -1,178 +1,87 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/components/ui/sonner';
-import { useAuthValidation } from './useAuthValidation';
-import { useAuthSecurity } from './useAuthSecurity';
-import { useAppStore } from '@/stores/useAppStore';
+import { Session, User } from '@supabase/supabase-js';
+import { useNavigate } from 'react-router-dom';
+import { generateSlug } from '@/utils/organization';
 
-interface RegisterData {
-  firstName: string;
-  lastName: string;
-  companyName: string;
-  email: string;
-  password: string;
-}
-
-interface AuthContextType {
-  // State properties
-  isAuthenticated: boolean;
+interface AuthState {
   user: User | null;
   session: Session | null;
+  isAuthenticated: boolean;
   isLoading: boolean;
-  
-  // Methods
   login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
-  register: (data: RegisterData) => Promise<void>;
+  register: (data: {
+    firstName: string;
+    lastName: string;
+    companyName: string;
+    email: string;
+    password: string;
+  }) => Promise<any>;
   logout: () => Promise<void>;
-  refreshToken: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const navigate = useNavigate();
+export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
-  // Initialize auth state and set up listener
   useEffect(() => {
-    let mounted = true;
-
-    const initializeAuth = async () => {
+    const fetchSession = async () => {
       try {
-        console.log('AuthProvider: Initializing auth');
-        
-        // Set up auth state listener first
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(
-          async (event, session) => {
-            console.log('Auth state changed:', event, session?.user?.email);
-            
-            // SECURITY: Handle email confirmation event
-            if (event === 'TOKEN_REFRESHED' && session?.user && !session.user.email_confirmed_at) {
-              console.log('Email confirmation detected, but user not verified');
-              // Sign out unverified users for security
-              await supabase.auth.signOut();
-              return;
-            }
-            
-            if (mounted) {
-              setSession(session);
-              setUser(session?.user ?? null);
-              setIsAuthenticated(!!session);
-              
-              // Sync with Zustand store after auth state changes
-              if (session?.user) {
-                setTimeout(() => {
-                  syncWithZustandStore(session.user);
-                }, 0);
-              }
-            }
-          }
-        );
+        setIsLoading(true);
+        const { data: { session } } = await supabase.auth.getSession();
 
-        // Get initial session
-        const { data: { session: initialSession }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error('Error getting initial session:', error);
-        }
-
-        if (mounted) {
-          setSession(initialSession);
-          setUser(initialSession?.user ?? null);
-          setIsAuthenticated(!!initialSession);
-          setIsLoading(false);
-
-          if (initialSession?.user) {
-            await syncWithZustandStore(initialSession.user);
-          }
-        }
-
-        return () => {
-          subscription.unsubscribe();
-        };
+        setSession(session);
+        setUser(session?.user || null);
+        setIsAuthenticated(!!session?.user);
       } catch (error) {
-        console.error('Auth initialization error:', error);
-        if (mounted) {
-          setIsLoading(false);
-        }
+        console.error("Error fetching session:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    initializeAuth();
+    fetchSession();
 
+    // Subscribe to auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'INITIAL_SESSION') {
+        console.log('Initial session:', session);
+      } else {
+        console.log('Auth state change:', event, session);
+      }
+      
+      setSession(session);
+      setUser(session?.user || null);
+      setIsAuthenticated(!!session?.user);
+    });
+
+    // Unsubscribe on unmount
     return () => {
-      mounted = false;
+      subscription?.unsubscribe();
     };
   }, []);
 
-  const syncWithZustandStore = async (userData: User) => {
-    try {
-      const store = useAppStore.getState();
-      
-      // Convert Supabase User to app user format
-      const appUser = {
-        id: userData.id,
-        email: userData.email || '',
-        firstName: userData.user_metadata?.first_name || '',
-        lastName: userData.user_metadata?.last_name || '',
-        role: userData.user_metadata?.role || 'user',
-        tenantId: userData.user_metadata?.tenant_id || 'default',
-        isEmailVerified: userData.email_confirmed_at != null,
-      };
-      
-      store.setUser(appUser);
-      console.log('Successfully synced user with Zustand store:', appUser);
-    } catch (error) {
-      console.error('Failed to sync with Zustand store:', error);
-    }
-  };
-
-  const login = async (email: string, password: string, rememberMe: boolean = false) => {
+  const login = async (email: string, password: string, rememberMe = false) => {
     setIsLoading(true);
-    console.log('Login attempt for:', email);
-    
     try {
-      // Use security hook directly (no dynamic import)
-      const { isRateLimited, recordAttempt } = useAuthSecurity();
-      
-      // Check rate limiting
-      const rateLimitCheck = isRateLimited('login', email);
-      if (rateLimitCheck.isLimited) {
-        console.error('❌ Login rate limited');
-        throw new Error(rateLimitCheck.message || 'Too many login attempts. Please try again later.');
-      }
-      
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+        email: email.toLowerCase().trim(),
+        password: password,
       });
 
       if (error) {
         console.error('Login error:', error);
-        recordAttempt('login', email, false);
-        
-        // Handle specific error cases
-        if (error.message.includes('Invalid login credentials')) {
-          toast.error('Invalid email or password. Please check your credentials.');
-        } else if (error.message.includes('Email not confirmed')) {
-          toast.error('Please verify your email address before signing in.');
-        } else {
-          toast.error(error.message || 'Login failed. Please try again.');
-        }
         throw error;
       }
 
-      if (data.user && data.session) {
-        console.log('Login successful:', data.user.email);
-        recordAttempt('login', email, true); // Clear rate limiting on success
-        toast.success('Welcome back! Login successful.');
+      if (data.user) {
+        setUser(data.user);
+        setIsAuthenticated(true);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login failed:', error);
       throw error;
     } finally {
@@ -180,191 +89,190 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const register = async (data: RegisterData) => {
-    console.log('🚀 Registration started for:', data.email);
-    setIsLoading(true);
-    
+  const register = async (data: {
+    firstName: string;
+    lastName: string;
+    companyName: string;
+    email: string;
+    password: string;
+  }) => {
     try {
-      // Use hooks directly (no dynamic imports)
-      const { validateRegistrationData } = useAuthValidation();
-      const { isRateLimited, recordAttempt } = useAuthSecurity();
-      
-      // Check rate limiting first
-      const rateLimitCheck = isRateLimited('register', data.email);
-      if (rateLimitCheck.isLimited) {
-        console.error('❌ Registration rate limited');
-        throw new Error(rateLimitCheck.message || 'Too many registration attempts. Please try again later.');
-      }
-      
-      console.log('✅ Step 1: Rate limit check passed');
-      
-      // Enhanced server-side validation
-      console.log('🔍 Step 2: Validating registration data...');
-      const validation = await validateRegistrationData({
-        email: data.email.toLowerCase().trim(),
-        password: data.password,
-        firstName: data.firstName.trim(),
-        lastName: data.lastName.trim(),
-        companyName: data.companyName.trim()
-      });
-      
-      if (!validation.isValid) {
-        console.error('❌ Validation failed:', validation.error);
-        recordAttempt('register', data.email, false);
-        throw new Error(validation.error);
-      }
-      
-      console.log('✅ Step 2: Validation passed');
+      setIsLoading(true);
+      console.log('🚀 Starting manual registration process...');
 
-      // Single API call - the database trigger handles everything else automatically
-      const redirectUrl = `${window.location.origin}/email-confirmation`;
-      console.log('👤 Step 3: Creating user account with automatic organization setup...');
-      
+      // Check for existing user first
+      const { data: existingUser } = await supabase.auth.admin.getUserByEmail(data.email.toLowerCase());
+      if (existingUser.user) {
+        throw new Error('An account with this email already exists');
+      }
+
+      // Step 1: Create user ONLY (no trigger will fire)
+      console.log('📧 Creating user account...');
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: data.email.toLowerCase().trim(),
         password: data.password,
         options: {
-          emailRedirectTo: redirectUrl,
+          emailRedirectTo: `${window.location.origin}/email-confirmation`,
           data: {
             first_name: data.firstName.trim(),
             last_name: data.lastName.trim(),
-            company_name: data.companyName.trim(),
-            role: 'owner'
+            // Don't set tenant_id yet - we don't have org
           }
         }
       });
 
       if (authError) {
-        console.error('❌ Registration failed:', authError);
-        recordAttempt('register', data.email, false);
+        console.error('❌ Auth signup failed:', authError);
+        throw authError;
+      }
+      
+      if (!authData.user) {
+        throw new Error('No user returned from signup');
+      }
+
+      console.log('✅ User created successfully:', authData.user.id);
+
+      // Step 2: Create organization using the session (if available)
+      if (authData.session) {
+        console.log('🏢 Creating organization...');
         
-        // Handle specific error cases
-        if (authError.message.includes('User already registered')) {
-          throw new Error('An account with this email already exists. Please sign in instead.');
-        } else if (authError.message.includes('Password should be at least')) {
-          throw new Error('Password must be at least 6 characters long.');
-        } else if (authError.message.includes('Invalid email')) {
-          throw new Error('Please enter a valid email address.');
-        } else if (authError.message.includes('Email address is invalid')) {
-          throw new Error('Please enter a valid email address.');
-        } else {
-          throw new Error(authError.message || 'Registration failed. Please try again.');
+        try {
+          // Create organization with direct table operation
+          const orgSlug = generateSlug(data.companyName);
+          const { data: org, error: orgError } = await supabase
+            .from('organizations')
+            .insert({
+              name: data.companyName.trim(),
+              slug: orgSlug
+            })
+            .select()
+            .single();
+
+          if (orgError) {
+            console.error('❌ Organization creation failed:', orgError);
+            // Don't throw - user is created, we can fix org later
+            console.log('⚠️ User account created but organization setup failed');
+            return {
+              user: authData.user,
+              session: authData.session,
+              error: 'Account created but organization setup failed. Please contact support.',
+              requiresOrgSetup: true
+            };
+          }
+
+          console.log('✅ Organization created:', org.id);
+
+          // Step 3: Create membership
+          const { error: membershipError } = await supabase
+            .from('organization_members')
+            .insert({
+              user_id: authData.user.id,
+              organization_id: org.id,
+              role: 'owner'
+            });
+
+          if (membershipError) {
+            console.error('❌ Membership creation failed:', membershipError);
+            return {
+              user: authData.user,
+              session: authData.session,
+              organization: org,
+              error: 'Account and organization created but membership setup failed. Please contact support.',
+              requiresOrgSetup: true
+            };
+          }
+
+          console.log('✅ Membership created successfully');
+
+          // Step 4: Update user metadata with tenant_id
+          const { error: updateError } = await supabase.auth.updateUser({
+            data: {
+              tenant_id: org.id,
+              default_organization: org.id,
+              registration_completed_at: new Date().toISOString(),
+              role: 'owner'
+            }
+          });
+
+          if (updateError) {
+            console.warn('⚠️ Failed to update user metadata:', updateError);
+            // Not critical - continue
+          }
+
+          // Log successful registration
+          await supabase
+            .from('registration_logs')
+            .insert({
+              user_id: authData.user.id,
+              action: 'manual_registration_completed',
+              details: {
+                org_id: org.id,
+                org_slug: org.slug,
+                org_name: org.name,
+                method: 'manual_flow'
+              }
+            });
+
+          console.log('🎉 Registration completed successfully!');
+
+          return {
+            user: authData.user,
+            session: authData.session,
+            organization: org
+          };
+
+        } catch (orgCreationError) {
+          console.error('💥 Organization setup failed:', orgCreationError);
+          return {
+            user: authData.user,
+            session: authData.session,
+            error: 'Account created but organization setup failed. You can continue and we\'ll set this up later.',
+            requiresOrgSetup: true
+          };
         }
       }
 
-      if (!authData.user?.id) {
-        console.error('❌ User creation returned no user data');
-        recordAttempt('register', data.email, false);
-        throw new Error('User registration failed - no user data returned');
-      }
+      // No session (email confirmation required)
+      console.log('📧 Email confirmation required - org creation deferred');
+      return {
+        user: authData.user,
+        session: null,
+        requiresEmailConfirmation: true,
+        organization: null
+      };
 
-      console.log('✅ Step 3: User and organization created successfully!');
-      console.log('🎉 Registration completed successfully for:', data.email);
-      
-      // Record successful attempt
-      recordAttempt('register', data.email, true);
-      
-      // Sign out for email confirmation (security requirement)
-      if (authData.session) {
-        console.log('🔐 Step 4: Signing out user to force email confirmation');
-        await supabase.auth.signOut();
-      }
-      
-      toast.success('Registration successful! Please check your email for verification.');
-      
-    } catch (error) {
-      console.error('💥 Registration failed with error:', error);
-      
-      // Show user-friendly error message
-      if (error instanceof Error) {
-        toast.error(error.message);
-        console.error('Error details:', {
-          name: error.name,
-          message: error.message,
-          stack: error.stack
-        });
-      } else {
-        toast.error('Registration failed. Please try again.');
-        console.error('Unknown error type:', error);
-      }
-      
+    } catch (error: any) {
+      console.error('💥 Registration failed:', error);
       throw error;
     } finally {
       setIsLoading(false);
-      console.log('🏁 Registration process completed');
-    }
-  };
-
-  const refreshToken = async () => {
-    try {
-      const { data, error } = await supabase.auth.refreshSession();
-      
-      if (error) {
-        console.error('Token refresh failed:', error);
-        await logout();
-        return;
-      }
-
-      if (data.session) {
-        console.log('Token refreshed successfully');
-      }
-    } catch (error) {
-      console.error('Token refresh error:', error);
-      await logout();
     }
   };
 
   const logout = async () => {
-    console.log('Logout initiated');
-    
+    setIsLoading(true);
     try {
-      // Clear Zustand store first (direct usage, no dynamic import)
-      try {
-        const store = useAppStore.getState();
-        store.setUser(null);
-        console.log('Zustand store cleared');
-      } catch (error) {
-        console.error('Failed to clear store:', error);
-      }
-
       const { error } = await supabase.auth.signOut();
-      
       if (error) {
         console.error('Logout error:', error);
-        toast.error('Error during logout. Please try again.');
-      } else {
-        console.log('Logout successful');
-        toast.success('Logged out successfully');
-        
-        // Use navigate since we're now inside Router context
-        setTimeout(() => {
-          navigate('/');
-        }, 1000);
       }
+      setUser(null);
+      setSession(null);
+      setIsAuthenticated(false);
+      navigate('/auth');
     } catch (error) {
       console.error('Logout failed:', error);
-      toast.error('Logout failed. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const value: AuthContextType = {
-    isAuthenticated,
+  return {
     user,
-    session,
+    isAuthenticated: !!user,
     isLoading,
     login,
     register,
     logout,
-    refreshToken,
   };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
-
-export const useAuth = (): AuthContextType => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
 };
