@@ -39,6 +39,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import KnowledgeBase from './pages/KnowledgeBase';
 import EmailConfirmation from './pages/EmailConfirmation';
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import UserDebugPage from './pages/UserDebug';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -96,6 +97,13 @@ function App() {
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/email-confirmation" element={<EmailConfirmation />} />
+              
+              {/* Debug route */}
+              <Route path="/user-debug" element={
+                <ProtectedWrapper>
+                  <AppLayout><UserDebugPage /></AppLayout>
+                </ProtectedWrapper>
+              } />
               
               {/* Protected routes */}
               <Route path="/dashboard" element={
