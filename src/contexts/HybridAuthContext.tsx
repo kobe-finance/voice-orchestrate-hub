@@ -11,7 +11,7 @@ interface HybridAuthContextType {
   session: Session | null;
   isAuthenticated: boolean;
   login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
-  register: (data: any) => Promise<void>;
+  register: (data: any) => Promise<any>; // Changed to return any instead of void
   logout: () => void;
   
   // Backend Integration
@@ -34,7 +34,7 @@ export const HybridAuthProvider: React.FC<{ children: ReactNode }> = ({ children
     session: supabaseAuth.session,
     isAuthenticated: supabaseAuth.isAuthenticated,
     login: supabaseAuth.login,
-    register: supabaseAuth.register,
+    register: supabaseAuth.register, // Now matches the return type
     logout: supabaseAuth.logout,
     
     // Backend Integration

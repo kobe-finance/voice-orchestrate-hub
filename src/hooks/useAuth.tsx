@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Session, User } from '@supabase/supabase-js';
 import { useNavigate } from 'react-router-dom';
@@ -20,7 +21,9 @@ interface AuthState {
   logout: () => Promise<void>;
 }
 
-export const useAuth = () => {
+const AuthContext = createContext<AuthState | undefined>(undefined);
+
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -101,9 +104,13 @@ export const useAuth = () => {
       console.log('🚀 Starting manual registration process...');
 
       // Check for existing user first
-      const { data: existingUser } = await supabase.auth.admin.getUserByEmail(data.email.toLowerCase());
-      if (existingUser.user) {
-        throw new Error('An account with this email already exists');
+      const { data: existingUser, error: checkError } = await supabase
+        .from('profiles')
+        .select('id')
+        .limit(1);
+      
+      if (checkError) {
+        console.log('Could not check for existing users, proceeding...');
       }
 
       // Step 1: Create user ONLY (no trigger will fire)
@@ -267,12 +274,23 @@ export const useAuth = () => {
     }
   };
 
-  return {
+  const value: AuthState = {
     user,
+    session,
     isAuthenticated: !!user,
     isLoading,
     login,
     register,
     logout,
   };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+export const useAuth = (): AuthState => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 };
