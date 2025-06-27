@@ -1,8 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/sonner';
+import { useAuthValidation } from './useAuthValidation';
+import { useAuthSecurity } from './useAuthSecurity';
+import { useAppStore } from '@/stores/useAppStore';
 
 interface RegisterData {
   firstName: string;
@@ -109,7 +112,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const syncWithZustandStore = async (userData: User) => {
     try {
-      const { useAppStore } = await import('@/stores/useAppStore');
       const store = useAppStore.getState();
       
       // Convert Supabase User to app user format
@@ -135,8 +137,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log('Login attempt for:', email);
     
     try {
-      // Import security hook
-      const { useAuthSecurity } = await import('./useAuthSecurity');
+      // Use security hook directly (no dynamic import)
       const { isRateLimited, recordAttempt } = useAuthSecurity();
       
       // Check rate limiting
@@ -184,10 +185,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     
     try {
-      // Import validation hooks
-      const { useAuthValidation } = await import('./useAuthValidation');
-      const { useAuthSecurity } = await import('./useAuthSecurity');
-      
+      // Use hooks directly (no dynamic imports)
       const { validateRegistrationData } = useAuthValidation();
       const { isRateLimited, recordAttempt } = useAuthSecurity();
       
@@ -320,9 +318,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log('Logout initiated');
     
     try {
-      // Clear Zustand store first
+      // Clear Zustand store first (direct usage, no dynamic import)
       try {
-        const { useAppStore } = await import('@/stores/useAppStore');
         const store = useAppStore.getState();
         store.setUser(null);
         console.log('Zustand store cleared');
