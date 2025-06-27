@@ -101,19 +101,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }) => {
     try {
       setIsLoading(true);
-      console.log('🚀 Starting manual registration process...');
+      console.log('🚀 Starting registration process...');
 
-      // Check for existing user first
-      const { data: existingUser, error: checkError } = await supabase
-        .from('profiles')
-        .select('id')
-        .limit(1);
-      
-      if (checkError) {
-        console.log('Could not check for existing users, proceeding...');
-      }
-
-      // Step 1: Create user ONLY (no trigger will fire)
+      // Step 1: Create user account
       console.log('📧 Creating user account...');
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: data.email.toLowerCase().trim(),
@@ -123,7 +113,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           data: {
             first_name: data.firstName.trim(),
             last_name: data.lastName.trim(),
-            // Don't set tenant_id yet - we don't have org
           }
         }
       });
@@ -139,12 +128,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       console.log('✅ User created successfully:', authData.user.id);
 
-      // Step 2: Create organization using the session (if available)
+      // Step 2: If we have a session, proceed with organization setup
       if (authData.session) {
         console.log('🏢 Creating organization...');
         
         try {
-          // Create organization with direct table operation
+          // Create organization
           const orgSlug = generateSlug(data.companyName);
           const { data: org, error: orgError } = await supabase
             .from('organizations')
@@ -157,8 +146,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
           if (orgError) {
             console.error('❌ Organization creation failed:', orgError);
-            // Don't throw - user is created, we can fix org later
-            console.log('⚠️ User account created but organization setup failed');
+            // Log for monitoring (in production, this would go to Sentry)
+            console.error('Organization creation error details:', {
+              error: orgError,
+              context: {
+                userId: authData.user.id,
+                email: data.email,
+                companyName: data.companyName
+              }
+            });
+            
             return {
               user: authData.user,
               session: authData.session,
@@ -191,32 +188,56 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
           console.log('✅ Membership created successfully');
 
-          // Step 4: Update user metadata with tenant_id
+          // Step 4: Update user metadata (CRITICAL for JWT)
+          console.log('📝 Updating user metadata...');
           const { error: updateError } = await supabase.auth.updateUser({
             data: {
-              tenant_id: org.id,
-              default_organization: org.id,
+              tenant_id: org.id,                    // For RLS policies and JWT
+              default_organization: org.id,         // For multi-org future support
+              onboarding_completed: false,          // Track onboarding status
               registration_completed_at: new Date().toISOString(),
-              role: 'owner'
+              role: 'owner',
+              organization_name: org.name,
+              organization_slug: org.slug
             }
           });
 
           if (updateError) {
             console.warn('⚠️ Failed to update user metadata:', updateError);
-            // Not critical - continue
+            // This is critical - log for monitoring
+            console.error('Metadata update error details:', {
+              error: updateError,
+              context: {
+                userId: authData.user.id,
+                orgId: org.id,
+                email: data.email
+              }
+            });
+            
+            return {
+              user: authData.user,
+              session: authData.session,
+              organization: org,
+              error: 'Account and organization created but user setup incomplete. Please contact support.',
+              requiresMetadataUpdate: true
+            };
           }
+
+          // Debug: Verify metadata was set correctly
+          console.log('🔍 Verifying user metadata after update:', authData.user.user_metadata);
 
           // Log successful registration
           await supabase
             .from('registration_logs')
             .insert({
               user_id: authData.user.id,
-              action: 'manual_registration_completed',
+              action: 'frontend_registration_completed',
               details: {
                 org_id: org.id,
                 org_slug: org.slug,
                 org_name: org.name,
-                method: 'manual_flow'
+                method: 'frontend_driven_flow',
+                metadata_updated: true
               }
             });
 
@@ -225,11 +246,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           return {
             user: authData.user,
             session: authData.session,
-            organization: org
+            organization: org,
+            success: true
           };
 
         } catch (orgCreationError) {
           console.error('💥 Organization setup failed:', orgCreationError);
+          // Log for monitoring
+          console.error('Organization setup error details:', {
+            error: orgCreationError,
+            context: {
+              userId: authData.user.id,
+              email: data.email,
+              companyName: data.companyName
+            }
+          });
+          
           return {
             user: authData.user,
             session: authData.session,
