@@ -1,6 +1,5 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { SupabaseAdminService } from '@/services/supabase-admin.service';
 
 export interface ValidationResult {
   isValid: boolean;
@@ -10,60 +9,50 @@ export interface ValidationResult {
 export const useAuthValidation = () => {
   const validateEmailUniqueness = async (email: string): Promise<ValidationResult> => {
     try {
-      // First try the new type-safe service approach
-      const userInfo = await SupabaseAdminService.getUserByEmail(email);
+      console.log('🔍 Validating email uniqueness for:', email);
       
-      if (userInfo) {
-        if (userInfo.isConfirmed) {
-          return { 
-            isValid: false, 
-            error: 'An account with this email already exists. Please sign in instead.' 
-          };
-        } else {
-          return { 
-            isValid: false, 
-            error: 'An account with this email already exists but is not yet verified. Please check your email for the verification link.' 
-          };
-        }
-      }
+      // Use a simple sign-in attempt to check if user exists
+      // This is more reliable than admin API calls from the frontend
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: email.toLowerCase().trim(),
+        password: 'dummy-password-for-validation-check'
+      });
       
-      // If service approach worked and no user found, email is available
-      return { isValid: true };
-      
-    } catch (error) {
-      console.error('Email validation error with service approach:', error);
-      
-      // Fallback to original approach for backward compatibility
-      try {
-        console.log('Falling back to direct sign-in attempt for email validation');
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email,
-          password: 'dummy-password-for-check'
-        });
-        
-        if (signInError?.message?.includes('Invalid login credentials')) {
-          // User doesn't exist, email is available
-          return { isValid: true };
-        } else if (signInError?.message?.includes('Email not confirmed')) {
-          // User exists but email not confirmed
-          return { 
-            isValid: false, 
-            error: 'An account with this email already exists but is not yet verified. Please check your email for the verification link or contact support.' 
-          };
-        } else {
-          // User exists and is active
-          return { 
-            isValid: false, 
-            error: 'An account with this email already exists. Please sign in instead.' 
-          };
-        }
-      } catch (fallbackError) {
-        console.error('Fallback email validation also failed:', fallbackError);
+      if (signInError?.message?.includes('Invalid login credentials')) {
+        // User doesn't exist, email is available
+        console.log('✅ Email is available');
+        return { isValid: true };
+      } else if (signInError?.message?.includes('Email not confirmed')) {
+        // User exists but email not confirmed
+        console.log('❌ Email exists but not confirmed');
         return { 
           isValid: false, 
-          error: 'Unable to validate email. Please try again.' 
+          error: 'An account with this email already exists but is not yet verified. Please check your email for the verification link or contact support.' 
         };
+      } else if (signInError?.message?.includes('Too many requests')) {
+        // Rate limited
+        console.log('❌ Rate limited');
+        return { 
+          isValid: false, 
+          error: 'Too many attempts. Please try again in a few minutes.' 
+        };
+      } else if (!signInError) {
+        // Sign in would succeed, user exists and is active
+        console.log('❌ Email already exists and is active');
+        return { 
+          isValid: false, 
+          error: 'An account with this email already exists. Please sign in instead.' 
+        };
+      } else {
+        // Some other error, but assume email is available to be safe
+        console.log('⚠️ Unknown error, assuming email is available:', signInError.message);
+        return { isValid: true };
       }
+      
+    } catch (error) {
+      console.error('Email validation error:', error);
+      // On error, allow registration to proceed rather than block it
+      return { isValid: true };
     }
   };
 
