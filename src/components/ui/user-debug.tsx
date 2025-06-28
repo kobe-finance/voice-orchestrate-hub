@@ -4,7 +4,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from './button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './card';
 import { verifyJWTContents, verifyOrganizationMembership } from '@/utils/authDebug';
-import { generateSlug } from '@/utils/organization';
 
 export const UserDebug: React.FC = () => {
   const [debugResult, setDebugResult] = useState<string>('');
@@ -94,7 +93,7 @@ export const UserDebug: React.FC = () => {
           )
         `)
         .eq('is_active', true)
-        .single();
+        .maybeSingle();
       
       if (error && error.code !== 'PGRST116') {
         setDebugResult(`Query Error: ${error.message}`);
@@ -144,7 +143,7 @@ export const UserDebug: React.FC = () => {
       const user = session.user;
       console.log('🔍 Fixing user:', user.email);
       
-      // Check if user already has organization
+      // Check if user already has organization using the utility function
       const existingMembership = await verifyOrganizationMembership(user.id);
       if (existingMembership) {
         setDebugResult('✅ User already has organization - no fix needed');
@@ -153,21 +152,16 @@ export const UserDebug: React.FC = () => {
 
       let result = `🔧 Fixing orphaned user: ${user.email}\n\n`;
       
-      // Step 1: Create organization
+      // Use the database function to create organization (bypasses RLS)
+      console.log('🏢 Creating organization using database function...');
+      
       const companyName = user.user_metadata?.company_name || 
-                         user.raw_user_meta_data?.company_name ||
                          `${user.email?.split('@')[0]}'s Workspace`;
       
-      console.log('🏢 Creating organization:', companyName);
-      
-      const { data: org, error: orgError } = await supabase
-        .from('organizations')
-        .insert({
-          name: companyName,
-          slug: generateSlug(companyName)
-        })
-        .select()
-        .single();
+      const { data: orgId, error: orgError } = await supabase
+        .rpc('ensure_user_has_organization', {
+          p_user_id: user.id
+        });
 
       if (orgError) {
         result += `❌ Organization creation failed: ${orgError.message}\n`;
@@ -175,38 +169,16 @@ export const UserDebug: React.FC = () => {
         return;
       }
 
-      result += `✅ Organization created: ${org.name} (ID: ${org.id})\n`;
-      console.log('✅ Organization created:', org.id);
+      result += `✅ Organization created with ID: ${orgId}\n`;
+      console.log('✅ Organization created:', orgId);
 
-      // Step 2: Create membership
-      console.log('👥 Creating membership...');
-      
-      const { error: memberError } = await supabase
-        .from('organization_members')
-        .insert({
-          user_id: user.id,
-          organization_id: org.id,
-          role: 'owner'
-        });
-
-      if (memberError) {
-        result += `❌ Membership creation failed: ${memberError.message}\n`;
-        setDebugResult(result);
-        return;
-      }
-
-      result += `✅ Membership created: User is now owner\n`;
-      console.log('✅ Membership created');
-
-      // Step 3: Update user metadata
+      // Update user metadata with tenant_id
       console.log('📝 Updating user metadata...');
       
       const { error: updateError } = await supabase.auth.updateUser({
         data: {
-          tenant_id: org.id,
-          default_organization: org.id,
-          organization_name: org.name,
-          organization_slug: org.slug,
+          tenant_id: orgId,
+          default_organization: orgId,
           onboarding_completed: false,
           fixed_orphaned_user: true,
           fixed_at: new Date().toISOString()
@@ -215,29 +187,14 @@ export const UserDebug: React.FC = () => {
 
       if (updateError) {
         result += `⚠️ Metadata update failed: ${updateError.message}\n`;
-        result += `Organization and membership created but JWT won't include tenant_id until next login\n`;
+        result += `Organization created but JWT won't include tenant_id until next login\n`;
       } else {
         result += `✅ User metadata updated with tenant_id\n`;
         console.log('✅ Metadata updated');
       }
 
-      // Step 4: Log the fix
-      await supabase
-        .from('registration_logs')
-        .insert({
-          user_id: user.id,
-          action: 'orphaned_user_fixed',
-          details: {
-            organization_id: org.id,
-            organization_name: org.name,
-            fixed_by: 'user_debug_utility',
-            fixed_at: new Date().toISOString(),
-            metadata_updated: !updateError
-          }
-        });
-
       result += `\n🎉 USER FIX COMPLETED!\n`;
-      result += `Organization: ${org.name}\n`;
+      result += `Organization ID: ${orgId}\n`;
       result += `Role: Owner\n`;
       result += `Status: Active\n`;
       result += `\n💡 Please refresh the page or log out/in to see changes in JWT`;
