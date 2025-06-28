@@ -4,14 +4,14 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { CheckCircle, XCircle, Loader2, Building } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
 
 const EmailConfirmation = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
+  const [status, setStatus] = useState<'loading' | 'success' | 'error' | 'settingUpWorkspace'>('loading');
   const [message, setMessage] = useState('');
   const [debugInfo, setDebugInfo] = useState<any>(null);
 
@@ -101,11 +101,62 @@ const EmailConfirmation = () => {
         if (verificationResult?.data?.user) {
           console.log('✅ Email confirmation successful for user:', verificationResult.data.user.email);
           
+          // NEW: Check if user needs organization setup
+          const user = verificationResult.data.user;
+          const needsOrgSetup = !user.user_metadata?.tenant_id;
+          
+          if (needsOrgSetup) {
+            console.log('🏢 User needs organization setup, creating workspace...');
+            setStatus('settingUpWorkspace');
+            setMessage('Setting up your workspace...');
+            
+            try {
+              // Use the database function to create organization
+              const { data: orgId, error: orgError } = await supabase
+                .rpc('ensure_user_has_organization', {
+                  p_user_id: user.id
+                });
+
+              if (orgError) {
+                console.error('⚠️ Organization setup failed:', orgError);
+                // Don't block the user - they can continue
+                setStatus('success');
+                setMessage('Your email has been successfully confirmed! You can now sign in to your account. (Workspace setup will be completed on first login)');
+              } else {
+                console.log('✅ Organization created:', orgId);
+                
+                // Update user metadata with tenant_id
+                const { error: updateError } = await supabase.auth.updateUser({
+                  data: {
+                    tenant_id: orgId,
+                    default_organization: orgId,
+                    onboarding_completed: false,
+                    organization_setup_completed: true,
+                    setup_completed_at: new Date().toISOString()
+                  }
+                });
+
+                if (updateError) {
+                  console.warn('⚠️ Metadata update failed:', updateError);
+                }
+
+                setStatus('success');
+                setMessage('Your email has been successfully confirmed and your workspace has been set up! You can now sign in to your account.');
+              }
+            } catch (setupError) {
+              console.error('💥 Workspace setup error:', setupError);
+              // Don't block the user - they can continue
+              setStatus('success');
+              setMessage('Your email has been successfully confirmed! You can now sign in to your account. (Workspace setup will be completed on first login)');
+            }
+          } else {
+            console.log('✅ User already has organization setup');
+            setStatus('success');
+            setMessage('Your email has been successfully confirmed! You can now sign in to your account.');
+          }
+          
           // Sign out the user immediately for security (force password login)
           await supabase.auth.signOut();
-          
-          setStatus('success');
-          setMessage('Your email has been successfully confirmed! You can now sign in to your account.');
         } else {
           console.error('❌ No user data returned from verification');
           setStatus('error');
@@ -190,6 +241,11 @@ const EmailConfirmation = () => {
                   <Loader2 className="w-8 h-8 text-blue-600 dark:text-blue-400 animate-spin" />
                 </div>
               )}
+              {status === 'settingUpWorkspace' && (
+                <div className="w-16 h-16 rounded-full bg-orange-100 dark:bg-orange-900/20 flex items-center justify-center">
+                  <Building className="w-8 h-8 text-orange-600 dark:text-orange-400" />
+                </div>
+              )}
               {status === 'success' && (
                 <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
                   <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
@@ -203,7 +259,8 @@ const EmailConfirmation = () => {
             </div>
             <CardTitle className="text-2xl">
               {status === 'loading' && 'Confirming Email...'}
-              {status === 'success' && 'Email Confirmed!'}
+              {status === 'settingUpWorkspace' && 'Setting Up Workspace...'}
+              {status === 'success' && 'All Set!'}
               {status === 'error' && 'Confirmation Failed'}
             </CardTitle>
             <CardDescription>
@@ -215,11 +272,13 @@ const EmailConfirmation = () => {
             <Alert className={
               status === 'success' ? 'border-green-200 bg-green-50 dark:bg-green-900/20' :
               status === 'error' ? 'border-red-200 bg-red-50 dark:bg-red-900/20' :
+              status === 'settingUpWorkspace' ? 'border-orange-200 bg-orange-50 dark:bg-orange-900/20' :
               'border-blue-200 bg-blue-50 dark:bg-blue-900/20'
             }>
               <AlertDescription className={
                 status === 'success' ? 'text-green-800 dark:text-green-300' :
                 status === 'error' ? 'text-red-800 dark:text-red-300' :
+                status === 'settingUpWorkspace' ? 'text-orange-800 dark:text-orange-300' :
                 'text-blue-800 dark:text-blue-300'
               }>
                 {message}
@@ -254,9 +313,9 @@ const EmailConfirmation = () => {
                 </>
               )}
               
-              {status === 'loading' && (
+              {(status === 'loading' || status === 'settingUpWorkspace') && (
                 <div className="text-center text-sm text-muted-foreground">
-                  Please wait while we verify your email address...
+                  {status === 'loading' ? 'Please wait while we verify your email address...' : 'Please wait while we set up your workspace...'}
                 </div>
               )}
             </div>
