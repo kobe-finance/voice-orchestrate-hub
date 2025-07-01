@@ -9,6 +9,47 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string
+          details: Json | null
+          id: string
+          target_entity: string | null
+          target_entity_id: string | null
+          tenant_id: string
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          target_entity?: string | null
+          target_entity_id?: string | null
+          tenant_id: string
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          target_entity?: string | null
+          target_entity_id?: string | null
+          tenant_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_tenant"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_profiles: {
         Row: {
           business_name: string | null
@@ -194,6 +235,7 @@ export type Database = {
       }
       integrations: {
         Row: {
+          auth_type: string | null
           category: string
           config_schema: Json | null
           created_at: string | null
@@ -208,6 +250,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          auth_type?: string | null
           category: string
           config_schema?: Json | null
           created_at?: string | null
@@ -222,6 +265,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          auth_type?: string | null
           category?: string
           config_schema?: Json | null
           created_at?: string | null

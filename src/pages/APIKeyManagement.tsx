@@ -12,7 +12,7 @@ const APIKeyManagement = () => {
   return (
     <PageLayout
       title="API Credential Management"
-      description="Securely manage your integration API keys and credentials"
+      description="Securely manage your integration API keys and credentials. Connect to external services like OpenAI, Salesforce, and more."
       breadcrumbs={breadcrumbs}
     >
       <APICredentialsList />
