@@ -1,178 +1,92 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { VoiceModal } from "@/components/voice/VoiceModal";
-import { ModeToggle } from "@/components/theme/ModeToggle";
-import { DatabaseDebug } from "@/components/ui/database-debug";
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { Mic, Users, BarChart3, Zap, ArrowRight, CheckCircle } from "lucide-react";
+import { ArrowRight, Mic, Zap, Shield, BarChart3 } from "lucide-react";
+import { Link } from "react-router-dom";
+import { BackendConnectionTest } from "@/components/test/BackendConnectionTest";
 
 const Index = () => {
-  const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
-  const [showDebug, setShowDebug] = useState(false);
-
-  console.log('Index component rendering');
-  console.log('Index component state:', {
-    isVoiceModalOpen
-  });
-
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <header className="border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="container flex h-14 items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <h1 className="text-lg font-semibold">
-              VoiceOrchestrate<span className="text-accent-orange">™</span>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+      <div className="relative">
+        {/* Hero Section */}
+        <div className="container mx-auto px-4 py-16 text-center">
+          <div className="max-w-4xl mx-auto">
+            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6">
+              Transform Your Business with{" "}
+              <span className="text-gradient-primary">Voice AI</span>
             </h1>
-          </div>
-          <div className="flex items-center space-x-4">
-            <Button 
-              variant="outline" 
-              onClick={() => setShowDebug(!showDebug)}
-              size="sm"
-            >
-              {showDebug ? 'Hide' : 'Show'} Debug
-            </Button>
-            <Button asChild>
-              <a href="/auth">Get Started</a>
-            </Button>
-            <ModeToggle />
-          </div>
-        </div>
-      </header>
-
-      {showDebug && (
-        <div className="container py-8">
-          <DatabaseDebug />
-        </div>
-      )}
-
-      <main className="container mx-auto px-4 py-16">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center space-y-8 max-w-4xl mx-auto"
-        >
-          <div className="space-y-4">
-            <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
-              Build Intelligent 
-              <span className="text-accent-orange"> Voice Agents</span>
-            </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto">
-              Create conversational AI that understands context, responds naturally, and delivers exceptional user experiences.
+            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
+              VoiceOrchestrate™ empowers businesses to create intelligent voice agents 
+              that handle customer interactions, schedule appointments, and drive growth 24/7.
             </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Link to="/dashboard">
+                <Button size="lg" className="bg-primary hover:bg-primary-600 text-white px-8 py-3">
+                  Get Started <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+              <Link to="/auth">
+                <Button variant="outline" size="lg" className="px-8 py-3">
+                  Sign In
+                </Button>
+              </Link>
+            </div>
           </div>
+        </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button 
-              size="lg" 
-              className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 text-lg"
-              onClick={() => window.location.href = '/auth'}
-            >
-              <span className="inline-flex items-center">
-                Start Building <ArrowRight className="ml-2 h-5 w-5" />
-              </span>
-            </Button>
-            <Button 
-              variant="outline" 
-              size="lg" 
-              onClick={() => setIsVoiceModalOpen(true)}
-              className="px-8 py-3 text-lg"
-            >
-              <span className="inline-flex items-center">
-                <Mic className="mr-2 h-5 w-5" />
-                Try Demo
-              </span>
-            </Button>
+        {/* Backend Connection Test - Temporary */}
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-2xl font-bold mb-4">Backend Integration Test</h2>
+            <BackendConnectionTest />
           </div>
-        </motion.div>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="mt-24 grid grid-cols-1 md:grid-cols-3 gap-8"
-        >
-          <Card className="border-border/50 bg-card/50 hover:bg-card/80 transition-colors">
-            <CardHeader>
-              <Users className="h-12 w-12 text-primary mb-4" />
-              <CardTitle>Natural Conversations</CardTitle>
-              <CardDescription>
-                Build voice agents that understand context and respond like humans
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card className="border-border/50 bg-card/50 hover:bg-card/80 transition-colors">
-            <CardHeader>
-              <BarChart3 className="h-12 w-12 text-primary mb-4" />
-              <CardTitle>Advanced Analytics</CardTitle>
-              <CardDescription>
-                Get deep insights into conversation patterns and user behavior
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card className="border-border/50 bg-card/50 hover:bg-card/80 transition-colors">
-            <CardHeader>
-              <Zap className="h-12 w-12 text-primary mb-4" />
-              <CardTitle>Seamless Integration</CardTitle>
-              <CardDescription>
-                Connect with your existing tools and workflows effortlessly
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="mt-24 max-w-2xl mx-auto text-center"
-        >
-          <h2 className="text-3xl font-bold mb-8">Why Choose VoiceOrchestrate?</h2>
-          <div className="space-y-4 text-left">
-            {[
-              "Deploy voice agents in minutes, not months",
-              "Scale from prototype to production seamlessly",
-              "Enterprise-grade security and compliance",
-              "24/7 monitoring and support"
-            ].map((benefit, index) => (
-              <div key={index} className="flex items-center space-x-3">
-                <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
-                <span className="text-muted-foreground">{benefit}</span>
+        <div className="container mx-auto px-4 py-16">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-3xl font-bold text-center mb-12 text-gray-900 dark:text-white">
+              Powerful Features for Modern Businesses
+            </h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+              <div className="text-center p-6 rounded-lg bg-white dark:bg-gray-800 shadow-lg">
+                <div className="bg-primary/10 dark:bg-primary/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Mic className="h-8 w-8 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">Voice Agents</h3>
+                <p className="text-gray-600 dark:text-gray-300">
+                  Create intelligent voice agents that understand and respond naturally to customer inquiries.
+                </p>
               </div>
-            ))}
+              <div className="text-center p-6 rounded-lg bg-white dark:bg-gray-800 shadow-lg">
+                <div className="bg-accent-orange/10 dark:bg-accent-orange/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Zap className="h-8 w-8 text-accent-orange" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">Automation</h3>
+                <p className="text-gray-600 dark:text-gray-300">
+                  Automate repetitive tasks and workflows to increase efficiency and reduce operational costs.
+                </p>
+              </div>
+              <div className="text-center p-6 rounded-lg bg-white dark:bg-gray-800 shadow-lg">
+                <div className="bg-green-500/10 dark:bg-green-500/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Shield className="h-8 w-8 text-green-600" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">Security</h3>
+                <p className="text-gray-600 dark:text-gray-300">
+                  Enterprise-grade security with encrypted data storage and secure API integrations.
+                </p>
+              </div>
+              <div className="text-center p-6 rounded-lg bg-white dark:bg-gray-800 shadow-lg">
+                <div className="bg-blue-500/10 dark:bg-blue-500/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <BarChart3 className="h-8 w-8 text-blue-600" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">Analytics</h3>
+                <p className="text-gray-600 dark:text-gray-300">
+                  Comprehensive analytics and reporting to track performance and optimize operations.
+                </p>
+              </div>
+            </div>
           </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-          className="mt-24 text-center bg-card/30 rounded-lg p-12 border border-border/50"
-        >
-          <h2 className="text-3xl font-bold mb-4">Ready to Transform Your Customer Experience?</h2>
-          <p className="text-xl text-muted-foreground mb-8">
-            Join thousands of companies building the future of voice AI
-          </p>
-          <Button 
-            size="lg" 
-            className="bg-accent-orange hover:bg-accent-orange/90 text-white px-8 py-3 text-lg"
-            onClick={() => window.location.href = '/auth'}
-          >
-            <span className="inline-flex items-center">
-              Get Started Free <ArrowRight className="ml-2 h-5 w-5" />
-            </span>
-          </Button>
-        </motion.div>
-      </main>
-
-      <VoiceModal 
-        isOpen={isVoiceModalOpen} 
-        onClose={() => setIsVoiceModalOpen(false)} 
-      />
+        </div>
+      </div>
     </div>
   );
 };

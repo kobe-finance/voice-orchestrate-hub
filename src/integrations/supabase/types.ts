@@ -9,6 +9,69 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      api_usage_logs: {
+        Row: {
+          cost_cents: number | null
+          created_at: string
+          credential_id: string | null
+          error_message: string | null
+          from_cache: boolean | null
+          id: string
+          operation: string
+          provider: string
+          response_time_ms: number
+          status_code: number
+          tenant_id: string
+          tokens_used: number | null
+          user_id: string | null
+        }
+        Insert: {
+          cost_cents?: number | null
+          created_at?: string
+          credential_id?: string | null
+          error_message?: string | null
+          from_cache?: boolean | null
+          id?: string
+          operation: string
+          provider: string
+          response_time_ms: number
+          status_code: number
+          tenant_id: string
+          tokens_used?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          cost_cents?: number | null
+          created_at?: string
+          credential_id?: string | null
+          error_message?: string | null
+          from_cache?: boolean | null
+          id?: string
+          operation?: string
+          provider?: string
+          response_time_ms?: number
+          status_code?: number
+          tenant_id?: string
+          tokens_used?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_credential"
+            columns: ["credential_id"]
+            isOneToOne: false
+            referencedRelation: "integration_credentials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_tenant"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           action: string
@@ -139,6 +202,7 @@ export type Database = {
           created_by: string | null
           credential_name: string
           credential_type: string
+          custom_quota_limits: Json | null
           encrypted_credentials: Json
           expires_at: string | null
           id: string
@@ -155,6 +219,7 @@ export type Database = {
           created_by?: string | null
           credential_name: string
           credential_type: string
+          custom_quota_limits?: Json | null
           encrypted_credentials: Json
           expires_at?: string | null
           id?: string
@@ -171,6 +236,7 @@ export type Database = {
           created_by?: string | null
           credential_name?: string
           credential_type?: string
+          custom_quota_limits?: Json | null
           encrypted_credentials?: Json
           expires_at?: string | null
           id?: string
@@ -239,6 +305,7 @@ export type Database = {
           category: string
           config_schema: Json | null
           created_at: string | null
+          credentials_schema: Json | null
           description: string | null
           documentation_url: string | null
           icon_url: string | null
@@ -254,6 +321,7 @@ export type Database = {
           category: string
           config_schema?: Json | null
           created_at?: string | null
+          credentials_schema?: Json | null
           description?: string | null
           documentation_url?: string | null
           icon_url?: string | null
@@ -269,6 +337,7 @@ export type Database = {
           category?: string
           config_schema?: Json | null
           created_at?: string | null
+          credentials_schema?: Json | null
           description?: string | null
           documentation_url?: string | null
           icon_url?: string | null
@@ -396,6 +465,7 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
+          email: string | null
           first_name: string | null
           id: string
           last_name: string | null
@@ -405,6 +475,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          email?: string | null
           first_name?: string | null
           id: string
           last_name?: string | null
@@ -414,6 +485,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          email?: string | null
           first_name?: string | null
           id?: string
           last_name?: string | null
@@ -446,6 +518,44 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      tenant_quota_limits: {
+        Row: {
+          created_at: string
+          daily_tokens: number | null
+          monthly_tokens: number | null
+          per_minute_requests: number | null
+          provider: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          daily_tokens?: number | null
+          monthly_tokens?: number | null
+          per_minute_requests?: number | null
+          provider: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          daily_tokens?: number | null
+          monthly_tokens?: number | null
+          per_minute_requests?: number | null
+          provider?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_quota_limits_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tenants: {
         Row: {
@@ -549,6 +659,16 @@ export type Database = {
       ensure_user_has_organization: {
         Args: { p_user_id: string }
         Returns: string
+      }
+      get_aggregated_usage_analytics: {
+        Args: {
+          p_tenant_id: string
+          p_start_date: string
+          p_end_date: string
+          p_provider?: string
+          p_group_by?: string
+        }
+        Returns: Json
       }
       get_user_organizations: {
         Args: Record<PropertyKey, never>
