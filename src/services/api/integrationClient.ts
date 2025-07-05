@@ -13,13 +13,19 @@ class IntegrationAPI {
   }
 
   private getBackendURL(): string {
+    // Debug environment detection
+    console.log('DEV mode:', import.meta.env.DEV);
+    console.log('MODE:', import.meta.env.MODE);
+    console.log('VITE_API_BASE_URL:', import.meta.env.VITE_API_BASE_URL);
+    
     // Check environment variable first
     if (import.meta.env.VITE_API_BASE_URL) {
       return import.meta.env.VITE_API_BASE_URL;
     }
     
-    // For development, always try localhost first if we're in development mode
-    if (import.meta.env.DEV) {
+    // For development, always use localhost
+    if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+      console.log('Using localhost for development');
       return 'http://localhost:8000/api/v1';
     }
     
