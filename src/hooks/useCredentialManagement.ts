@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { credentialService } from '@/services/credentialService';
+import { supabase } from '@/integrations/supabase/client';
 import type { Integration, IntegrationCredential, CreateCredentialRequest } from '@/services/credentialService';
 
 export const useCredentialManagement = () => {
@@ -13,13 +13,30 @@ export const useCredentialManagement = () => {
   // Fetch available integrations
   const { data: availableIntegrations = [], isLoading: loadingIntegrations } = useQuery({
     queryKey: ['available-integrations'],
-    queryFn: credentialService.getAvailableIntegrations,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('integrations')
+        .select('*')
+        .eq('is_active', true)
+        .order('name');
+      
+      if (error) throw error;
+      return data as Integration[];
+    },
   });
 
   // Fetch user credentials
   const { data: userCredentials = [], isLoading: loadingCredentials } = useQuery({
     queryKey: ['user-credentials'],
-    queryFn: credentialService.getUserCredentials,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('integration_credentials')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data as IntegrationCredential[];
+    },
   });
 
   // Enhanced create credential with auto-test
@@ -30,18 +47,35 @@ export const useCredentialManagement = () => {
       try {
         // Step 1: Add credential
         toast.loading('Saving credential...', { id: 'credential-operation' });
-        const credential = await credentialService.createCredential(data);
+        
+        const { data: credential, error } = await supabase
+          .from('integration_credentials')
+          .insert({
+            integration_id: data.integration_id,
+            credential_name: data.credential_name,
+            encrypted_credentials: data.credentials,
+            credential_type: data.credential_type || 'api_key',
+          })
+          .select()
+          .single();
+        
+        if (error) throw error;
         
         // Step 2: Auto-test the credential
         toast.loading('Testing connection...', { id: 'credential-operation' });
-        setIsTestingCredential(credential.credential_id);
+        setIsTestingCredential(credential.id);
         
-        const testResult = await credentialService.testCredential(credential.credential_id);
+        const { data: testResult, error: testError } = await supabase.functions.invoke('test-integration-credential', {
+          body: { credential_id: credential.id }
+        });
         
-        if (testResult.status === 'success') {
+        if (testError) {
+          console.error('Test error:', testError);
+          toast.error(`Credential added but connection test failed: ${testError.message}`, { id: 'credential-operation' });
+        } else if (testResult?.success) {
           toast.success('Credential added and verified successfully!', { id: 'credential-operation' });
         } else {
-          toast.error(`Credential added but connection failed: ${testResult.error_details || 'Unknown error'}`, { id: 'credential-operation' });
+          toast.error(`Credential added but connection failed: ${testResult?.message || 'Unknown error'}`, { id: 'credential-operation' });
         }
         
         return credential;
@@ -67,7 +101,11 @@ export const useCredentialManagement = () => {
       toast.loading('Testing connection...', { id: `test-${credentialId}` });
       
       try {
-        const result = await credentialService.testCredential(credentialId);
+        const { data: result, error } = await supabase.functions.invoke('test-integration-credential', {
+          body: { credential_id: credentialId }
+        });
+        
+        if (error) throw error;
         return { credentialId, result };
       } finally {
         setIsTestingCredential(null);
@@ -75,10 +113,10 @@ export const useCredentialManagement = () => {
     },
     onSuccess: ({ credentialId, result }) => {
       queryClient.invalidateQueries({ queryKey: ['user-credentials'] });
-      if (result.status === 'success') {
+      if (result?.success) {
         toast.success('Connection test successful!', { id: `test-${credentialId}` });
       } else {
-        toast.error(`Connection test failed: ${result.error_details || 'Unknown error'}`, { id: `test-${credentialId}` });
+        toast.error(`Connection test failed: ${result?.message || 'Unknown error'}`, { id: `test-${credentialId}` });
       }
     },
     onError: (error: Error, credentialId) => {
@@ -88,7 +126,14 @@ export const useCredentialManagement = () => {
 
   // Delete credential mutation
   const deleteCredentialMutation = useMutation({
-    mutationFn: credentialService.deleteCredential,
+    mutationFn: async (credentialId: string) => {
+      const { error } = await supabase
+        .from('integration_credentials')
+        .delete()
+        .eq('id', credentialId);
+
+      if (error) throw error;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-credentials'] });
       toast.success('Credential deleted successfully');

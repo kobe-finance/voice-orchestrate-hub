@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { integrationAPI } from '@/services/api/integrationClient';
+import { supabase } from '@/integrations/supabase/client';
 
 /**
  * Simplified "dumb" integration hook
@@ -14,18 +14,49 @@ export const useIntegrationsNew = () => {
   // Fetch available integrations
   const { data: availableIntegrations = [], isLoading: loadingIntegrations } = useQuery({
     queryKey: ['integrations'],
-    queryFn: integrationAPI.getIntegrations,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('integrations')
+        .select('*')
+        .eq('is_active', true)
+        .order('name');
+      
+      if (error) throw error;
+      return data;
+    },
   });
 
   // Fetch user credentials
   const { data: userCredentials = [], isLoading: loadingCredentials } = useQuery({
     queryKey: ['user-credentials'],
-    queryFn: integrationAPI.getCredentials,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('integration_credentials')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    },
   });
 
   // Create credential mutation
   const addCredentialMutation = useMutation({
-    mutationFn: integrationAPI.addCredential,
+    mutationFn: async (data: any) => {
+      const { data: result, error } = await supabase
+        .from('integration_credentials')
+        .insert({
+          integration_id: data.integration_id,
+          credential_name: data.credential_name,
+          encrypted_credentials: data.credentials,
+          credential_type: data.credential_type || 'api_key',
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return result;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-credentials'] });
       toast.success('Credential added successfully');
@@ -37,10 +68,21 @@ export const useIntegrationsNew = () => {
 
   // Test credential mutation
   const testCredentialMutation = useMutation({
-    mutationFn: integrationAPI.testCredential,
-    onSuccess: () => {
+    mutationFn: async (credentialId: string) => {
+      const { data, error } = await supabase.functions.invoke('test-integration-credential', {
+        body: { credential_id: credentialId }
+      });
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['user-credentials'] });
-      toast.success('Connection test successful');
+      if (result?.success) {
+        toast.success('Connection test successful');
+      } else {
+        toast.error(`Connection test failed: ${result?.message || 'Unknown error'}`);
+      }
     },
     onError: (error: Error) => {
       toast.error(`Connection test failed: ${error.message}`);
@@ -49,7 +91,14 @@ export const useIntegrationsNew = () => {
 
   // Delete credential mutation
   const deleteCredentialMutation = useMutation({
-    mutationFn: integrationAPI.deleteCredential,
+    mutationFn: async (credentialId: string) => {
+      const { error } = await supabase
+        .from('integration_credentials')
+        .delete()
+        .eq('id', credentialId);
+
+      if (error) throw error;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-credentials'] });
       toast.success('Credential deleted successfully');
