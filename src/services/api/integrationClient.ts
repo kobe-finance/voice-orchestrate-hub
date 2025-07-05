@@ -7,40 +7,85 @@ class IntegrationAPI {
   private baseURL: string;
 
   constructor() {
-    this.baseURL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/v1';
+    // Try different possible backend URLs
+    this.baseURL = this.getBackendURL();
+    console.log('IntegrationAPI initialized with baseURL:', this.baseURL);
+  }
+
+  private getBackendURL(): string {
+    // Check environment variable first
+    if (import.meta.env.VITE_API_BASE_URL) {
+      return import.meta.env.VITE_API_BASE_URL;
+    }
+    
+    // For development, try different common patterns
+    const currentHost = window.location.host;
+    
+    // If we're on a preview URL, try the same domain with /api/v1
+    if (currentHost.includes('lovable.app')) {
+      return `${window.location.protocol}//${currentHost}/api/v1`;
+    }
+    
+    // Default to localhost for development
+    return 'http://127.0.0.1:8000/api/v1';
   }
 
   private async getAuthHeaders(): Promise<Record<string, string>> {
-    const { supabase } = await import('@/integrations/supabase/client');
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
+    try {
+      const { supabase } = await import('@/integrations/supabase/client');
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
 
-    if (session?.access_token) {
-      headers['Authorization'] = `Bearer ${session.access_token}`;
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`;
+      }
+
+      return headers;
+    } catch (error) {
+      console.warn('Failed to get auth headers:', error);
+      return {
+        'Content-Type': 'application/json',
+      };
     }
-
-    return headers;
   }
 
   private async makeRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const headers = await this.getAuthHeaders();
+    const url = `${this.baseURL}${endpoint}`;
     
-    const response = await fetch(`${this.baseURL}${endpoint}`, {
-      ...options,
-      headers: {
-        ...headers,
-        ...options.headers,
-      },
-    });
+    console.log(`Making request to: ${url}`);
+    
+    try {
+      const response = await fetch(url, {
+        ...options,
+        headers: {
+          ...headers,
+          ...options.headers,
+        },
+      });
 
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`HTTP ${response.status} for ${url}:`, errorText);
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log(`Successful response from ${url}:`, data);
+      return data;
+    } catch (error) {
+      console.error(`Request failed for ${url}:`, error);
+      
+      // Provide more helpful error messages
+      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+        throw new Error(`Cannot connect to backend at ${url}. Please check if the backend server is running.`);
+      }
+      
+      throw error;
     }
-
-    return response.json();
   }
 
   // Fetches all available provider integrations
