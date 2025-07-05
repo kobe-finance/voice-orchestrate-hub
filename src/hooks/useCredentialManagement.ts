@@ -5,9 +5,10 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import type { Integration } from '@/services/credentialService';
 
-// Use the actual database types from Supabase
-type DatabaseIntegrationCredential = {
-  id: string;
+// Frontend type that maps database fields to expected UI fields
+export interface IntegrationCredential {
+  credential_id: string; // maps to database `id`
+  id: string; // also include id for compatibility
   tenant_id: string;
   user_id: string;
   integration_id: string;
@@ -22,13 +23,19 @@ type DatabaseIntegrationCredential = {
   updated_at: string | null;
   created_by: string | null;
   custom_quota_limits: Record<string, any> | null;
-};
+}
 
 export interface CreateCredentialRequest {
   integration_id: string;
   credential_name: string;
   credentials: Record<string, string>;
 }
+
+// Helper function to convert database record to frontend type
+const convertDbToFrontend = (dbRecord: any): IntegrationCredential => ({
+  ...dbRecord,
+  credential_id: dbRecord.id, // Map id to credential_id for frontend compatibility
+});
 
 export const useCredentialManagement = () => {
   const queryClient = useQueryClient();
@@ -60,7 +67,7 @@ export const useCredentialManagement = () => {
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data as DatabaseIntegrationCredential[];
+      return data.map(convertDbToFrontend);
     },
   });
 
@@ -123,7 +130,7 @@ export const useCredentialManagement = () => {
           toast.error(`Credential added but connection failed: ${testResult?.message || 'Unknown error'}`, { id: 'credential-operation' });
         }
         
-        return credential;
+        return convertDbToFrontend(credential);
       } finally {
         setIsAddingCredential(false);
         setIsTestingCredential(null);

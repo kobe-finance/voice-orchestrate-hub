@@ -7,10 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { Key, Trash2, Check, X, Edit, Loader2 } from "lucide-react";
 import { APICredentialForm } from "./APICredentialForm";
-import { useCredentialManagement } from "@/hooks/useCredentialManagement";
+import { useCredentialManagement, type IntegrationCredential } from "@/hooks/useCredentialManagement";
 import { Loading } from "@/components/ui/loading";
 import IntegrationStatusIndicator from "./IntegrationStatusIndicator";
-import type { IntegrationCredential, Integration } from "@/services/credentialService";
+import type { Integration } from "@/services/credentialService";
 
 export const APICredentialsList = () => {
   const {
