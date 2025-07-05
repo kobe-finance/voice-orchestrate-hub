@@ -1,10 +1,10 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Steps } from '@/components/ui/steps';
-import { CheckCircle, Key, TestTube, Plug } from 'lucide-react';
+import { CheckCircle, Key, TestTube, Plug, AlertCircle } from 'lucide-react';
 import IntegrationCredentialForm from './IntegrationCredentialForm';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import type { Integration, IntegrationCredential } from '@/types/integration';
 
 interface IntegrationFlowWizardProps {
@@ -35,9 +35,17 @@ const IntegrationFlowWizard: React.FC<IntegrationFlowWizardProps> = ({
 }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedCredential, setSelectedCredential] = useState<IntegrationCredential | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const hasCredentials = credentials.length > 0;
   const workingCredential = credentials.find(c => c.last_test_status === 'success');
+
+  // Auto-advance if we already have credentials
+  useEffect(() => {
+    if (hasCredentials && currentStep === 0) {
+      setCurrentStep(1);
+    }
+  }, [hasCredentials, currentStep]);
 
   const steps = [
     {
@@ -61,19 +69,56 @@ const IntegrationFlowWizard: React.FC<IntegrationFlowWizardProps> = ({
   ];
 
   const handleCredentialAdded = async (data: any) => {
-    await onAddCredential(data);
-    setCurrentStep(1);
+    try {
+      setError(null);
+      await onAddCredential(data);
+      setCurrentStep(1);
+    } catch (error: any) {
+      // If credential already exists, just move to next step
+      if (error?.code === '23505' || error?.message?.includes('duplicate key')) {
+        setError('A credential with this name already exists. You can test existing credentials below.');
+        setCurrentStep(1);
+      } else {
+        setError(error?.message || 'Failed to add credential');
+      }
+    }
   };
 
   const handleTestConnection = async (credentialId: string) => {
-    await onTestConnection(credentialId);
-    setSelectedCredential(credentials.find(c => c.id === credentialId) || null);
+    try {
+      setError(null);
+      await onTestConnection(credentialId);
+      const credential = credentials.find(c => c.id === credentialId);
+      setSelectedCredential(credential || null);
+      
+      // If test was successful, auto-advance to install step
+      setTimeout(() => {
+        const updatedCredential = credentials.find(c => c.id === credentialId);
+        if (updatedCredential?.last_test_status === 'success') {
+          setCurrentStep(2);
+        }
+      }, 1000);
+    } catch (error: any) {
+      setError(error?.message || 'Connection test failed');
+    }
   };
 
   const handleInstall = async () => {
-    if (workingCredential) {
-      await onInstall(integration.id, workingCredential.id);
-      onClose();
+    try {
+      setError(null);
+      if (workingCredential) {
+        await onInstall(integration.id, workingCredential.id);
+        onClose();
+      }
+    } catch (error: any) {
+      setError(error?.message || 'Installation failed');
+    }
+  };
+
+  const handleSkipToTest = () => {
+    if (hasCredentials) {
+      setCurrentStep(1);
+      setError(null);
     }
   };
 
@@ -119,16 +164,37 @@ const IntegrationFlowWizard: React.FC<IntegrationFlowWizardProps> = ({
             })}
           </div>
 
+          {/* Error Alert */}
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
           {/* Step content */}
           <div className="min-h-48">
             {currentStep === 0 && (
-              <IntegrationCredentialForm
-                integration={integration}
-                isOpen={true}
-                onClose={() => {}}
-                onSubmit={handleCredentialAdded}
-                isLoading={isLoading}
-              />
+              <div className="space-y-4">
+                {hasCredentials && (
+                  <Alert>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>
+                      You already have credentials for {integration.name}. 
+                      <Button variant="link" className="p-0 h-auto ml-1" onClick={handleSkipToTest}>
+                        Skip to testing
+                      </Button>
+                    </AlertDescription>
+                  </Alert>
+                )}
+                <IntegrationCredentialForm
+                  integration={integration}
+                  isOpen={true}
+                  onClose={() => {}}
+                  onSubmit={handleCredentialAdded}
+                  isLoading={isLoading}
+                />
+              </div>
             )}
 
             {currentStep === 1 && (
@@ -149,9 +215,10 @@ const IntegrationFlowWizard: React.FC<IntegrationFlowWizardProps> = ({
                       <Button
                         size="sm"
                         onClick={() => handleTestConnection(credential.id)}
-                        disabled={credential.last_test_status === 'testing'}
+                        disabled={credential.last_test_status === 'testing' || isLoading}
+                        loading={credential.last_test_status === 'testing' || isLoading}
                       >
-                        {credential.last_test_status === 'testing' ? 'Testing...' : 'Test'}
+                        Test
                       </Button>
                     </div>
                   ))}
@@ -171,8 +238,13 @@ const IntegrationFlowWizard: React.FC<IntegrationFlowWizardProps> = ({
                 <p className="text-sm text-gray-600">
                   Your credentials are working correctly. Click install to activate the {integration.name} integration.
                 </p>
-                <Button onClick={handleInstall} className="w-full" disabled={isLoading}>
-                  {isLoading ? 'Installing...' : 'Install Integration'}
+                <Button 
+                  onClick={handleInstall} 
+                  className="w-full" 
+                  disabled={isLoading}
+                  loading={isLoading}
+                >
+                  Install Integration
                 </Button>
               </div>
             )}
