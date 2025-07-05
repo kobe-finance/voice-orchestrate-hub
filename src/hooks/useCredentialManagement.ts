@@ -3,7 +3,32 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import type { Integration, IntegrationCredential, CreateCredentialRequest } from '@/services/credentialService';
+import type { Integration } from '@/services/credentialService';
+
+// Use the actual database types from Supabase
+type DatabaseIntegrationCredential = {
+  id: string;
+  tenant_id: string;
+  user_id: string;
+  integration_id: string;
+  credential_name: string;
+  encrypted_credentials: Record<string, any>;
+  credential_type: string;
+  expires_at: string | null;
+  last_tested_at: string | null;
+  last_test_status: string | null;
+  last_test_error: any | null;
+  created_at: string | null;
+  updated_at: string | null;
+  created_by: string | null;
+  custom_quota_limits: Record<string, any> | null;
+};
+
+export interface CreateCredentialRequest {
+  integration_id: string;
+  credential_name: string;
+  credentials: Record<string, string>;
+}
 
 export const useCredentialManagement = () => {
   const queryClient = useQueryClient();
@@ -35,7 +60,7 @@ export const useCredentialManagement = () => {
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data as IntegrationCredential[];
+      return data as DatabaseIntegrationCredential[];
     },
   });
 
@@ -45,6 +70,24 @@ export const useCredentialManagement = () => {
       setIsAddingCredential(true);
       
       try {
+        // Get current user and tenant info
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('User not authenticated');
+
+        // Get user's tenant ID from their metadata or organizations
+        const { data: orgMemberships } = await supabase
+          .from('organization_members')
+          .select('organization_id')
+          .eq('user_id', user.id)
+          .eq('is_active', true)
+          .limit(1);
+
+        if (!orgMemberships || orgMemberships.length === 0) {
+          throw new Error('User does not belong to any organization');
+        }
+
+        const tenantId = orgMemberships[0].organization_id;
+
         // Step 1: Add credential
         toast.loading('Saving credential...', { id: 'credential-operation' });
         
@@ -54,7 +97,9 @@ export const useCredentialManagement = () => {
             integration_id: data.integration_id,
             credential_name: data.credential_name,
             encrypted_credentials: data.credentials,
-            credential_type: data.credential_type || 'api_key',
+            credential_type: 'api_key',
+            tenant_id: tenantId,
+            user_id: user.id,
           })
           .select()
           .single();

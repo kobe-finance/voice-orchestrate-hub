@@ -43,6 +43,24 @@ export const useIntegrationsNew = () => {
   // Create credential mutation
   const addCredentialMutation = useMutation({
     mutationFn: async (data: any) => {
+      // Get current user and tenant info
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      // Get user's tenant ID from their metadata or organizations
+      const { data: orgMemberships } = await supabase
+        .from('organization_members')
+        .select('organization_id')
+        .eq('user_id', user.id)
+        .eq('is_active', true)
+        .limit(1);
+
+      if (!orgMemberships || orgMemberships.length === 0) {
+        throw new Error('User does not belong to any organization');
+      }
+
+      const tenantId = orgMemberships[0].organization_id;
+
       const { data: result, error } = await supabase
         .from('integration_credentials')
         .insert({
@@ -50,6 +68,8 @@ export const useIntegrationsNew = () => {
           credential_name: data.credential_name,
           encrypted_credentials: data.credentials,
           credential_type: data.credential_type || 'api_key',
+          tenant_id: tenantId,
+          user_id: user.id,
         })
         .select()
         .single();
