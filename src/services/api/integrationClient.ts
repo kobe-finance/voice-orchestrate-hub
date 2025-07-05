@@ -18,7 +18,12 @@ class IntegrationAPI {
       return import.meta.env.VITE_API_BASE_URL;
     }
     
-    // For development, try different common patterns
+    // For development, always try localhost first if we're in development mode
+    if (import.meta.env.DEV) {
+      return 'http://localhost:8000/api/v1';
+    }
+    
+    // For production, try different common patterns
     const currentHost = window.location.host;
     
     // If we're on a preview URL, try the same domain with /api/v1
@@ -26,7 +31,7 @@ class IntegrationAPI {
       return `${window.location.protocol}//${currentHost}/api/v1`;
     }
     
-    // Default to localhost for development
+    // Default fallback
     return 'http://127.0.0.1:8000/api/v1';
   }
 
