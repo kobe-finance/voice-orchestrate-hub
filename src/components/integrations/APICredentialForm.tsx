@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { DialogFooter } from "@/components/ui/dialog";
-import { Shield } from "lucide-react";
+import { Shield, Loader2 } from "lucide-react";
 import { Integration } from "@/services/credentialService";
 
 // Form schema with validation
@@ -81,6 +81,7 @@ export const APICredentialForm = ({
                 <Input 
                   placeholder={`My ${integration.name} Key`} 
                   {...field} 
+                  disabled={isSubmitting}
                 />
               </FormControl>
               <FormDescription>
@@ -106,6 +107,7 @@ export const APICredentialForm = ({
                   placeholder={getPlaceholder()}
                   {...field}
                   autoComplete="off"
+                  disabled={isSubmitting}
                 />
               </FormControl>
               <FormDescription>
@@ -117,8 +119,12 @@ export const APICredentialForm = ({
         />
 
         <DialogFooter>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Adding...' : 'Add Credential'}
+          <Button 
+            type="submit" 
+            disabled={isSubmitting}
+            loading={isSubmitting}
+          >
+            {isSubmitting ? 'Adding & Testing...' : 'Add Credential'}
           </Button>
         </DialogFooter>
       </form>

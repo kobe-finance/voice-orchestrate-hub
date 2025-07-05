@@ -8,6 +8,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Key, Trash2, Check, X, Edit, Loader2 } from "lucide-react";
 import { APICredentialForm } from "./APICredentialForm";
 import { useCredentialManagement } from "@/hooks/useCredentialManagement";
+import { Loading } from "@/components/ui/loading";
+import IntegrationStatusIndicator from "./IntegrationStatusIndicator";
 import type { IntegrationCredential, Integration } from "@/services/credentialService";
 
 export const APICredentialsList = () => {
@@ -80,16 +82,37 @@ export const APICredentialsList = () => {
     return date.toLocaleDateString() + " " + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusBadge = (status: string, credentialId: string) => {
+    if (isTestingCredential === credentialId) {
+      return (
+        <Badge variant="outline" className="text-blue-600 border-blue-600">
+          <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+          Testing...
+        </Badge>
+      );
+    }
+
     switch (status) {
       case "success":
-        return "bg-green-500";
+        return (
+          <Badge variant="outline" className="text-green-600 border-green-600">
+            <Check className="h-3 w-3 mr-1" />
+            Active
+          </Badge>
+        );
       case "failed":
-        return "bg-red-500";
-      case "untested":
-        return "bg-yellow-500";
+        return (
+          <Badge variant="outline" className="text-red-600 border-red-600">
+            <X className="h-3 w-3 mr-1" />
+            Failed
+          </Badge>
+        );
       default:
-        return "bg-gray-500";
+        return (
+          <Badge variant="outline" className="text-yellow-600 border-yellow-600">
+            Needs Testing
+          </Badge>
+        );
     }
   };
 
@@ -99,12 +122,7 @@ export const APICredentialsList = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <Loader2 className="h-8 w-8 animate-spin" />
-        <span className="ml-2">Loading credentials...</span>
-      </div>
-    );
+    return <Loading text="Loading credentials..." className="py-8" />;
   }
 
   return (
@@ -135,7 +153,6 @@ export const APICredentialsList = () => {
           </span>
         </div>
         
-        {/* Available Integrations */}
         <div className="flex gap-2">
           {availableIntegrations.slice(0, 3).map((integration) => (
             <Button
@@ -147,8 +164,9 @@ export const APICredentialsList = () => {
                 setIsAddDialogOpen(true);
               }}
               disabled={isAddingCredential}
+              loading={isAddingCredential}
             >
-              <Key className="mr-2 h-4 w-4" />
+              {!isAddingCredential && <Key className="mr-2 h-4 w-4" />}
               Connect {integration.name}
             </Button>
           ))}
@@ -190,12 +208,7 @@ export const APICredentialsList = () => {
                     </Badge>
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
-                    <div className="flex items-center">
-                      <span
-                        className={`h-2 w-2 rounded-full mr-2 ${getStatusColor(cred.last_test_status)}`}
-                      ></span>
-                      <span className="capitalize">{cred.last_test_status}</span>
-                    </div>
+                    {getStatusBadge(cred.last_test_status || 'untested', cred.credential_id)}
                   </TableCell>
                   <TableCell className="hidden md:table-cell text-muted-foreground">
                     {formatDate(cred.created_at)}
@@ -207,11 +220,10 @@ export const APICredentialsList = () => {
                         size="icon"
                         onClick={() => handleTestConnection(cred.credential_id)}
                         disabled={isTestingCredential === cred.credential_id}
+                        loading={isTestingCredential === cred.credential_id}
                         title="Test Connection"
                       >
-                        {isTestingCredential === cred.credential_id ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
+                        {isTestingCredential !== cred.credential_id && (
                           <Check className="h-4 w-4" />
                         )}
                       </Button>
@@ -278,15 +290,9 @@ export const APICredentialsList = () => {
               variant="destructive"
               onClick={handleDeleteCredential}
               disabled={isDeletingCredential}
+              loading={isDeletingCredential}
             >
-              {isDeletingCredential ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Deleting...
-                </>
-              ) : (
-                'Delete'
-              )}
+              Delete
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -8,6 +8,7 @@ import type { Integration, IntegrationCredential, CreateCredentialRequest } from
 export const useCredentialManagement = () => {
   const queryClient = useQueryClient();
   const [isTestingCredential, setIsTestingCredential] = useState<string | null>(null);
+  const [isAddingCredential, setIsAddingCredential] = useState(false);
 
   // Fetch available integrations
   const { data: availableIntegrations = [], isLoading: loadingIntegrations } = useQuery({
@@ -21,22 +22,50 @@ export const useCredentialManagement = () => {
     queryFn: credentialService.getUserCredentials,
   });
 
-  // Create credential mutation
+  // Enhanced create credential with auto-test
   const createCredentialMutation = useMutation({
-    mutationFn: credentialService.createCredential,
+    mutationFn: async (data: CreateCredentialRequest) => {
+      setIsAddingCredential(true);
+      
+      try {
+        // Step 1: Add credential
+        toast.loading('Saving credential...', { id: 'credential-operation' });
+        const credential = await credentialService.createCredential(data);
+        
+        // Step 2: Auto-test the credential
+        toast.loading('Testing connection...', { id: 'credential-operation' });
+        setIsTestingCredential(credential.credential_id);
+        
+        const testResult = await credentialService.testCredential(credential.credential_id);
+        
+        if (testResult.status === 'success') {
+          toast.success('Credential added and verified successfully!', { id: 'credential-operation' });
+        } else {
+          toast.error(`Credential added but connection failed: ${testResult.error_details || 'Unknown error'}`, { id: 'credential-operation' });
+        }
+        
+        return credential;
+      } finally {
+        setIsAddingCredential(false);
+        setIsTestingCredential(null);
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-credentials'] });
-      toast.success('Credential added successfully');
     },
     onError: (error: Error) => {
-      toast.error(`Failed to add credential: ${error.message}`);
+      toast.error(`Failed to add credential: ${error.message}`, { id: 'credential-operation' });
+      setIsAddingCredential(false);
+      setIsTestingCredential(null);
     },
   });
 
-  // Test credential mutation
+  // Manual test credential mutation
   const testCredentialMutation = useMutation({
     mutationFn: async (credentialId: string) => {
       setIsTestingCredential(credentialId);
+      toast.loading('Testing connection...', { id: `test-${credentialId}` });
+      
       try {
         const result = await credentialService.testCredential(credentialId);
         return { credentialId, result };
@@ -47,14 +76,13 @@ export const useCredentialManagement = () => {
     onSuccess: ({ credentialId, result }) => {
       queryClient.invalidateQueries({ queryKey: ['user-credentials'] });
       if (result.status === 'success') {
-        toast.success('Connection test successful');
+        toast.success('Connection test successful!', { id: `test-${credentialId}` });
       } else {
-        toast.error(`Connection test failed: ${result.error_details || 'Unknown error'}`);
+        toast.error(`Connection test failed: ${result.error_details || 'Unknown error'}`, { id: `test-${credentialId}` });
       }
     },
-    onError: (error: Error) => {
-      setIsTestingCredential(null);
-      toast.error(`Connection test failed: ${error.message}`);
+    onError: (error: Error, credentialId) => {
+      toast.error(`Connection test failed: ${error.message}`, { id: `test-${credentialId}` });
     },
   });
 
@@ -77,7 +105,7 @@ export const useCredentialManagement = () => {
     
     // Loading states
     isLoading: loadingIntegrations || loadingCredentials,
-    isAddingCredential: createCredentialMutation.isPending,
+    isAddingCredential,
     isTestingCredential,
     isDeletingCredential: deleteCredentialMutation.isPending,
     
