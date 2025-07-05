@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { Key, Trash2, Check, X, Edit, Loader2 } from "lucide-react";
 import { APICredentialForm } from "./APICredentialForm";
 import { useCredentialManagement } from "@/hooks/useCredentialManagement";
@@ -49,10 +49,10 @@ export const APICredentialsList = () => {
         credential_name: newCredential.name,
         credentials: { [newCredential.credentialKey]: newCredential.value }
       });
-      setIsAddDialogOpen(false);
-      setSelectedIntegration(null);
+      handleCloseAddDialog();
     } catch (error) {
-      // Error handled by the hook
+      console.error('Add credential error:', error);
+      // Error is handled by the hook with toast
     }
   };
 
@@ -64,7 +64,8 @@ export const APICredentialsList = () => {
       setIsDeleteDialogOpen(false);
       setSelectedCredential(null);
     } catch (error) {
-      // Error handled by the hook
+      console.error('Delete credential error:', error);
+      // Error is handled by the hook with toast
     }
   };
 
@@ -72,8 +73,19 @@ export const APICredentialsList = () => {
     try {
       await testCredential(credentialId);
     } catch (error) {
-      // Error handled by the hook
+      console.error('Test connection error:', error);
+      // Error is handled by the hook with toast
     }
+  };
+
+  const handleOpenAddDialog = (integration: Integration) => {
+    setSelectedIntegration(integration);
+    setIsAddDialogOpen(true);
+  };
+
+  const handleCloseAddDialog = () => {
+    setIsAddDialogOpen(false);
+    setSelectedIntegration(null);
   };
 
   const formatDate = (dateStr?: string) => {
@@ -159,10 +171,7 @@ export const APICredentialsList = () => {
               key={integration.id}
               variant="outline"
               size="sm"
-              onClick={() => {
-                setSelectedIntegration(integration);
-                setIsAddDialogOpen(true);
-              }}
+              onClick={() => handleOpenAddDialog(integration)}
               disabled={isAddingCredential}
               loading={isAddingCredential}
             >
@@ -252,6 +261,13 @@ export const APICredentialsList = () => {
       {/* Add New Credential Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent className="sm:max-w-lg">
+          <DialogClose 
+            className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
+            onClick={handleCloseAddDialog}
+          >
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </DialogClose>
           <DialogHeader>
             <DialogTitle>
               Connect to {selectedIntegration?.name}
@@ -264,6 +280,7 @@ export const APICredentialsList = () => {
             <APICredentialForm
               integration={selectedIntegration}
               onSubmit={handleAddCredential}
+              onCancel={handleCloseAddDialog}
               isSubmitting={isAddingCredential}
             />
           )}
@@ -279,7 +296,7 @@ export const APICredentialsList = () => {
               Are you sure you want to delete "{selectedCredential?.credential_name}"? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
+          <div className="flex justify-end gap-2 pt-4">
             <Button
               variant="outline"
               onClick={() => setIsDeleteDialogOpen(false)}
@@ -294,7 +311,7 @@ export const APICredentialsList = () => {
             >
               Delete
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

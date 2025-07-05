@@ -22,13 +22,15 @@ const formSchema = z.object({
 
 interface APICredentialFormProps {
   integration: Integration;
-  onSubmit: (values: { name: string; value: string; credentialKey: string }) => void;
+  onSubmit: (values: { name: string; value: string; credentialKey: string }) => Promise<void>;
+  onCancel?: () => void;
   isSubmitting?: boolean;
 }
 
 export const APICredentialForm = ({
   integration,
   onSubmit,
+  onCancel,
   isSubmitting = false,
 }: APICredentialFormProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
@@ -39,15 +41,27 @@ export const APICredentialForm = ({
     },
   });
 
-  const handleSubmit = (values: z.infer<typeof formSchema>) => {
-    // Determine the credential key based on auth type
-    const credentialKey = integration.auth_type === 'api_key' ? 'api_key' : 'token';
-    
-    onSubmit({
-      name: values.name,
-      value: values.value,
-      credentialKey,
-    });
+  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      // Determine the credential key based on auth type
+      const credentialKey = integration.auth_type === 'api_key' ? 'api_key' : 'token';
+      
+      await onSubmit({
+        name: values.name,
+        value: values.value,
+        credentialKey,
+      });
+    } catch (error) {
+      console.error('Form submission error:', error);
+    }
+  };
+
+  const handleCancel = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onCancel) {
+      onCancel();
+    }
   };
 
   const getPlaceholder = () => {
@@ -118,7 +132,15 @@ export const APICredentialForm = ({
           )}
         />
 
-        <DialogFooter>
+        <DialogFooter className="gap-2">
+          <Button 
+            type="button"
+            variant="outline"
+            onClick={handleCancel}
+            disabled={isSubmitting}
+          >
+            Cancel
+          </Button>
           <Button 
             type="submit" 
             disabled={isSubmitting}
