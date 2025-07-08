@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { integrationAPI } from '@/services/api/integrationClient';
+import { integrationAPI } from '@/services/integrationAPI';
 
 /**
  * Test component to verify backend connectivity

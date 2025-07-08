@@ -1,37 +1,11 @@
 
 /**
- * Simple Integration API Client
- * This replaces direct Supabase queries with backend API calls
+ * Integration API Client - Updated to work with current architecture
  */
 
 interface ApiResponse<T> {
   data?: T
   error?: string
-}
-
-interface FormField {
-  name: string
-  type: string
-  label: string
-  placeholder?: string
-  validation?: {
-    required?: boolean
-    pattern?: string
-    minLength?: number
-    message: string
-  }
-}
-
-interface FormSchema {
-  integration_id: string
-  fields: FormField[]
-}
-
-interface IntegrationStatus {
-  status: 'not_configured' | 'untested' | 'active' | 'error' | 'quota_exceeded'
-  message: string
-  last_tested_at?: string
-  error_details?: any
 }
 
 class IntegrationAPIClient {
@@ -40,14 +14,12 @@ class IntegrationAPIClient {
   private supabaseAnonKey: string
 
   constructor() {
-    // Use Supabase project URL for edge functions
-    this.supabaseUrl = 'https://cdhihqaylf......supabase.co'
-    this.supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+    this.supabaseUrl = 'https://cdhihqaylfogoztunvkab.supabase.co'
+    this.supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkaGlocWF5bGZnb3p0dW52a2FiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAyNDYwNDMsImV4cCI6MjA2NTgyMjA0M30.DddaHYS36l6jc17-_l_JoLKJ9BoCuzVZDGgv9pb20Us'
     this.baseURL = `${this.supabaseUrl}/functions/v1`
   }
 
   private async getAuthHeaders(): Promise<Record<string, string>> {
-    // Get current session token
     const { supabase } = await import('@/integrations/supabase/client')
     const { data: { session } } = await supabase.auth.getSession()
     
@@ -77,24 +49,54 @@ class IntegrationAPIClient {
     return response.json()
   }
 
-  // Get dynamic form schema for an integration
-  async getFormSchema(integrationId: string): Promise<FormSchema> {
-    return this.request<FormSchema>(`/integration-form-schema/${integrationId}`)
+  async getIntegrations(): Promise<any[]> {
+    const { supabase } = await import('@/integrations/supabase/client')
+    const { data, error } = await supabase
+      .from('integrations')
+      .select('*')
+      .eq('is_active', true)
+    
+    if (error) throw error
+    return data || []
   }
 
-  // Compute integration status using backend logic
-  async computeStatus(integrationId: string): Promise<IntegrationStatus> {
-    return this.request<IntegrationStatus>('/integration-status', {
+  async getCredentials(): Promise<any[]> {
+    const { supabase } = await import('@/integrations/supabase/client')
+    const { data, error } = await supabase
+      .from('integration_credentials')
+      .select('*')
+    
+    if (error) throw error
+    return data || []
+  }
+
+  async getFormSchema(integrationId: string) {
+    return this.request(`/integration-form-schema/${integrationId}`)
+  }
+
+  async createCredential(data: any) {
+    const { supabase } = await import('@/integrations/supabase/client')
+    const { data: result, error } = await supabase
+      .from('integration_credentials')
+      .insert(data)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return result
+  }
+
+  async testCredential(credentialId: string): Promise<{ success: boolean; message?: string }> {
+    return this.request('/test-integration-credential', {
       method: 'POST',
-      body: JSON.stringify({ integration_id: integrationId }),
+      body: JSON.stringify({ credential_id: credentialId }),
     })
   }
 
-  // Test credential (existing function)
-  async testCredential(credentialId: string): Promise<{ success: boolean; message?: string }> {
-    return this.request<{ success: boolean; message?: string }>('/test-integration-credential', {
+  async computeStatus(integrationId: string) {
+    return this.request('/integration-status', {
       method: 'POST',
-      body: JSON.stringify({ credential_id: credentialId }),
+      body: JSON.stringify({ integration_id: integrationId }),
     })
   }
 }
