@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 
 interface AuthContextType {
@@ -10,10 +10,16 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading } = useAuth();
+  const authState = useAuth();
+
+  // Extract the loading state from the existing auth hook
+  const contextValue: AuthContextType = {
+    user: authState.user,
+    loading: authState.isLoading, // Use the correct property name from useAuth
+  };
 
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );
