@@ -3,6 +3,8 @@
  * Integration API Client - Updated to work with current architecture
  */
 
+import { IntegrationFormSchema } from '@/types/integration.types';
+
 interface ApiResponse<T> {
   data?: T
   error?: string
@@ -70,8 +72,8 @@ class IntegrationAPIClient {
     return data || []
   }
 
-  async getFormSchema(integrationId: string) {
-    return this.request(`/integration-form-schema/${integrationId}`)
+  async getFormSchema(integrationId: string): Promise<IntegrationFormSchema> {
+    return this.request<IntegrationFormSchema>(`/integration-form-schema/${integrationId}`)
   }
 
   async createCredential(data: any) {
