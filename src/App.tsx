@@ -7,7 +7,7 @@ import { navItems } from "./nav-items";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import IntegrationsPage from "./pages/IntegrationsPage";
-import { AuthProvider } from "./providers/AuthProvider";
+import { AuthProvider } from "./hooks/useAuth";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -17,10 +17,10 @@ const App = () => {
   
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <BrowserRouter>
+      <BrowserRouter>
+        <AuthProvider>
+          <TooltipProvider>
+            <Toaster />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/dashboard" element={
@@ -42,9 +42,9 @@ const App = () => {
               ))}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </AuthProvider>
+          </TooltipProvider>
+        </AuthProvider>
+      </BrowserRouter>
     </QueryClientProvider>
   );
 };
