@@ -146,24 +146,36 @@ export const useCredentialManagement = () => {
     },
   });
 
-  // Manual test credential mutation
+  // Manual test credential mutation - FIXED to use only Supabase Edge Function
   const testCredentialMutation = useMutation({
     mutationFn: async (credentialId: string) => {
+      console.log('Testing credential:', credentialId);
       setIsTestingCredential(credentialId);
       toast.loading('Testing connection...', { id: `test-${credentialId}` });
       
       try {
+        console.log('Calling Supabase edge function...');
         const { data: result, error } = await supabase.functions.invoke('test-integration-credential', {
           body: { credential_id: credentialId }
         });
         
-        if (error) throw error;
+        console.log('Edge function result:', result, 'Error:', error);
+        
+        if (error) {
+          console.error('Edge function error:', error);
+          throw new Error(error.message || 'Edge function call failed');
+        }
+        
         return { credentialId, result };
+      } catch (error) {
+        console.error('Test credential error:', error);
+        throw error;
       } finally {
         setIsTestingCredential(null);
       }
     },
     onSuccess: ({ credentialId, result }) => {
+      console.log('Test successful:', result);
       queryClient.invalidateQueries({ queryKey: ['user-credentials'] });
       if (result?.success) {
         toast.success('Connection test successful!', { id: `test-${credentialId}` });
@@ -172,6 +184,7 @@ export const useCredentialManagement = () => {
       }
     },
     onError: (error: Error, credentialId) => {
+      console.error('Test mutation error:', error);
       toast.error(`Connection test failed: ${error.message}`, { id: `test-${credentialId}` });
     },
   });
