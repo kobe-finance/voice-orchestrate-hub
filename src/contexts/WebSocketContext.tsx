@@ -19,6 +19,8 @@ interface WebSocketContextType {
 
 const WebSocketContext = createContext<WebSocketContextType | undefined>(undefined);
 
+// Temporarily disable WebSocket connections since the external service doesn't exist
+const WS_ENABLED = false;
 const WS_URL = process.env.NODE_ENV === 'production' 
   ? 'wss://api.voiceorchestrate.com/ws' 
   : 'ws://localhost:8080/ws';
@@ -38,6 +40,13 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
   const RECONNECT_INTERVAL = 3000; // 3 seconds
 
   const connect = () => {
+    // Skip WebSocket connection if disabled
+    if (!WS_ENABLED) {
+      console.log('WebSocket connections are disabled');
+      setConnectionStatus('disconnected');
+      return;
+    }
+
     if (!isAuthenticated || !session?.access_token) {
       return;
     }
@@ -83,8 +92,8 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
         setConnectionStatus('disconnected');
         setSocket(null);
         
-        // Attempt reconnection if not a normal closure
-        if (event.code !== 1000 && reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+        // Only attempt reconnection if WebSocket is enabled and not a normal closure
+        if (WS_ENABLED && event.code !== 1000 && reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
           const timer = setTimeout(() => {
             setReconnectAttempts(prev => prev + 1);
             connect();
@@ -92,7 +101,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
           setReconnectTimer(timer);
         } else if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
           setConnectionStatus('error');
-          toast.error('Failed to maintain real-time connection. Please refresh the page.');
+          console.warn('WebSocket connection failed after maximum attempts');
         }
       };
 
@@ -159,7 +168,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
   };
 
   useEffect(() => {
-    if (isAuthenticated && session) {
+    if (WS_ENABLED && isAuthenticated && session) {
       connect();
     } else {
       disconnect();
