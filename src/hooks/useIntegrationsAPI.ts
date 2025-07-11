@@ -175,14 +175,14 @@ export const useIntegrationsAPI = (): UseIntegrationsAPIReturn => {
       mutate: testCredentialMutation.mutate,
       isLoading: testCredentialMutation.isPending,
     },
-    installIntegration: {
-      mutate: installIntegrationMutation.mutate,
-      isLoading: installIntegrationMutation.isPending,
-    },
-    uninstallIntegration: {
-      mutate: uninstallIntegrationMutation.mutate,
-      isLoading: uninstallIntegrationMutation.isPending,
-    },
+  installIntegration: {
+    mutate: installIntegrationMutation.mutate,
+    isLoading: installIntegrationMutation.isPending,
+  },
+  uninstallIntegration: {
+    mutate: uninstallIntegrationMutation.mutate,
+    isLoading: uninstallIntegrationMutation.isPending,
+  },
     deleteCredential: {
       mutate: deleteCredentialMutation.mutate,
       isLoading: deleteCredentialMutation.isPending,

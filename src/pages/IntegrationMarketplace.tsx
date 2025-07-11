@@ -343,9 +343,9 @@ const IntegrationMarketplace = () => {
             integration={selectedIntegration}
             isOpen={showWizard}
             onClose={handleCloseWizard}
-            onAddCredential={addCredential}
-            onTestConnection={testCredential}
-            onInstall={(integrationId, credentialId) => installIntegration({ integrationId, credentialId })}
+            onAddCredential={async (data) => { await addCredential(data); }}
+            onTestConnection={async (credentialId) => { await testCredential(credentialId); }}
+            onInstall={async (integrationId, credentialId) => { await installIntegration({ integrationId, credentialId }); }}
             credentials={getCredentialsForIntegration(selectedIntegration.id)}
             isLoading={isAddingCredential || isTestingCredential || isInstallingIntegration}
           />

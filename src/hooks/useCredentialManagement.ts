@@ -1,7 +1,7 @@
-
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { api } from '@/services/api';
 import { supabase } from '@/integrations/supabase/client';
 import type { Integration } from '@/services/credentialService';
 
@@ -113,21 +113,23 @@ export const useCredentialManagement = () => {
         
         if (error) throw error;
         
-        // Step 2: Auto-test the credential
+        // Step 2: Auto-test the credential using backend API
         toast.loading('Testing connection...', { id: 'credential-operation' });
         setIsTestingCredential(credential.id);
         
-        const { data: testResult, error: testError } = await supabase.functions.invoke('test-integration-credential', {
-          body: { credential_id: credential.id }
-        });
-        
-        if (testError) {
+        try {
+          const testResult = await api.integrations.testCredential({
+            credential_id: credential.id
+          });
+          
+          if (testResult?.success) {
+            toast.success('Credential added and verified successfully!', { id: 'credential-operation' });
+          } else {
+            toast.error(`Credential added but connection test failed: ${testResult?.error_details?.message || 'Unknown error'}`, { id: 'credential-operation' });
+          }
+        } catch (testError) {
           console.error('Test error:', testError);
-          toast.error(`Credential added but connection test failed: ${testError.message}`, { id: 'credential-operation' });
-        } else if (testResult?.success) {
-          toast.success('Credential added and verified successfully!', { id: 'credential-operation' });
-        } else {
-          toast.error(`Credential added but connection failed: ${testResult?.message || 'Unknown error'}`, { id: 'credential-operation' });
+          toast.error(`Credential added but connection test failed: ${testError instanceof Error ? testError.message : 'Unknown error'}`, { id: 'credential-operation' });
         }
         
         return convertDbToFrontend(credential);
@@ -153,11 +155,10 @@ export const useCredentialManagement = () => {
       toast.loading('Testing connection...', { id: `test-${credentialId}` });
       
       try {
-        const { data: result, error } = await supabase.functions.invoke('test-integration-credential', {
-          body: { credential_id: credentialId }
+        const result = await api.integrations.testCredential({
+          credential_id: credentialId
         });
         
-        if (error) throw error;
         return { credentialId, result };
       } finally {
         setIsTestingCredential(null);
@@ -168,7 +169,7 @@ export const useCredentialManagement = () => {
       if (result?.success) {
         toast.success('Connection test successful!', { id: `test-${credentialId}` });
       } else {
-        toast.error(`Connection test failed: ${result?.message || 'Unknown error'}`, { id: `test-${credentialId}` });
+        toast.error(`Connection test failed: ${result?.error_details?.message || 'Unknown error'}`, { id: `test-${credentialId}` });
       }
     },
     onError: (error: Error, credentialId) => {

@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { api } from '@/services/api';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
@@ -179,12 +180,11 @@ export const useIntegrations = () => {
   // Test credential with optimistic updates
   const testCredential = useMutation({
     mutationFn: async (credentialId: string) => {
-      const { data, error } = await supabase.functions.invoke('test-integration-credential', {
-        body: { credential_id: credentialId }
+      const result = await api.integrations.testCredential({
+        credential_id: credentialId
       });
 
-      if (error) throw error;
-      return data;
+      return result;
     },
     onMutate: async (credentialId) => {
       // Optimistically update status to 'testing'
@@ -218,16 +218,12 @@ export const useIntegrations = () => {
   // Install integration with optimistic updates
   const installIntegration = useMutation({
     mutationFn: async ({ integrationId, credentialId }: { integrationId: string; credentialId: string }) => {
-      const { data, error } = await supabase.functions.invoke('manage-integration', {
-        body: { 
-          action: 'install',
-          integration_id: integrationId,
-          credential_id: credentialId
-        }
+      const result = await api.integrations.installIntegration({
+        integration_id: integrationId,
+        credential_id: credentialId
       });
 
-      if (error) throw error;
-      return data;
+      return result;
     },
     onMutate: async ({ integrationId, credentialId }) => {
       // Optimistically add installing integration
@@ -282,15 +278,9 @@ export const useIntegrations = () => {
   // Uninstall integration
   const uninstallIntegration = useMutation({
     mutationFn: async (userIntegrationId: string) => {
-      const { data, error } = await supabase.functions.invoke('manage-integration', {
-        body: { 
-          action: 'uninstall',
-          user_integration_id: userIntegrationId
-        }
-      });
+      const result = await api.integrations.uninstallIntegration(userIntegrationId);
 
-      if (error) throw error;
-      return data;
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-integrations'] });

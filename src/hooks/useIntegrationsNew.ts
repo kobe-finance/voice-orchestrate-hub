@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { api } from '@/services/api';
 import { supabase } from '@/integrations/supabase/client';
 
 /**
@@ -89,19 +90,18 @@ export const useIntegrationsNew = () => {
   // Test credential mutation
   const testCredentialMutation = useMutation({
     mutationFn: async (credentialId: string) => {
-      const { data, error } = await supabase.functions.invoke('test-integration-credential', {
-        body: { credential_id: credentialId }
+      const result = await api.integrations.testCredential({
+        credential_id: credentialId
       });
 
-      if (error) throw error;
-      return data;
+      return result;
     },
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['user-credentials'] });
       if (result?.success) {
         toast.success('Connection test successful');
       } else {
-        toast.error(`Connection test failed: ${result?.message || 'Unknown error'}`);
+        toast.error(`Connection test failed: ${result?.error_details?.message || 'Unknown error'}`);
       }
     },
     onError: (error: Error) => {
