@@ -3,13 +3,19 @@
  * Handles authentication, error handling, and request/response processing
  */
 
+import { 
+  APIClientError, 
+  createAPIError, 
+  handleAPIError 
+} from './errors';
+
 export interface APIConfig {
   baseURL: string;
   timeout?: number;
   retryAttempts?: number;
 }
 
-export interface APIError {
+export interface APIErrorData {
   code: string;
   message: string;
   details?: Record<string, any>;
@@ -92,9 +98,9 @@ export class APIClient {
         
         if (!response.ok) {
           const errorData = await this.parseErrorResponse(response);
-          throw new APIClientError(
-            errorData.message || `HTTP ${response.status}: ${response.statusText}`,
+          throw createAPIError(
             response.status,
+            errorData.message || `HTTP ${response.status}: ${response.statusText}`,
             errorData.code,
             errorData.details
           );
@@ -107,16 +113,16 @@ export class APIClient {
 
         return await response.json();
       } catch (error) {
-        lastError = error as Error;
+        lastError = handleAPIError(error);
         
         // Don't retry client errors (4xx) or APIClientError
-        if (error instanceof APIClientError && error.statusCode < 500) {
-          throw error;
+        if (lastError instanceof APIClientError && lastError.statusCode < 500) {
+          throw lastError;
         }
         
         // Don't retry on last attempt
         if (attempt === this.retryAttempts) {
-          throw error;
+          throw lastError;
         }
         
         // Wait before retrying (exponential backoff)
@@ -127,7 +133,7 @@ export class APIClient {
     throw lastError!;
   }
 
-  private async parseErrorResponse(response: Response): Promise<Partial<APIError>> {
+  private async parseErrorResponse(response: Response): Promise<Partial<APIErrorData>> {
     try {
       const text = await response.text();
       if (!text) return {};
@@ -167,17 +173,6 @@ export class APIClient {
   }
 }
 
-export class APIClientError extends Error {
-  constructor(
-    message: string,
-    public statusCode: number,
-    public code?: string,
-    public details?: Record<string, any>
-  ) {
-    super(message);
-    this.name = 'APIClientError';
-  }
-}
 
 // Global API client instance
 export const apiClient = new APIClient();

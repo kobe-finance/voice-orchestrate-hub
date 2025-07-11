@@ -256,14 +256,14 @@ export interface DispatchResponse {
 }
 
 // Error Types
-export interface APIError {
+export interface APIErrorData {
   code: string;
   message: string;
   details?: Record<string, any>;
   statusCode: number;
 }
 
-export interface ValidationError {
+export interface ValidationErrorData {
   field: string;
   message: string;
   code: string;
