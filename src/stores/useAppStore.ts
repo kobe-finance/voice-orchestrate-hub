@@ -2,62 +2,40 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-interface User {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: string;
-  tenantId: string;
-  isEmailVerified: boolean;
-}
-
-interface AppState {
-  // User state
-  user: User | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  
-  // UI state
+interface UIState {
+  // Pure UI state only
   sidebarCollapsed: boolean;
   theme: 'light' | 'dark' | 'system';
+  activeModal: string | null;
+  selectedItems: string[];
   
-  // Actions
-  setUser: (user: User | null) => void;
-  setLoading: (loading: boolean) => void;
+  // UI Actions
   setSidebarCollapsed: (collapsed: boolean) => void;
   setTheme: (theme: 'light' | 'dark' | 'system') => void;
-  logout: () => void;
+  setActiveModal: (modal: string | null) => void;
+  setSelectedItems: (items: string[]) => void;
+  clearSelectedItems: () => void;
 }
 
-export const useAppStore = create<AppState>()(
+export const useAppStore = create<UIState>()(
   persist(
     (set) => ({
-      // Initial state
-      user: null,
-      isAuthenticated: false,
-      isLoading: false,
+      // Initial UI state
       sidebarCollapsed: false,
       theme: 'system',
+      activeModal: null,
+      selectedItems: [],
       
-      // Actions
-      setUser: (user) => set({ 
-        user, 
-        isAuthenticated: !!user 
-      }),
-      setLoading: (isLoading) => set({ isLoading }),
+      // Pure UI actions
       setSidebarCollapsed: (sidebarCollapsed) => set({ sidebarCollapsed }),
       setTheme: (theme) => set({ theme }),
-      logout: () => set({ 
-        user: null, 
-        isAuthenticated: false 
-      }),
+      setActiveModal: (activeModal) => set({ activeModal }),
+      setSelectedItems: (selectedItems) => set({ selectedItems }),
+      clearSelectedItems: () => set({ selectedItems: [] }),
     }),
     {
-      name: 'voiceorchestrate-store',
+      name: 'voiceorchestrate-ui-store',
       partialize: (state) => ({
-        user: state.user,
-        isAuthenticated: state.isAuthenticated,
         sidebarCollapsed: state.sidebarCollapsed,
         theme: state.theme,
       }),

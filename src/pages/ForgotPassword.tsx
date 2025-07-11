@@ -24,7 +24,7 @@ type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
-  const { isLoading, setLoading } = useAppStore();
+  const [isLoading, setIsLoading] = useState(false);
   const [lastRequestTime, setLastRequestTime] = useState<number | null>(null);
   const [remainingCooldown, setRemainingCooldown] = useState(0);
   const [emailSent, setEmailSent] = useState(false);
@@ -82,7 +82,7 @@ const ForgotPassword = () => {
       return;
     }
 
-    setLoading(true);
+    setIsLoading(true);
     try {
       console.log("Sending password reset request for:", values.email);
       
@@ -119,7 +119,7 @@ const ForgotPassword = () => {
       console.error("Password reset failed:", error);
       // Error already handled above, don't show additional toast
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 

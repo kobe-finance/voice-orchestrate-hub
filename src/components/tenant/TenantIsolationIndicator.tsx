@@ -1,11 +1,11 @@
 
 import React from 'react';
-import { useTenant } from '@/contexts/TenantContext';
+import { useTenantData } from '@/hooks/useTenantAPI';
 import { Badge } from '@/components/ui/badge';
 import { Shield, Building2 } from 'lucide-react';
 
 export const TenantIsolationIndicator: React.FC = () => {
-  const { currentTenant } = useTenant();
+  const { data: currentTenant } = useTenantData();
 
   if (!currentTenant) return null;
 

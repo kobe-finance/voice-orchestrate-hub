@@ -1,12 +1,13 @@
 
 import React from 'react';
-import { useTenant } from '@/contexts/TenantContext';
+import { useTenantData, useUserRole } from '@/hooks/useTenantAPI';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Building2, Shield, Users, Settings } from 'lucide-react';
 
 export const TenantInfo: React.FC = () => {
-  const { currentTenant, userRole } = useTenant();
+  const { data: currentTenant } = useTenantData();
+  const { data: userRole } = useUserRole();
 
   if (!currentTenant) return null;
 
