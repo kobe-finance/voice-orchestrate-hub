@@ -142,6 +142,7 @@ export interface TenantContext {
   tenant_id: string;
   tenant_name: string;
   user_role: string;
+  organization: Organization;
   quotas: TenantQuota;
   features: string[];
 }
