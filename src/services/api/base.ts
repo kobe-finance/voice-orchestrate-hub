@@ -31,7 +31,7 @@ export class APIClient {
   constructor(config?: Partial<APIConfig>) {
     this.baseURL = this.getBaseURL(config?.baseURL);
     this.timeout = config?.timeout || 30000;
-    this.retryAttempts = config?.retryAttempts || 1; // Reduce retries for development
+    this.retryAttempts = config?.retryAttempts || 1;
     
     console.log('APIClient initialized with baseURL:', this.baseURL);
   }
@@ -121,9 +121,9 @@ export class APIClient {
       // Provide helpful error messages for common issues
       if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
         throw new APIClientError(
+          'Unable to connect to server. Please check your internet connection.',
           0,
           'NETWORK_ERROR',
-          'Unable to connect to server. Please check your internet connection.',
           { originalError: error.message }
         );
       }
