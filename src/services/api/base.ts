@@ -76,13 +76,16 @@ export class APIClient {
     
     console.log(`API ${method} request to:`, url);
     
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+    
     const config: RequestInit = {
       method,
       headers: {
         ...headers,
         ...options.headers,
       },
-      signal: AbortSignal.timeout(this.timeout),
+      signal: controller.signal,
       ...options,
     };
 
@@ -92,6 +95,7 @@ export class APIClient {
 
     try {
       const response = await fetch(url, config);
+      clearTimeout(timeoutId);
       
       if (!response.ok) {
         const errorData = await this.parseErrorResponse(response);
@@ -110,6 +114,7 @@ export class APIClient {
 
       return await response.json();
     } catch (error) {
+      clearTimeout(timeoutId);
       const handledError = handleAPIError(error);
       console.error(`API ${method} ${endpoint} failed:`, handledError);
       

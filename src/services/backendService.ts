@@ -11,6 +11,18 @@ const API_BASE_URL = 'http://127.0.0.1:8000/api/v1';
 
 console.log('Backend service configured for:', API_BASE_URL);
 
+export interface BackendUser {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  tenantId: string;
+  isEmailVerified: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 class BackendService {
   private baseURL: string;
 
@@ -87,8 +99,13 @@ class BackendService {
   }
 
   // User profile
-  async getUserProfile(): Promise<any> {
-    return this.makeRequest<any>('GET', '/users/me');
+  async getUserProfile(): Promise<BackendUser> {
+    return this.makeRequest<BackendUser>('GET', '/users/me');
+  }
+
+  // Update user profile
+  async updateUserProfile(updates: Partial<BackendUser>): Promise<BackendUser> {
+    return this.makeRequest<BackendUser>('PUT', '/users/me', updates);
   }
 }
 

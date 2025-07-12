@@ -27,25 +27,19 @@ export const useBackendAuth = (): UseBackendAuthReturn => {
 
     setIsLoading(true);
     try {
-      const response = await backendService.getUserProfile();
-      
-      if (response.error) {
-        console.error('Backend user fetch error:', response.error);
-        setIsBackendConnected(false);
-        setBackendUser(null);
-        
-        // Only show error toast if it's not a network/connection issue
-        if (!response.error.includes('Network error') && !response.error.includes('fetch')) {
-          toast.error('Failed to sync with backend service');
-        }
-      } else if (response.data) {
-        setBackendUser(response.data);
-        setIsBackendConnected(true);
-      }
+      const user = await backendService.getUserProfile();
+      setBackendUser(user);
+      setIsBackendConnected(true);
     } catch (error) {
-      console.error('Backend auth error:', error);
+      console.error('Backend user fetch error:', error instanceof Error ? error.message : 'Unknown error');
       setIsBackendConnected(false);
       setBackendUser(null);
+      
+      // Only show error toast if it's not a network/connection issue
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      if (!errorMessage.includes('Network error') && !errorMessage.includes('fetch')) {
+        toast.error('Failed to sync with backend service');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -57,22 +51,15 @@ export const useBackendAuth = (): UseBackendAuthReturn => {
     }
 
     try {
-      const response = await backendService.updateUserProfile(updates);
-      
-      if (response.error) {
-        toast.error('Failed to update profile');
-        return false;
-      } else if (response.data) {
-        setBackendUser(response.data);
-        toast.success('Profile updated successfully');
-        return true;
-      }
+      const updatedUser = await backendService.updateUserProfile(updates);
+      setBackendUser(updatedUser);
+      toast.success('Profile updated successfully');
+      return true;
     } catch (error) {
       console.error('Profile update error:', error);
       toast.error('Failed to update profile');
+      return false;
     }
-    
-    return false;
   };
 
   // Sync with backend when Supabase auth state changes
@@ -90,7 +77,7 @@ export const useBackendAuth = (): UseBackendAuthReturn => {
     const checkBackendHealth = async () => {
       try {
         const response = await backendService.healthCheck();
-        if (response.data?.status === 'ok') {
+        if (response.status === 'ok') {
           console.log('Backend service is healthy');
         }
       } catch (error) {
