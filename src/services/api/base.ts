@@ -1,3 +1,4 @@
+
 /**
  * Base HTTP client for all API communications
  * Handles authentication, error handling, and request/response processing
@@ -30,19 +31,16 @@ export class APIClient {
   constructor(config?: Partial<APIConfig>) {
     this.baseURL = this.getBaseURL(config?.baseURL);
     this.timeout = config?.timeout || 30000;
-    this.retryAttempts = config?.retryAttempts || 3;
+    this.retryAttempts = config?.retryAttempts || 1; // Reduce retries for development
+    
+    console.log('APIClient initialized with baseURL:', this.baseURL);
   }
 
   private getBaseURL(override?: string): string {
     if (override) return override;
     
-    // For development, use localhost
-    if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
-      return 'http://127.0.0.1:8000/api/v1';
-    }
-    
-    // For production, use environment variable or fallback
-    return import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/v1';
+    // Always use localhost for development - the backend should be running locally
+    return 'http://127.0.0.1:8000/api/v1';
   }
 
   private async getAuthHeaders(): Promise<Record<string, string>> {
@@ -76,6 +74,8 @@ export class APIClient {
     const headers = await this.getAuthHeaders();
     const url = `${this.baseURL}${endpoint}`;
     
+    console.log(`API ${method} request to:`, url);
+    
     const config: RequestInit = {
       method,
       headers: {
@@ -90,47 +90,41 @@ export class APIClient {
       config.body = JSON.stringify(data);
     }
 
-    let lastError: Error;
-    
-    for (let attempt = 1; attempt <= this.retryAttempts; attempt++) {
-      try {
-        const response = await fetch(url, config);
-        
-        if (!response.ok) {
-          const errorData = await this.parseErrorResponse(response);
-          throw createAPIError(
-            response.status,
-            errorData.message || `HTTP ${response.status}: ${response.statusText}`,
-            errorData.code,
-            errorData.details
-          );
-        }
-
-        // Handle empty responses (like DELETE)
-        if (response.status === 204 || response.headers.get('content-length') === '0') {
-          return {} as T;
-        }
-
-        return await response.json();
-      } catch (error) {
-        lastError = handleAPIError(error);
-        
-        // Don't retry client errors (4xx) or APIClientError
-        if (lastError instanceof APIClientError && lastError.statusCode < 500) {
-          throw lastError;
-        }
-        
-        // Don't retry on last attempt
-        if (attempt === this.retryAttempts) {
-          throw lastError;
-        }
-        
-        // Wait before retrying (exponential backoff)
-        await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+    try {
+      const response = await fetch(url, config);
+      
+      if (!response.ok) {
+        const errorData = await this.parseErrorResponse(response);
+        throw createAPIError(
+          response.status,
+          errorData.message || `HTTP ${response.status}: ${response.statusText}`,
+          errorData.code,
+          errorData.details
+        );
       }
+
+      // Handle empty responses (like DELETE)
+      if (response.status === 204 || response.headers.get('content-length') === '0') {
+        return {} as T;
+      }
+
+      return await response.json();
+    } catch (error) {
+      const handledError = handleAPIError(error);
+      console.error(`API ${method} ${endpoint} failed:`, handledError);
+      
+      // Provide helpful error messages for common issues
+      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+        throw new APIClientError(
+          0,
+          'NETWORK_ERROR',
+          'Unable to connect to server. Please check your internet connection.',
+          { originalError: error.message }
+        );
+      }
+      
+      throw handledError;
     }
-    
-    throw lastError!;
   }
 
   private async parseErrorResponse(response: Response): Promise<Partial<APIErrorData>> {
@@ -172,7 +166,6 @@ export class APIClient {
     return this.makeRequest<T>('DELETE', endpoint, undefined, options);
   }
 }
-
 
 // Global API client instance
 export const apiClient = new APIClient();

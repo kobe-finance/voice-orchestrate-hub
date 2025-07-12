@@ -1,107 +1,95 @@
 
+/**
+ * Backend Service - Simplified API client
+ * Handles communication with the FastAPI backend
+ */
+
 import { supabase } from '@/integrations/supabase/client';
 
-interface BackendUser {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: string;
-  tenantId: string;
-  isEmailVerified: boolean;
-}
+// Use consistent localhost URL for development
+const API_BASE_URL = 'http://127.0.0.1:8000/api/v1';
 
-interface BackendResponse<T> {
-  data?: T;
-  error?: string;
-  message?: string;
-}
+console.log('Backend service configured for:', API_BASE_URL);
 
 class BackendService {
-  private baseURL = process.env.NODE_ENV === 'production' 
-    ? 'https://your-backend-api.com/api/v1' 
-    : 'http://localhost:8000/api/v1';
+  private baseURL: string;
 
-  private async getAuthHeaders(): Promise<Record<string, string>> {
-    const { data: { session } } = await supabase.auth.getSession();
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-
-    if (session?.access_token) {
-      headers['Authorization'] = `Bearer ${session.access_token}`;
-    }
-
-    return headers;
+  constructor() {
+    this.baseURL = API_BASE_URL;
   }
 
-  private async makeRequest<T>(
-    endpoint: string, 
-    options: RequestInit = {}
-  ): Promise<BackendResponse<T>> {
+  private async getAuthHeaders(): Promise<Record<string, string>> {
     try {
-      const headers = await this.getAuthHeaders();
+      const { data: { session } } = await supabase.auth.getSession();
       
-      const response = await fetch(`${this.baseURL}${endpoint}`, {
-        ...options,
-        headers: {
-          ...headers,
-          ...options.headers,
-        },
-      });
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        return {
-          error: data.message || `HTTP ${response.status}: ${response.statusText}`,
-          data: undefined,
-        };
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`;
       }
 
-      return { data };
+      return headers;
     } catch (error) {
-      console.error('Backend service error:', error);
+      console.warn('Failed to get auth headers:', error);
       return {
-        error: error instanceof Error ? error.message : 'Network error occurred',
-        data: undefined,
+        'Content-Type': 'application/json',
       };
     }
   }
 
-  // User Profile Methods
-  async getUserProfile(): Promise<BackendResponse<BackendUser>> {
-    return this.makeRequest<BackendUser>('/users/me');
+  private async makeRequest<T>(
+    method: string,
+    endpoint: string,
+    data?: any
+  ): Promise<T> {
+    const headers = await this.getAuthHeaders();
+    const url = `${this.baseURL}${endpoint}`;
+    
+    console.log(`Making ${method} request to:`, url);
+
+    try {
+      const config: RequestInit = {
+        method,
+        headers,
+      };
+
+      if (data && (method === 'POST' || method === 'PUT' || method === 'PATCH')) {
+        config.body = JSON.stringify(data);
+      }
+
+      const response = await fetch(url, config);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
+
+      // Handle empty responses
+      if (response.status === 204 || response.headers.get('content-length') === '0') {
+        return {} as T;
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Backend service error:', error);
+      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+        throw new Error('Unable to connect to backend server. Make sure it\'s running on http://127.0.0.1:8000');
+      }
+      throw error;
+    }
   }
 
-  async updateUserProfile(updates: Partial<BackendUser>): Promise<BackendResponse<BackendUser>> {
-    return this.makeRequest<BackendUser>('/users/me', {
-      method: 'PUT',
-      body: JSON.stringify(updates),
-    });
+  // Health check
+  async healthCheck(): Promise<{ status: string }> {
+    return this.makeRequest<{ status: string }>('GET', '/health');
   }
 
-  // Business Logic Methods (examples)
-  async getUserDashboardData(): Promise<BackendResponse<any>> {
-    return this.makeRequest<any>('/dashboard');
-  }
-
-  async getVoiceAgents(): Promise<BackendResponse<any[]>> {
-    return this.makeRequest<any[]>('/voice-agents');
-  }
-
-  async createVoiceAgent(agentData: any): Promise<BackendResponse<any>> {
-    return this.makeRequest<any>('/voice-agents', {
-      method: 'POST',
-      body: JSON.stringify(agentData),
-    });
-  }
-
-  // Health check to verify backend connectivity
-  async healthCheck(): Promise<BackendResponse<{ status: string }>> {
-    return this.makeRequest<{ status: string }>('/health');
+  // User profile
+  async getUserProfile(): Promise<any> {
+    return this.makeRequest<any>('GET', '/users/me');
   }
 }
 
 export const backendService = new BackendService();
-export type { BackendUser, BackendResponse };
